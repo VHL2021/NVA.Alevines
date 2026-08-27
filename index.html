@@ -120,6 +120,7 @@
             flex-direction: column;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+            transition: height 0.3s ease;
         }
 
         .modal-header {
@@ -129,6 +130,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid #444;
+            flex-shrink: 0;
         }
 
         .modal-header h2 {
@@ -184,6 +186,7 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior: contain;
+            flex-grow: 1;
         }
 
         .date-range-modal-content {
@@ -362,11 +365,105 @@
 
         #contenedorRecuadros {
             width: 100%;
-            padding-top: 1vh;
-            padding-bottom: 3vh;
+            padding: 1vh 2vw 3vh;
             display: flex;
             flex-direction: column;
             gap: 1.5vh;
+        }
+
+        /* Estilos de los partidos generados */
+        .card-partido {
+            background-color: #181818;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .card-partido-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 250px;
+        }
+
+        .card-partido-detalles {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge-rol {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        .badge-casa { background-color: #28a745; color: #fff; }
+        .badge-fuera { background-color: #dc3545; color: #fff; }
+
+        .input-partido {
+            background-color: #242424;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 8px 10px;
+            border-radius: 4px;
+            outline: none;
+            font-size: 0.95em;
+        }
+
+        .input-partido:focus {
+            border-color: #00b0f0;
+        }
+
+        .input-hora {
+            width: 110px;
+            text-align: center;
+        }
+
+        .input-rival {
+            width: 200px;
+        }
+
+        /* Botón Flotante ORDENAR */
+        .btn-flotante-ordenar {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background-color: #00b0f0;
+            color: #000000;
+            border: none;
+            padding: 14px 24px;
+            font-size: 1.05em;
+            font-weight: 800;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 176, 240, 0.4);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-flotante-ordenar:hover {
+            background-color: #0090c7;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 176, 240, 0.6);
+        }
+
+        .btn-flotante-ordenar:active {
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -382,6 +479,15 @@
         <div id="campoGeneral" class="campo-general" aria-live="polite"></div>
         <div id="contenedorRecuadros"></div>
     </div>
+
+    <!-- Botón Flotante ORDENAR -->
+    <button type="button" class="btn-flotante-ordenar" onclick="ordenarPartidosPorHora()" title="Ordenar partidos por hora">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <polyline points="19 12 12 19 5 12"></polyline>
+        </svg>
+        Ordenar
+    </button>
 
     <!-- 1 & 2. Modal Calendario Día -->
     <div class="modal-overlay" id="modalDateRange">
@@ -454,7 +560,11 @@
         let calFechaSeleccionada = null;
 
         let equiposNVA = [];
-        let eleccionesEquipos = {};
+        // Estructura de filas activas en el modal para permitir múltiples partidos por equipo
+        let filasSeleccionadas = [];
+        let contadorFilasUnicas = 0;
+
+        let partidosCreados = [];
 
         let contadorModalesAbiertos = 0;
         let scrollYAntesDelModal = 0;
@@ -473,12 +583,10 @@
                 const arrayBuffer = await response.arrayBuffer();
                 const workbook = XLSX.read(arrayBuffer, { type: 'array' });
                 
-                // Leer hoja "Equipos NVA" o la primera disponible
                 const sheetName = workbook.SheetNames.includes("Equipos NVA") ? "Equipos NVA" : workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 const jsonDatos = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-                // Procesar filas (omitir cabecera)
                 equiposNVA = [];
                 for (let i = 1; i < jsonDatos.length; i++) {
                     const fila = jsonDatos[i];
@@ -491,6 +599,7 @@
                     }
                 }
 
+                inicializarFilasModal();
                 renderizarTablaEquipos();
             } catch (error) {
                 console.error("Error al cargar Excel:", error);
@@ -498,6 +607,19 @@
                     tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#dc3545;">Error al cargar 'DATOS.xls'. Asegúrate de que el archivo existe en la carpeta raíz.</td></tr>`;
                 }
             }
+        }
+
+        function inicializarFilasModal() {
+            filasSeleccionadas = [];
+            contadorFilasUnicas = 0;
+            equiposNVA.forEach(equipo => {
+                contadorFilasUnicas++;
+                filasSeleccionadas.push({
+                    rowId: `row-${contadorFilasUnicas}`,
+                    equipoId: equipo.id,
+                    rol: null
+                });
+            });
         }
 
         function renderizarTablaEquipos() {
@@ -510,37 +632,61 @@
             }
 
             tbody.innerHTML = '';
-            equiposNVA.forEach(equipo => {
+            filasSeleccionadas.forEach(item => {
+                const equipo = equiposNVA.find(e => e.id === item.equipoId);
+                if (!equipo) return;
+
                 const tr = document.createElement('tr');
-                tr.id = `fila-equipo-${equipo.id}`;
+                tr.id = item.rowId;
                 
-                const seleccion = eleccionesEquipos[equipo.id] || null;
-                if (seleccion === 'casa') tr.className = 'selected-casa';
-                if (seleccion === 'fuera') tr.className = 'selected-fuera';
+                if (item.rol === 'casa') tr.className = 'selected-casa';
+                if (item.rol === 'fuera') tr.className = 'selected-fuera';
 
                 tr.innerHTML = `
                     <td><img src="${equipo.logo}" class="team-icon" alt="" onerror="this.style.display='none'"></td>
                     <td style="font-weight: 600;">${equipo.nombre}</td>
                     <td style="text-align: center; white-space: nowrap;">
-                        <button type="button" class="btn-casa" onclick="seleccionarRol(${equipo.id}, 'casa')">CASA</button>
-                        <button type="button" class="btn-fuera" onclick="seleccionarRol(${equipo.id}, 'fuera')">FUERA</button>
+                        <button type="button" class="btn-casa" onclick="seleccionarRolFila('${item.rowId}', 'casa')">CASA</button>
+                        <button type="button" class="btn-fuera" onclick="seleccionarRolFila('${item.rowId}', 'fuera')">FUERA</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function seleccionarRol(idEquipo, rol) {
-            if (eleccionesEquipos[idEquipo] === rol) {
-                delete eleccionesEquipos[idEquipo];
+        function seleccionarRolFila(rowId, rol) {
+            const index = filasSeleccionadas.findIndex(item => item.rowId === rowId);
+            if (index === -1) return;
+
+            const filaActual = filasSeleccionadas[index];
+            const teniaRolPrevio = filaActual.rol !== null;
+
+            if (filaActual.rol === rol) {
+                filaActual.rol = null;
+                // Si la fila se limpia y hay más de una fila para este mismo equipo, eliminamos la fila virgen sobrante
+                const filasDelMismoEquipo = filasSeleccionadas.filter(f => f.equipoId === filaActual.equipoId);
+                if (filasDelMismoEquipo.length > 1) {
+                    filasSeleccionadas.splice(index, 1);
+                }
             } else {
-                eleccionesEquipos[idEquipo] = rol;
+                filaActual.rol = rol;
+                // Si la fila no tenía un rol asignado previamente, creamos una nueva fila virgen justo debajo
+                if (!teniaRolPrevio) {
+                    contadorFilasUnicas++;
+                    const nuevaFilaVirgen = {
+                        rowId: `row-${contadorFilasUnicas}`,
+                        equipoId: filaActual.equipoId,
+                        rol: null
+                    };
+                    filasSeleccionadas.splice(index + 1, 0, nuevaFilaVirgen);
+                }
             }
+
             renderizarTablaEquipos();
         }
 
         function resetearSeleccion() {
-            eleccionesEquipos = {};
+            inicializarFilasModal();
             renderizarTablaEquipos();
         }
 
@@ -570,7 +716,6 @@
             }
         }
 
-        // Paso 1: Abrir el calendario
         function abrirCalendarioDia() {
             const modal = document.getElementById('modalDateRange');
             if (!modal) return;
@@ -593,7 +738,6 @@
             alCerrarModal();
         }
 
-        // Paso 2: Al pulsar un día -> se cierra calendario y abre Modal Campo
         function seleccionarDiaCalendario(fecha) {
             const f = new Date(fecha.getTime());
             f.setHours(0, 0, 0, 0);
@@ -604,7 +748,6 @@
             abrirModalCampo();
         }
 
-        // Paso 3: Ventana para introducir campo
         function abrirModalCampo() {
             const modal = document.getElementById('modalCampo');
             if (!modal) return;
@@ -622,7 +765,6 @@
             alCerrarModal();
         }
 
-        // Paso 4: Al Aceptar Campo -> guarda texto y abre Modal Equipos
         function confirmarCampoGeneral() {
             const input = document.getElementById('inputTextoCampo');
             const contenedorCampo = document.getElementById('campoGeneral');
@@ -633,7 +775,6 @@
             abrirModalEquipos();
         }
 
-        // Paso 5: Selección de Equipos
         function abrirModalEquipos() {
             const modal = document.getElementById('modalEquipos');
             if (!modal) return;
@@ -705,8 +846,80 @@
             contenedor.innerHTML = `<span>${textoFinal}</span>`;
         }
 
+        // Crear partidos tras aceptar el modal de equipos
         function confirmarSeleccion() {
+            const seleccionados = filasSeleccionadas.filter(item => item.rol !== null);
+            partidosCreados = seleccionados.map((item, index) => {
+                const equipo = equiposNVA.find(e => e.id === item.equipoId);
+                return {
+                    id: `partido-${index}-${Date.now()}`,
+                    equipo: equipo,
+                    rol: item.rol,
+                    hora: '',
+                    rival: ''
+                };
+            });
+
+            renderizarPartidos();
             cerrarModalEquipos();
+        }
+
+        function renderizarPartidos() {
+            const contenedor = document.getElementById('contenedorRecuadros');
+            if (!contenedor) return;
+
+            contenedor.innerHTML = '';
+            partidosCreados.forEach(partido => {
+                const card = document.createElement('div');
+                card.className = 'card-partido';
+                card.id = partido.id;
+
+                const badgeClass = partido.rol === 'casa' ? 'badge-casa' : 'badge-fuera';
+                const rolTexto = partido.rol === 'casa' ? 'CASA' : 'FUERA';
+
+                card.innerHTML = `
+                    <div class="card-partido-info">
+                        <img src="${partido.equipo.logo}" class="team-icon" alt="" onerror="this.style.display='none'">
+                        <div>
+                            <div style="font-weight: 700; font-size: 1.1em;">${partido.equipo.nombre}</div>
+                            <span class="badge-rol ${badgeClass}">${rolTexto}</span>
+                        </div>
+                    </div>
+                    <div class="card-partido-detalles">
+                        <label style="font-size: 0.9em; color: #aaa;">Hora:
+                            <input type="time" class="input-partido input-hora" value="${partido.hora}" onchange="actualizarHoraPartido('${partido.id}', this.value)">
+                        </label>
+                        <label style="font-size: 0.9em; color: #aaa;">Rival:
+                            <input type="text" class="input-partido input-rival" placeholder="Nombre rival..." value="${partido.rival}" onchange="actualizarRivalPartido('${partido.id}', this.value)">
+                        </label>
+                    </div>
+                `;
+                contenedor.appendChild(card);
+            });
+        }
+
+        function actualizarHoraPartido(partidoId, hora) {
+            const partido = partidosCreados.find(p => p.id === partidoId);
+            if (partido) partido.hora = hora;
+        }
+
+        function actualizarRivalPartido(partidoId, rival) {
+            const partido = partidosCreados.find(p => p.id === partidoId);
+            if (partido) partido.rival = rival;
+        }
+
+        // Función para reordenar los partidos en base a la hora de cada uno de ellos
+        function ordenarPartidosPorHora() {
+            if (partidosCreados.length === 0) return;
+
+            partidosCreados.sort((a, b) => {
+                if (!a.hora && !b.hora) return 0;
+                if (!a.hora) return 1;
+                if (!b.hora) return -1;
+                return a.hora.localeCompare(b.hora);
+            });
+
+            renderizarPartidos();
         }
     </script>
 </body>
