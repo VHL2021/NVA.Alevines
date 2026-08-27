@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>Nou Volei Alzira - Selección de Equipos</title>
+    <!-- Librería SheetJS (XLSX) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Librería html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overscroll-behavior-y: none;
+        }
+        button, [onclick], .cal-cell:not(.empty), .campo-editable-info, .nombre-equipo.campo-editable, .header-hotspot-calendario {
+            touch-action: manipulation;
+        }
+        body.modal-abierto {
+            overflow: hidden;
+        }
+        
+        .header-container {
+            position: relative;
+            width: 100%;
+            cursor: default;
+            background-color: #000;
+            display: block;
+        }
+        
+        .header-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .header-hotspot-calendario {
+            position: absolute;
+            top: 70%;
+            left: 54.5%;
+            width: 4.5%;
+            height: 20%;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .header-texto-fecha {
+            position: absolute;
+            top: 70%;
+            left: 59%;
+            width: 36%;
+            height: auto;
+            color: #ffffff;
+            font-size: 2.5vw;
+            font-size: 2.5cqw;
+            font-weight: 600;
+            font-style: normal !important;
+            font-family: Arial, Helvetica, sans-serif;
+            text-transform: uppercase;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 15;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.9);
+            padding-left: 1vw;
+            padding-left: 1cqw;
+            padding-right: 1vw;
+            padding-right: 1cqw;
+            display: flex;
+            align-items: center;
+            overflow: visible;
+        }
+
+        .header-texto-fecha span {
+            display: inline-block;
+            white-space: nowrap;
+            transform-origin: left center;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.modal-cerrado { display: none !important; visibility: hidden !important; pointer-events: none !important; }
+
+        .modal-content {
+            background-color: #1a1a1a;
+            width: 92%;
+            max-width: 850px;
+            max-height: 85vh;
+            border: 2px solid #444;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+        }
+
+        .modal-header {
+            background-color: #242424;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #444;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.4em;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .header-botones {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-aceptar {
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            padding: 8px 22px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .btn-aceptar:hover {
+                background-color: #004494;
+            }
+        }
+
+        .btn-reset {
+            background-color: #c82333;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .btn-reset:hover {
+                background-color: #a71d2a;
+            }
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+        }
+
+        .date-range-modal-content {
+            background-color: #181818;
+            border: 2px solid #00b0f0;
+            border-radius: 12px;
+            padding: 20px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 10px 35px rgba(0, 176, 240, 0.2);
+            color: #fff;
+        }
+
+        .cal-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .cal-nav button {
+            background: #242424;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .cal-nav button:hover {
+                background: #00b0f0;
+                border-color: #00b0f0;
+            }
+        }
+
+        .cal-nav span {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-transform: capitalize;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            text-align: center;
+        }
+
+        .cal-day-name {
+            font-weight: bold;
+            color: #00b0f0;
+            padding: 8px 0;
+            font-size: 0.85em;
+        }
+
+        .cal-cell {
+            padding: 10px 0;
+            background: #222;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background 0.15s, color 0.15s;
+            user-select: none;
+        }
+
+        .cal-cell.empty {
+            background: transparent;
+            cursor: default;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .cal-cell:not(.empty):hover {
+                background: #333;
+                color: #00b0f0;
+            }
+        }
+
+        .cal-cell.selected-endpoint {
+            background: #00b0f0 !important;
+            color: #000 !important;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 176, 240, 0.6);
+        }
+
+        #modalDateRange.calendario-cerrado {
+            display: none !important;
+        }
+
+        .input-campo-modal {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            border-radius: 6px;
+            border: 2px solid #00b0f0;
+            background-color: #242424;
+            color: #ffffff;
+            outline: none;
+            text-transform: uppercase;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #fff;
+            table-layout: auto;
+        }
+
+        th {
+            background-color: #2a2a2a;
+            padding: 14px 10px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-weight: 600;
+            border-bottom: 2px solid #444;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            vertical-align: middle;
+        }
+        
+        .team-icon {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            background: transparent;
+            padding: 2px;
+        }
+
+        .btn-casa, .btn-fuera {
+            background-color: #2a2a2a;
+            color: #ccc;
+            border: 2px solid #444;
+            padding: 6px 14px;
+            margin-right: 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .btn-casa:hover { background-color: #1e7e34; border-color: #1e7e34; color: #fff; }
+            .btn-fuera:hover { background-color: #bd2130; border-color: #bd2130; color: #fff; }
+        }
+
+        tr.selected-casa { background-color: rgba(40, 167, 69, 0.08); }
+        tr.selected-casa .btn-casa { background-color: #28a745; border-color: #28a745; color: #fff; }
+
+        tr.selected-fuera { background-color: rgba(220, 53, 69, 0.08); }
+        tr.selected-fuera .btn-fuera { background-color: #dc3545; border-color: #dc3545; color: #fff; }
+
+        .campo-general {
+            width: 100%;
+            min-height: 0;
+            padding: 0.8vh 2vw 1.2vh;
+            color: #ffffff;
+            text-align: center;
+            font-weight: 800;
+            font-style: italic;
+            text-transform: uppercase;
+            font-size: clamp(18px, 2.8vw, 34px);
+            line-height: 1.1;
+            letter-spacing: 0.02em;
+            background: #000;
+        }
+        .campo-general:empty { display: none; }
+
+        #contenedorRecuadros {
+            width: 100%;
+            padding-top: 1vh;
+            padding-bottom: 3vh;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5vh;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="areaCaptura" style="background-color: #000000; width: 100%; overflow: hidden;">
+        <div class="header-container" id="cabeceraContainer">
+            <img src="Imagenes/Titulo Base.png" class="header-img" alt="Nou Volei Alzira Calendario">
+            <div class="header-hotspot-calendario" onclick="abrirCalendarioDia()" title="Haz clic para seleccionar la fecha"></div>
+            <div class="header-texto-fecha" id="headerTextoFecha"></div>
+        </div>
+
+        <div id="campoGeneral" class="campo-general" aria-live="polite"></div>
+        <div id="contenedorRecuadros"></div>
+    </div>
+
+    <!-- 1 & 2. Modal Calendario Día -->
+    <div class="modal-overlay" id="modalDateRange">
+        <div class="date-range-modal-content">
+            <div class="cal-nav">
+                <button type="button" onclick="cambiarMesCalendario(-1)">&lt;</button>
+                <span id="calMesAnioLabel">Mes Año</span>
+                <button type="button" onclick="cambiarMesCalendario(1)">&gt;</button>
+            </div>
+            <div class="cal-grid">
+                <div class="cal-day-name">Lu</div>
+                <div class="cal-day-name">Ma</div>
+                <div class="cal-day-name">Mi</div>
+                <div class="cal-day-name">Ju</div>
+                <div class="cal-day-name">Vi</div>
+                <div class="cal-day-name">Sá</div>
+                <div class="cal-day-name">Do</div>
+            </div>
+            <div class="cal-grid" id="calDiasGrid"></div>
+        </div>
+    </div>
+
+    <!-- 3 & 4. Modal Introducir Campo -->
+    <div class="modal-overlay" id="modalCampo">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2>Introducir Campo</h2>
+                <button class="btn-aceptar" onclick="confirmarCampoGeneral()">ACEPTAR</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="inputTextoCampo" class="input-campo-modal" placeholder="Ej: PABELLÓN PÉREZ PUIG" autofocus>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Modal Selección de Equipos -->
+    <div class="modal-overlay" id="modalEquipos">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Selección de equipos</h2>
+                <div class="header-botones">
+                    <button class="btn-reset" onclick="resetearSeleccion()">RESET</button>
+                    <button class="btn-aceptar" onclick="confirmarSeleccion()">ACEPTAR</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <table id="tablaEquipos">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">Logo</th>
+                            <th>Nombre</th>
+                            <th style="text-align: center;">Juega</th>
+                        </tr>
+                    </thead>                            
+                    <tbody id="tablaBody">
+                        <tr>
+                            <td colspan="3" style="text-align:center; padding: 25px; color: #888;">
+                                Cargando equipos...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        let calFechaVista = new Date();
+        let calFechaSeleccionada = null;
+
+        let equiposNVA = [];
+        let eleccionesEquipos = {};
+
+        let contadorModalesAbiertos = 0;
+        let scrollYAntesDelModal = 0;
+
+        // Cargar archivo Excel al iniciar
+        window.addEventListener('DOMContentLoaded', () => {
+            cargarExcelEquipos();
+        });
+
+        async function cargarExcelEquipos() {
+            const tbody = document.getElementById('tablaBody');
+            try {
+                const response = await fetch('DATOS.xls');
+                if (!response.ok) throw new Error("No se pudo cargar el archivo Excel");
+                
+                const arrayBuffer = await response.arrayBuffer();
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                
+                // Leer hoja "Equipos NVA" o la primera disponible
+                const sheetName = workbook.SheetNames.includes("Equipos NVA") ? "Equipos NVA" : workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonDatos = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                // Procesar filas (omitir cabecera)
+                equiposNVA = [];
+                for (let i = 1; i < jsonDatos.length; i++) {
+                    const fila = jsonDatos[i];
+                    if (fila && fila[0]) {
+                        equiposNVA.push({
+                            id: i,
+                            nombre: fila[0].toString().trim(),
+                            logo: fila[1] ? fila[1].toString().trim() : 'Imagenes/Logos/Default.png'
+                        });
+                    }
+                }
+
+                renderizarTablaEquipos();
+            } catch (error) {
+                console.error("Error al cargar Excel:", error);
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#dc3545;">Error al cargar 'DATOS.xls'. Asegúrate de que el archivo existe en la carpeta raíz.</td></tr>`;
+                }
+            }
+        }
+
+        function renderizarTablaEquipos() {
+            const tbody = document.getElementById('tablaBody');
+            if (!tbody) return;
+
+            if (equiposNVA.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888;">No hay equipos registrados.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            equiposNVA.forEach(equipo => {
+                const tr = document.createElement('tr');
+                tr.id = `fila-equipo-${equipo.id}`;
+                
+                const seleccion = eleccionesEquipos[equipo.id] || null;
+                if (seleccion === 'casa') tr.className = 'selected-casa';
+                if (seleccion === 'fuera') tr.className = 'selected-fuera';
+
+                tr.innerHTML = `
+                    <td><img src="${equipo.logo}" class="team-icon" alt="" onerror="this.style.display='none'"></td>
+                    <td style="font-weight: 600;">${equipo.nombre}</td>
+                    <td style="text-align: center; white-space: nowrap;">
+                        <button type="button" class="btn-casa" onclick="seleccionarRol(${equipo.id}, 'casa')">CASA</button>
+                        <button type="button" class="btn-fuera" onclick="seleccionarRol(${equipo.id}, 'fuera')">FUERA</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function seleccionarRol(idEquipo, rol) {
+            if (eleccionesEquipos[idEquipo] === rol) {
+                delete eleccionesEquipos[idEquipo];
+            } else {
+                eleccionesEquipos[idEquipo] = rol;
+            }
+            renderizarTablaEquipos();
+        }
+
+        function resetearSeleccion() {
+            eleccionesEquipos = {};
+            renderizarTablaEquipos();
+        }
+
+        function alAbrirModal() {
+            contadorModalesAbiertos++;
+            if (contadorModalesAbiertos === 1) {
+                scrollYAntesDelModal = window.scrollY || window.pageYOffset || 0;
+                document.body.classList.add('modal-abierto');
+                document.body.style.position = 'fixed';
+                document.body.style.top = `-${scrollYAntesDelModal}px`;
+                document.body.style.left = '0';
+                document.body.style.right = '0';
+                document.body.style.width = '100%';
+            }
+        }
+
+        function alCerrarModal() {
+            contadorModalesAbiertos = Math.max(0, contadorModalesAbiertos - 1);
+            if (contadorModalesAbiertos === 0) {
+                document.body.classList.remove('modal-abierto');
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.left = '';
+                document.body.style.right = '';
+                document.body.style.width = '';
+                window.scrollTo(0, scrollYAntesDelModal);
+            }
+        }
+
+        // Paso 1: Abrir el calendario
+        function abrirCalendarioDia() {
+            const modal = document.getElementById('modalDateRange');
+            if (!modal) return;
+            modal.classList.remove('calendario-cerrado');
+            modal.style.setProperty('display', 'flex', 'important');
+            if (calFechaSeleccionada instanceof Date && !isNaN(calFechaSeleccionada.getTime())) {
+                calFechaVista = new Date(calFechaSeleccionada.getFullYear(), calFechaSeleccionada.getMonth(), 1);
+            } else {
+                calFechaVista = new Date();
+            }
+            renderizarCalendarioDia();
+            alAbrirModal();
+        }
+
+        function cerrarCalendarioDia() {
+            const modal = document.getElementById('modalDateRange');
+            if (!modal) return;
+            modal.classList.add('calendario-cerrado');
+            modal.style.setProperty('display', 'none', 'important');
+            alCerrarModal();
+        }
+
+        // Paso 2: Al pulsar un día -> se cierra calendario y abre Modal Campo
+        function seleccionarDiaCalendario(fecha) {
+            const f = new Date(fecha.getTime());
+            f.setHours(0, 0, 0, 0);
+            calFechaSeleccionada = f;
+            escribirTextoFechaEnCabecera(f);
+            
+            cerrarCalendarioDia();
+            abrirModalCampo();
+        }
+
+        // Paso 3: Ventana para introducir campo
+        function abrirModalCampo() {
+            const modal = document.getElementById('modalCampo');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            alAbrirModal();
+            setTimeout(() => {
+                document.getElementById('inputTextoCampo').focus();
+            }, 100);
+        }
+
+        function cerrarModalCampo() {
+            const modal = document.getElementById('modalCampo');
+            if (!modal) return;
+            modal.style.display = 'none';
+            alCerrarModal();
+        }
+
+        // Paso 4: Al Aceptar Campo -> guarda texto y abre Modal Equipos
+        function confirmarCampoGeneral() {
+            const input = document.getElementById('inputTextoCampo');
+            const contenedorCampo = document.getElementById('campoGeneral');
+            if (input && contenedorCampo) {
+                contenedorCampo.textContent = input.value.trim().toUpperCase();
+            }
+            cerrarModalCampo();
+            abrirModalEquipos();
+        }
+
+        // Paso 5: Selección de Equipos
+        function abrirModalEquipos() {
+            const modal = document.getElementById('modalEquipos');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            alAbrirModal();
+        }
+
+        function cerrarModalEquipos() {
+            const modal = document.getElementById('modalEquipos');
+            if (!modal) return;
+            modal.style.display = 'none';
+            alCerrarModal();
+        }
+
+        function cambiarMesCalendario(delta) {
+            if (!(calFechaVista instanceof Date) || isNaN(calFechaVista.getTime())) {
+                calFechaVista = new Date();
+            }
+            calFechaVista = new Date(calFechaVista.getFullYear(), calFechaVista.getMonth() + delta, 1);
+            renderizarCalendarioDia();
+        }
+
+        function renderizarCalendarioDia() {
+            const grid = document.getElementById('calDiasGrid');
+            const label = document.getElementById('calMesAnioLabel');
+            if (!grid || !label) return;
+
+            const anio = calFechaVista.getFullYear();
+            const mes = calFechaVista.getMonth();
+            label.textContent = `${meses[mes]} ${anio}`;
+            grid.innerHTML = '';
+
+            const primerDia = new Date(anio, mes, 1).getDay();
+            const offsetLunes = primerDia === 0 ? 6 : primerDia - 1;
+            const totalDias = new Date(anio, mes + 1, 0).getDate();
+
+            for (let i = 0; i < offsetLunes; i++) {
+                const vacia = document.createElement('div');
+                vacia.className = 'cal-cell empty';
+                grid.appendChild(vacia);
+            }
+
+            let tiempoSeleccionado = null;
+            if (calFechaSeleccionada instanceof Date && !isNaN(calFechaSeleccionada.getTime())) {
+                tiempoSeleccionado = new Date(calFechaSeleccionada.getFullYear(), calFechaSeleccionada.getMonth(), calFechaSeleccionada.getDate()).getTime();
+            }
+
+            for (let d = 1; d <= totalDias; d++) {
+                const celda = document.createElement('div');
+                celda.className = 'cal-cell';
+                celda.textContent = d;
+
+                const fecha = new Date(anio, mes, d);
+                fecha.setHours(0, 0, 0, 0);
+
+                if (tiempoSeleccionado !== null && fecha.getTime() === tiempoSeleccionado) {
+                    celda.classList.add('selected-endpoint');
+                }
+
+                celda.addEventListener('click', () => seleccionarDiaCalendario(fecha));
+                grid.appendChild(celda);
+            }
+        }
+
+        function escribirTextoFechaEnCabecera(fecha) {
+            const contenedor = document.getElementById('headerTextoFecha');
+            if (!contenedor) return;
+            const textoFinal = `${fecha.getDate()} DE ${meses[fecha.getMonth()].toUpperCase()} DE ${fecha.getFullYear()}`;
+            contenedor.innerHTML = `<span>${textoFinal}</span>`;
+        }
+
+        function confirmarSeleccion() {
+            cerrarModalEquipos();
+        }
+    </script>
+</body>
+</html>
