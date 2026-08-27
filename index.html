@@ -9,14 +9,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
     <title>Nou Volei Alzira - Selección de Equipos</title>
+    <!-- Librería SheetJS (XLSX) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Librería html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /*
-         * ================================================================
-         * ESTILOS GENERALES Y COMPONENTES DE LA APLICACIÓN
-         * ================================================================
-         */
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -97,7 +94,6 @@
             transform-origin: left center;
         }
 
-        /* Estilo para el campo de texto Campo de Juego integrado debajo de la cabecera */
         .header-campo-juego-container {
             width: 100%;
             background-color: #000000;
@@ -220,7 +216,6 @@
             overscroll-behavior: contain;
         }
 
-        /* Selector de Rango de Calendario */
         .date-range-modal-content {
             background-color: #181818;
             border: 2px solid #00b0f0;
@@ -370,7 +365,6 @@
         
         .acciones-td { white-space: nowrap; }
 
-        /* Contenedor del Campo de Juego dentro del modal */
         .campo-juego-container {
             background: #242424;
             border: 1px solid #444;
@@ -403,7 +397,6 @@
             border-color: #00b0f0;
         }
 
-        /* Select de hora dentro de la tabla */
         .select-hora-tabla {
             background-color: #242424;
             color: #fff;
@@ -419,7 +412,6 @@
             border-color: #00b0f0;
         }
 
-        /* Recuadros de partido */
         #contenedorRecuadros {
             width: 100%;
             padding-top: 1vh;
@@ -642,22 +634,6 @@
             color: #888;
         }
 
-        .input-picker-oculto {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            pointer-events: none;
-            z-index: -1;
-            font-size: 16px;
-        }
-
-        .oculto-temporal-captura {
-            visibility: hidden !important;
-        }
-
         .btn-captura-pagina {
             position: fixed;
             right: calc(16px + env(safe-area-inset-right));
@@ -747,7 +723,6 @@
             }
         }
 
-        /* Botón flotante: Cargar DATOS */
         .btn-cargar-datos {
             position: fixed;
             right: calc(16px + env(safe-area-inset-right));
@@ -827,7 +802,6 @@
             color: #fff;
         }
 
-        /* Modal Rivales */
         .item-rival {
             cursor: pointer;
             transition: all 0.2s ease-in-out;
@@ -929,7 +903,7 @@
 
     <div id="areaCaptura" style="background-color: #000000; width: 100%; overflow: hidden;">
         <div class="header-container" id="cabeceraContainer">
-            <img src="Imagenes/Titulo Base.png" class="header-img" alt="Nou Volei Alzira Calendario">
+            <img src="Imagenes/Titulo Base.png" class="header-img" alt="Nou Volei Alzira Calendario" onerror="this.onerror=null; this.src='';">
             <div class="header-hotspot-calendario" onclick="abrirCalendarioRango()" title="Haz clic para seleccionar la fecha"></div>
             <div class="header-texto-fecha" id="headerTextoFecha"></div>
         </div>
@@ -941,6 +915,7 @@
         <div id="contenedorRecuadros"></div>
     </div>
 
+    <!-- Modal Rango de Fechas -->
     <div class="modal-overlay" id="modalDateRange">
         <div class="date-range-modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px;">
@@ -965,6 +940,7 @@
         </div>
     </div>
 
+    <!-- Modal Selección Principal -->
     <div class="modal-overlay" id="modalEquipos">
         <div class="modal-content">
             <div class="modal-header">
@@ -1001,6 +977,7 @@
         </div>
     </div>
 
+    <!-- Modal Rivales -->
     <div class="modal-overlay" id="modalRivales">
         <div class="modal-content">
             <div class="modal-header">
@@ -1023,6 +1000,7 @@
         </div>
     </div>
 
+    <!-- Modal Modificar Rival Distinta Categoría -->
     <div class="modal-overlay" id="modalEditarRival">
         <div class="modal-content" style="max-width: 480px;">
             <div class="modal-header">
@@ -1041,6 +1019,7 @@
         </div>
     </div>
 
+    <!-- Modal Selector de Hora -->
     <div class="modal-overlay" id="modalHora">
         <div class="modal-content" style="max-width: 380px;">
             <div class="modal-header">
@@ -1430,7 +1409,7 @@
 
                 tr.innerHTML = `
                     <td style="text-align: center;">
-                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.src='Imagenes/LOGOS LOCALES/NVA.png'">
+                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.onerror=null; this.src='Imagenes/LOGOS LOCALES/NVA.png';">
                     </td>
                     <td>
                         <strong style="color: #fff; font-size: 1.05em;">${nombreEquipo}</strong>
@@ -1566,7 +1545,7 @@
 
                 tr.innerHTML = `
                     <td style="text-align: center;">
-                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.src='Imagenes/LOGOS RIVALES/SIN LOGO.png'">
+                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.onerror=null; this.src='Imagenes/LOGOS RIVALES/SIN LOGO.png';">
                     </td>
                     <td><strong style="color: #fff; font-size: 1.05em;">${nombreRival}</strong></td>
                     <td>${badgeHtml}</td>
@@ -1621,10 +1600,11 @@
                 autoAjustarTextoSegunSuperficie(elementoNombreRivalActual);
             }
             if (elementoLogoRivalActual) {
-                elementoLogoRivalActual.src = rutaLogo;
                 elementoLogoRivalActual.onerror = function() {
+                    this.onerror = null;
                     this.src = 'Imagenes/LOGOS RIVALES/SIN LOGO.png';
                 };
+                elementoLogoRivalActual.src = rutaLogo;
             }
         }
 
@@ -1714,20 +1694,20 @@
             const horaClaseVacio = horaSeleccionada ? '' : 'vacio';
 
             recuadro.innerHTML = `
-                <img src="Imagenes/Base Recuadro.png" class="capa-fondo" alt="Fondo">
+                <img src="Imagenes/Base Recuadro.png" class="capa-fondo" alt="Fondo" onerror="this.onerror=null; this.src='';">
                 <div class="capa-borde"></div>
                 <div class="texto-categoria-vertical">${categoria}</div>
 
                 <div class="contenido-recuadro">
                     <div class="area-logo-izq">
-                        <img src="${esRivalIzq ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-izq" alt="Logo Izq" onerror="this.src='Imagenes/LOGOS LOCALES/NVA.png'">
+                        <img src="${esRivalIzq ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-izq" alt="Logo Izq" onerror="this.onerror=null; this.src='Imagenes/LOGOS LOCALES/NVA.png';">
                     </div>
                     <div class="area-equipo-izq">
                         <span class="nombre-equipo ${esRivalIzq ? 'campo-editable vacio rival-izq' : ''}">${esRivalIzq ? equipoRivalNombre : equipoCasaNombre}</span>
                     </div>
 
                     <div class="area-logo-der">
-                        <img src="${esRivalDer ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-der" alt="Logo Der" onerror="this.src='Imagenes/LOGOS LOCALES/NVA.png'">
+                        <img src="${esRivalDer ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-der" alt="Logo Der" onerror="this.onerror=null; this.src='Imagenes/LOGOS LOCALES/NVA.png';">
                     </div>
                     <div class="area-equipo-der">
                         <span class="nombre-equipo ${esRivalDer ? 'campo-editable vacio rival-der' : ''}">${esRivalDer ? equipoRivalNombre : equipoCasaNombre}</span>
@@ -1819,19 +1799,15 @@
                 return;
             }
 
-            // Fecha General desde la cabecera
             const headerFechaEl = document.getElementById('headerTextoFecha');
             const spanFecha = headerFechaEl ? headerFechaEl.querySelector('span') : null;
             const fechaGeneral = spanFecha ? obtenerTextoLimpio(spanFecha) : '';
 
-            // Campo de Juego General
             const headerCampoInput = document.getElementById('headerInputCampoJuego');
             const campoGeneral = headerCampoInput ? headerCampoInput.value.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim() : '';
 
-            // Fila 1: FECHA | CAMPO
             let bloqueTexto = `${fechaGeneral} | ${campoGeneral}\n`;
 
-            // Fila 2 (por cada partido): Equipo Casa | Equipo Rival | Hora | Categoria
             recuadros.forEach((rec) => {
                 const spanIzq = rec.querySelector('.area-equipo-izq .nombre-equipo');
                 const spanDer = rec.querySelector('.area-equipo-der .nombre-equipo');
@@ -1839,23 +1815,19 @@
                 const equipoCasa = obtenerTextoLimpio(spanIzq);
                 const equipoRival = obtenerTextoLimpio(spanDer);
 
-                // Hora del partido
                 const spanHora = rec.querySelector('.area-info .contenedor-item-info:nth-child(2) .campo-editable-info');
                 let hora = obtenerTextoLimpio(spanHora);
                 if (hora.toUpperCase() === 'HORA') hora = '';
 
-                // Categoría del partido
                 const categoria = rec.getAttribute('data-categoria') || '';
 
                 bloqueTexto += `${equipoCasa} | ${equipoRival} | ${hora} | ${categoria}\n`;
             });
 
-            // Generar descarga del archivo Historico.txt
             const blob = new Blob([bloqueTexto], { type: 'text/plain;charset=utf-8' });
             descargarBlobComoArchivo(blob, 'Historico.txt');
         }
 
-        /* Funcionalidades para Cargar DATOS desde archivo .txt */
         function abrirExploradorCargarDatos() {
             const input = document.getElementById('inputCargarDatos');
             if (input) {
@@ -1885,12 +1857,10 @@
             const lineas = contenido.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
             if (lineas.length === 0) return;
 
-            // Fila 1: Fecha | Campo
             const primeraLinea = lineas[0].split('|').map(s => s.trim());
             const fechaStr = primeraLinea[0] || '';
             const campoStr = primeraLinea[1] || '';
 
-            // Actualizar Campo de Juego
             if (campoStr) {
                 const inputModal = document.getElementById('inputCampoJuego');
                 const inputHeader = document.getElementById('headerInputCampoJuego');
@@ -1898,7 +1868,6 @@
                 if (inputHeader) inputHeader.value = campoStr;
             }
 
-            // Actualizar Fecha de Cabecera
             if (fechaStr) {
                 const elContenedor = document.getElementById('headerTextoFecha');
                 if (elContenedor) {
@@ -1907,7 +1876,6 @@
                 }
             }
 
-            // Filas siguientes: Partidos
             const lineasPartidos = lineas.slice(1);
             const contenedor = document.getElementById('contenedorRecuadros');
             if (contenedor) contenedor.innerHTML = '';
@@ -1921,7 +1889,6 @@
                 const horaTxt = partes[2] || '';
                 const catTxt = partes[3] || '';
 
-                // Buscar en listaEquiposGlobal por EQUIPO o CATEGORIA
                 let matchIdx = -1;
                 let rol = 'casa';
 
@@ -1949,7 +1916,6 @@
                     const equipoBase = listaEquiposGlobal[matchIdx];
                     const recuadro = crearRecuadroPartido(equipoBase, rol, horaTxt, matchIdx);
 
-                    // Si el nombre o logo de los equipos no coinciden exactamente, ajustarlos
                     const spanIzq = recuadro.querySelector('.area-equipo-izq .nombre-equipo');
                     const spanDer = recuadro.querySelector('.area-equipo-der .nombre-equipo');
                     const imgLogoIzq = recuadro.querySelector('.logo-izq');
@@ -1964,7 +1930,6 @@
                         spanDer.classList.remove('vacio');
                     }
 
-                    // Intentar buscar los rivales/otros equipos para sus logos
                     let todosLosOtros = listaOtrosEquiposGlobal.length > 0 ? listaOtrosEquiposGlobal : listaEquiposGlobal;
                     
                     if (rol === 'casa') {
