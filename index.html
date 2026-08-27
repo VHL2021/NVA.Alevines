@@ -18,9 +18,6 @@
          * ================================================================
          * ESTILOS GENERALES Y COMPONENTES DE LA APLICACIÓN
          * ================================================================
-         * La página está diseñada para funcionar tanto en escritorio como
-         * en móvil. Los recuadros de partidos usan tamaños relativos para
-         * conservar su proporción al cambiar el ancho de pantalla.
          */
         * {
             box-sizing: border-box;
@@ -100,6 +97,39 @@
             display: inline-block;
             white-space: nowrap;
             transform-origin: left center;
+        }
+
+        /* Estilo para el campo de texto Campo de Juego integrado debajo de la cabecera */
+        .header-campo-juego-container {
+            width: 100%;
+            background-color: #000000;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .header-campo-juego-input {
+            width: 100%;
+            max-width: 1200px;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 2.5vw;
+            font-size: 2.5cqw;
+            font-weight: 600;
+            font-family: Arial, Helvetica, sans-serif;
+            text-transform: uppercase;
+            text-align: center;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.9);
+            padding: 4px 0;
+        }
+
+        @media (max-width: 600px) {
+            .header-campo-juego-input {
+                font-size: 1rem;
+            }
         }
 
         .modal-overlay {
@@ -334,7 +364,6 @@
             .btn-fuera:hover { background-color: #bd2130; border-color: #bd2130; color: #fff; }
         }
 
-        /* Sombreados de fila seleccionada más tenues */
         tr.selected-casa { background-color: rgba(40, 167, 69, 0.08); }
         tr.selected-casa .btn-casa { background-color: #28a745; border-color: #28a745; color: #fff; }
 
@@ -343,14 +372,53 @@
         
         .acciones-td { white-space: nowrap; }
 
-        .aviso-datos {
-            background: #18222c;
-            border-left: 4px solid #00bfff;
-            padding: 10px 15px;
+        /* Contenedor del Campo de Juego dentro del modal */
+        .campo-juego-container {
+            background: #242424;
+            border: 1px solid #444;
+            padding: 12px 15px;
             margin-bottom: 15px;
-            font-size: 0.9em;
-            color: #bce8ff;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .campo-juego-container label {
+            font-weight: bold;
+            color: #00b0f0;
+            font-size: 0.95em;
+            white-space: nowrap;
+        }
+        .campo-juego-input {
+            flex: 1;
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #555;
             border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 0.95em;
+            font-weight: 600;
+            text-transform: uppercase;
+            outline: none;
+        }
+        .campo-juego-input:focus {
+            border-color: #00b0f0;
+        }
+
+        /* Select de hora dentro de la tabla */
+        .select-hora-tabla {
+            background-color: #242424;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 6px 8px;
+            font-size: 0.9em;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+        }
+        .select-hora-tabla:focus {
+            border-color: #00b0f0;
         }
 
         /* Recuadros de partido */
@@ -397,16 +465,6 @@
             pointer-events: none;
         }
 
-        /*
-         * CATEGORÍA VERTICAL
-         * ------------------
-         * En pantalla se mantiene la rotación CSS original. El problema aparecía
-         * al rasterizar con html2canvas: algunas versiones/navegadores no reproducen
-         * de forma fiable la transformación de texto rotado.
-         *
-         * La corrección definitiva se aplica SOLO durante la captura (ver
-         * prepararCategoriasParaCaptura()). La interfaz normal sigue usando esta regla.
-         */
         .texto-categoria-vertical {
             position: absolute;
             top: 0;
@@ -421,18 +479,15 @@
             font-style: italic;
             text-transform: uppercase;
             font-size: 2.2cqw;
-
-            /* Rotación visual de la categoría en la página */
             transform: rotate(270deg);
             transform-origin: center center;
             white-space: nowrap;
-
             z-index: 5;
             pointer-events: none;
             user-select: none;
             text-shadow: 0.05em 0.05em 0.2em rgba(255,255,255,0.9);
         }
-        /*----------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
         .contenido-recuadro {
             position: absolute;
             top: 0;
@@ -456,8 +511,8 @@
         .area-logo-izq {
             position: absolute;
             top: 13%;
-            right:66.5%; /*left: 24.5%;*/
-            width: 11%; /*width: 9%;*/
+            right:66.5%;
+            width: 11%;
             height: 74%;
             display: flex;
             align-items: center;
@@ -527,7 +582,7 @@
             max-height: 100%;
             justify-content: flex-end;
             overflow: visible;
-            padding: 0.2em 0.3em !important; /* Ligeramente más ancho a los lados */
+            padding: 0.2em 0.3em !important;
             box-sizing: content-box;
         }
 
@@ -764,7 +819,6 @@
             font-size: 0.85em;
         }
 
-        /* Input de edición de rival */
         .input-modal-texto {
             width: 100%;
             background: #242424;
@@ -832,8 +886,13 @@
     <div id="areaCaptura" style="background-color: #000000; width: 100%; overflow: hidden;">
         <div class="header-container" id="cabeceraContainer">
             <img src="Imagenes/Titulo Base.png" class="header-img" alt="Nou Volei Alzira Calendario">
-            <div class="header-hotspot-calendario" onclick="abrirCalendarioRango()" title="Haz clic para seleccionar el rango de fechas"></div>
+            <div class="header-hotspot-calendario" onclick="abrirCalendarioRango()" title="Haz clic para seleccionar la fecha"></div>
             <div class="header-texto-fecha" id="headerTextoFecha"></div>
+        </div>
+
+        <!-- 2. CAMPO DE TEXTO DEBAJO DE LA CABECERA (CAMPO DE JUEGO) -->
+        <div class="header-campo-juego-container">
+            <input type="text" id="headerInputCampoJuego" class="header-campo-juego-input" value="PALAU D'ESPORTS (ALZIRA)" placeholder="CAMPO DE JUEGO" oninput="sincronizarCampoJuegoDesdeHeader(this.value)" />
         </div>
 
         <div id="contenedorRecuadros"></div>
@@ -843,7 +902,7 @@
     <div class="modal-overlay" id="modalDateRange">
         <div class="date-range-modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px;">
-                <span style="font-weight: bold; color: #00b0f0; font-size: 1.1em;">Seleccionar Fechas</span>
+                <span style="font-weight: bold; color: #00b0f0; font-size: 1.1em;">Seleccionar Fecha</span>
                 <button type="button" class="btn-aceptar" style="padding: 5px 15px; font-size: 0.9em;" onclick="confirmarRangoActual()">CONFIRMAR</button>
             </div>
             <div class="cal-nav">
@@ -875,14 +934,21 @@
                 </div>
             </div>
             <div class="modal-body">
-                <div id="avisoEstado" class="aviso-datos" style="display: none;"></div>
+                <!-- 1. CASILLA NOMBRE DEL CAMPO DE JUEGO (Sincronizada con el header) -->
+                <div class="campo-juego-container">
+                    <label for="inputCampoJuego">CAMPO DE JUEGO:</label>
+                    <input type="text" id="inputCampoJuego" class="campo-juego-input" value="PALAU D'ESPORTS (ALZIRA)" placeholder="Nombre del campo..." oninput="sincronizarCampoJuegoDesdeModal(this.value)" />
+                </div>
+
                 <table id="tablaEquipos">
                     <thead>
                         <tr>
                             <th style="width: 40px;">Logo</th>
                             <th>Nombre</th>
-                            <th>Categoría</th>
+                            <!-- 2. ELIMINADA LA COLUMNA CATEGORÍA -->
                             <th style="text-align: center;">Juega</th>
+                            <!-- 3. NUEVA COLUMNA HORA -->
+                            <th style="text-align: center;">Hora</th>
                         </tr>
                     </thead>                            
                     <tbody id="tablaBody">
@@ -970,7 +1036,7 @@
     <!-- Botón flotante -->
     <button type="button" id="btnCapturarPagina" class="btn-captura-pagina no-captura" onclick="capturarPaginaComoJPG()" aria-label="Descargar imagen de los partidos">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
-            <path d="M9 3l-1.83 2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+            <path d="M9 3l-1.83 2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
         </svg>
         <span id="btnCapturarTexto">Descargar imagen</span>
     </button>
@@ -984,16 +1050,6 @@
     </button>
 
     <script>
-        /*
-         * ================================================================
-         * DATOS, ESTADO Y LÓGICA PRINCIPAL
-         * ================================================================
-         * Este bloque controla:
-         *   1) carga de equipos desde DATOS.xls o datos de respaldo,
-         *   2) selección de partidos,
-         *   3) edición de rival, fecha, hora y ubicación,
-         *   4) generación de los recuadros.
-         */
         const equiposRespaldo = [
             {"LOGO": "Enova NVA - Infantil", "EQUIPO": "ENOVA NVA", "CATEGORIA": "INFANTIL 2ª DIVISION", "COLOR": "#c28b06", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
             {"LOGO": "Up School NVA - Infantil", "EQUIPO": "UP! SCHOOL NVA", "CATEGORIA": "INFANTIL ZONAL", "COLOR": "#ccca20", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
@@ -1023,6 +1079,16 @@
 
         let contadorModalesAbiertos = 0;
         let scrollYAntesDelModal = 0;
+
+        function sincronizarCampoJuegoDesdeHeader(val) {
+            const inputModal = document.getElementById('inputCampoJuego');
+            if (inputModal) inputModal.value = val;
+        }
+
+        function sincronizarCampoJuegoDesdeModal(val) {
+            const inputHeader = document.getElementById('headerInputCampoJuego');
+            if (inputHeader) inputHeader.value = val;
+        }
 
         function alAbrirModal() {
             contadorModalesAbiertos++;
@@ -1067,13 +1133,8 @@
             if (calFechaInicioEfectiva) {
                 calFechaInicio = new Date(calFechaInicioEfectiva.getTime());
                 calFechaInicio.setHours(0, 0, 0, 0);
-
-                if (calFechaFinEfectiva) {
-                    calFechaFin = new Date(calFechaFinEfectiva.getTime());
-                    calFechaFin.setHours(0, 0, 0, 0);
-                } else {
-                    calFechaFin = null;
-                }
+                calFechaFin = new Date(calFechaInicioEfectiva.getTime());
+                calFechaFin.setHours(0, 0, 0, 0);
                 calFechaVista = new Date(calFechaInicio.getFullYear(), calFechaInicio.getMonth(), 1);
             } else {
                 calFechaVista = new Date();
@@ -1086,11 +1147,9 @@
 
         function confirmarRangoActual() {
             if (calFechaInicio) {
-                if (!calFechaFin) {
-                    calFechaFin = new Date(calFechaInicio.getTime());
-                }
+                calFechaFin = new Date(calFechaInicio.getTime());
                 calFechaInicioEfectiva = new Date(calFechaInicio.getTime());
-                calFechaFinEfectiva = new Date(calFechaFin.getTime());
+                calFechaFinEfectiva = new Date(calFechaInicio.getTime());
                 escribirTextoFechaEnCabecera(calFechaInicioEfectiva, calFechaFinEfectiva);
             }
 
@@ -1105,33 +1164,20 @@
             const f = new Date(fecha.getTime());
             f.setHours(0, 0, 0, 0);
 
-            if (!calFechaInicio || (calFechaInicio && calFechaFin)) {
-                calFechaInicio = f;
-                calFechaFin = null;
-            } else if (calFechaInicio && !calFechaFin) {
-                if (f.getTime() === calFechaInicio.getTime()) {
-                    calFechaFin = f;
-                } else if (f.getTime() < calFechaInicio.getTime()) {
-                    calFechaFin = calFechaInicio;
-                    calFechaInicio = f;
-                } else {
-                    calFechaFin = f;
-                }
-            }
+            calFechaInicio = f;
+            calFechaFin = f;
 
             renderizarCalendarioRango();
 
-            if (calFechaInicio && calFechaFin) {
-                calFechaInicioEfectiva = new Date(calFechaInicio.getTime());
-                calFechaFinEfectiva = new Date(calFechaFin.getTime());
+            calFechaInicioEfectiva = new Date(calFechaInicio.getTime());
+            calFechaFinEfectiva = new Date(calFechaFin.getTime());
 
-                temporizadorCierreRango = setTimeout(() => {
-                    modalDateRange.style.display = 'none';
-                    alCerrarModal();
-                    escribirTextoFechaEnCabecera(calFechaInicioEfectiva, calFechaFinEfectiva);
-                    abrirModal();
-                }, 300);
-            }
+            temporizadorCierreRango = setTimeout(() => {
+                modalDateRange.style.display = 'none';
+                alCerrarModal();
+                escribirTextoFechaEnCabecera(calFechaInicioEfectiva, calFechaFinEfectiva);
+                abrirModal();
+            }, 300);
         }
 
         function cambiarMesRango(delta) {
@@ -1165,7 +1211,6 @@
             }
 
             const tInicio = calFechaInicio ? new Date(calFechaInicio.getFullYear(), calFechaInicio.getMonth(), calFechaInicio.getDate()).getTime() : null;
-            const tFin = calFechaFin ? new Date(calFechaFin.getFullYear(), calFechaFin.getMonth(), calFechaFin.getDate()).getTime() : null;
 
             for (let d = 1; d <= totalDias; d++) {
                 const celda = document.createElement('div');
@@ -1177,8 +1222,6 @@
                 const tCelda = fechaCelda.getTime();
 
                 if (tInicio !== null && tCelda === tInicio) celda.classList.add('selected-endpoint');
-                if (tFin !== null && tCelda === tFin) celda.classList.add('selected-endpoint');
-                if (tInicio !== null && tFin !== null && tCelda > tInicio && tCelda < tFin) celda.classList.add('in-range');
 
                 celda.onclick = () => seleccionarFechaRango(fechaCelda);
                 grid.appendChild(celda);
@@ -1190,19 +1233,7 @@
             const mesIni = meses[fInicio.getMonth()];
             const anioIni = fInicio.getFullYear();
 
-            const dFin = fFin.getDate();
-            const mesFin = meses[fFin.getMonth()];
-            const anioFin = fFin.getFullYear();
-
-            let textoFinal = '';
-
-            if (dIni === dFin && fInicio.getMonth() === fFin.getMonth() && anioIni === anioFin) {
-                textoFinal = `${dIni} de ${mesIni} del ${anioIni}`;
-            } else if (fInicio.getMonth() === fFin.getMonth() && anioIni === anioFin) {
-                textoFinal = `del ${dIni} al ${dFin} de ${mesFin} del ${anioFin}`;
-            } else {
-                textoFinal = `del ${dIni} de ${mesIni} al ${dFin} de ${mesFin} del ${anioFin}`;
-            }
+            let textoFinal = `${dIni} de ${mesIni} del ${anioIni}`;
 
             const elContenedor = document.getElementById('headerTextoFecha');
             elContenedor.innerHTML = `<span>${textoFinal}</span>`;
@@ -1341,7 +1372,6 @@
                             listaEquiposGlobal = datosExcel;
                             renderizarTabla(listaEquiposGlobal);
                             cargarPestañaOtrosEquipos();
-                            mostrarAviso("✅ Equipos cargados correctamente desde el archivo Excel.", false);
                             datosCargados = true;
                             return;
                         }
@@ -1354,7 +1384,6 @@
             listaEquiposGlobal = equiposRespaldo;
             listaOtrosEquiposGlobal = equiposRespaldo;
             renderizarTabla(listaEquiposGlobal);
-            mostrarAviso("ℹ️ Usando datos integrados de respaldo.", true);
             datosCargados = true;
         }
 
@@ -1382,21 +1411,6 @@
                 listaOtrosEquiposGlobal = XLSX.utils.sheet_to_json(sheet);
             } else {
                 listaOtrosEquiposGlobal = listaEquiposGlobal;
-            }
-        }
-
-        function mostrarAviso(texto, esAlerta) {
-            const aviso = document.getElementById('avisoEstado');
-            aviso.innerText = texto;
-            aviso.style.display = 'block';
-            if (esAlerta) {
-                aviso.style.background = '#2c2215';
-                aviso.style.borderColor = '#ffa500';
-                aviso.style.color = '#ffda9e';
-            } else {
-                aviso.style.background = '#152c1b';
-                aviso.style.borderColor = '#28a745';
-                aviso.style.color = '#a3ffb8';
             }
         }
 
@@ -1431,7 +1445,6 @@
             } else {
                 rutaBase = nombre.trim() + '.png';
             }
-            // Evita duplicar la carpeta si ya estuviera escrita en el excel
             if (!rutaBase.toLowerCase().startsWith('logos/') && !rutaBase.toLowerCase().startsWith('logos\\')) {
                 return 'LOGOs/' + rutaBase;
             }
@@ -1440,16 +1453,31 @@
 
         const SVG_LOGO_VACIO = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='none'/></svg>";
 
+        /* Genera las opciones de hora de 9:00 a 15:00 en tramos de 30 minutos */
+        function generarOpcionesHoraSelect() {
+            let html = '<option value="">HORA</option>';
+            for (let h = 9; h <= 15; h++) {
+                const horaStr = `${h}:00`;
+                html += `<option value="${horaStr}">${horaStr}</option>`;
+                if (h < 15) {
+                    const horaMediaStr = `${h}:30`;
+                    html += `<option value="${horaMediaStr}">${horaMediaStr}</option>`;
+                }
+            }
+            return html;
+        }
+
         function renderizarTabla(datos) {
             const tbody = document.getElementById('tablaBody');
             tbody.innerHTML = '';
+
+            const opcionesHora = generarOpcionesHoraSelect();
 
             datos.forEach((fila, index) => {
                 const tr = document.createElement('tr');
                 tr.id = `fila-${index}`;
 
                 const nombre = obtenerNombreEquipo(fila);
-                const categoria = obtenerCategoria(fila);
                 const rutaLogo = obtenerRutaLogo(fila);
 
                 tr.innerHTML = `
@@ -1458,10 +1486,14 @@
                              onerror="this.onerror=null; this.src=SVG_LOGO_VACIO;">
                     </td>
                     <td style="font-weight: 600;">${nombre}</td>
-                    <td style="color: #bbb;">${categoria}</td>
-                    <td class="acciones-td">
+                    <td class="acciones-td" style="text-align: center;">
                         <button class="btn-casa" onclick="seleccionarEquipo(${index}, 'casa')">CASA</button>
                         <button class="btn-fuera" onclick="seleccionarEquipo(${index}, 'fuera')">FUERA</button>
+                    </td>
+                    <td style="text-align: center;">
+                        <select id="select-hora-${index}" class="select-hora-tabla">
+                            ${opcionesHora}
+                        </select>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1495,6 +1527,47 @@
             }
         }
 
+        // Función auxiliar para parsear texto de fecha a objeto Date para ordenar cronológicamente
+        function parsearFechaTexto(fechaTexto) {
+            if (!fechaTexto || fechaTexto.trim() === '' || fechaTexto.toUpperCase() === 'FECHA') {
+                return new Date(8640000000000000); // Fecha máxima si no hay fecha asignada
+            }
+            
+            // Si la fecha está en formato "D de MES de AAAA" o similar
+            const regex = /(\d{1,2})\s+de\s+([a-zA-ZáéíóúÁÉÍÓÚ]+)(?:\s+de\s+(\d{4}))?/i;
+            const match = fechaTexto.match(regex);
+            if (match) {
+                const dia = parseInt(match[1], 10);
+                const mesNombre = match[2].toLowerCase();
+                const anio = match[3] ? parseInt(match[3], 10) : (calFechaInicioEfectiva ? calFechaInicioEfectiva.getFullYear() : new Date().getFullYear());
+                
+                const mesIdx = meses.findIndex(m => m.toLowerCase() === mesNombre);
+                if (mesIdx !== -1) {
+                    return new Date(anio, mesIdx, dia);
+                }
+            }
+            
+            const timestamp = Date.parse(fechaTexto);
+            if (!isNaN(timestamp)) {
+                return new Date(timestamp);
+            }
+            
+            return new Date(8640000000000000);
+        }
+
+        // Función auxiliar para parsear hora
+        function parsearHoraTexto(horaTexto) {
+            if (!horaTexto || horaTexto.trim() === '' || horaTexto.toUpperCase() === 'HORA') {
+                return 9999;
+            }
+            const regex = /(\d{1,2})\s*:\s*(\d{2})/;
+            const match = horaTexto.match(regex);
+            if (match) {
+                return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+            }
+            return 9999;
+        }
+
         function generarRecuadros() {
             const cont = document.getElementById('contenedorRecuadros');
             
@@ -1516,7 +1589,9 @@
                 if (!tipo) return;
 
                 const index = parseInt(tr.id.replace('fila-', ''), 10);
-                nuevosIndices.push({ index, tipo });
+                const selectHoraVal = document.getElementById(`select-hora-${index}`) ? document.getElementById(`select-hora-${index}`).value : '';
+                
+                nuevosIndices.push({ index, tipo, horaSeleccionada: selectHoraVal });
             });
 
             const setNuevos = new Set(nuevosIndices.map(n => n.index.toString()));
@@ -1528,6 +1603,9 @@
 
             cont.innerHTML = '';
 
+            // Preparar elementos de partidos para ordenar cronológicamente
+            const listaPartidos = [];
+
             nuevosIndices.forEach(item => {
                 const fila = listaEquiposGlobal[item.index];
                 if (!fila) return;
@@ -1535,22 +1613,49 @@
                 let estadoGuardado = mapaDatosPartidos[item.index];
                 if (estadoGuardado && estadoGuardado.tipo !== item.tipo) {
                     estadoGuardado.tipo = item.tipo;
-                    if (item.tipo === 'casa') {
-                        estadoGuardado.lugar = "PALAU D'ESPORTS (ALZIRA)";
+                }
+                
+                // Si se ha seleccionado una hora en la lista desplegable de la tabla, actualizarla
+                if (item.horaSeleccionada) {
+                    const horaFormateada = `${item.horaSeleccionada} H`;
+                    if (!estadoGuardado) {
+                        estadoGuardado = {
+                            tipo: item.tipo,
+                            rivalNombre: '',
+                            rivalLogo: '',
+                            fecha: '',
+                            hora: horaFormateada,
+                            lugar: ''
+                        };
                     } else {
-                        let campoRival = '';
-                        if (estadoGuardado.rivalNombre) {
-                            const rivalEncontrado = listaOtrosEquiposGlobal.find(
-                                r => obtenerNombreEquipo(r).toLowerCase() === estadoGuardado.rivalNombre.toLowerCase()
-                            );
-                            if (rivalEncontrado) {
-                                campoRival = obtenerCampo(rivalEncontrado);
-                            }
-                        }
-                        estadoGuardado.lugar = campoRival;
+                        estadoGuardado.hora = horaFormateada;
                     }
                 }
-                const nuevoRecuadro = crearRecuadro(fila, item.tipo, item.index, estadoGuardado);
+
+                listaPartidos.push({
+                    fila: fila,
+                    tipo: item.tipo,
+                    indexFila: item.index,
+                    estadoInicial: estadoGuardado
+                });
+            });
+
+            // 3. ORDENAR LOS RECUADROS EN ORDEN CRONOLÓGICO SEGÚN SU FECHA (Y HORA)
+            listaPartidos.sort((a, b) => {
+                const fechaA = parsearFechaTexto(a.estadoInicial ? a.estadoInicial.fecha : '');
+                const fechaB = parsearFechaTexto(b.estadoInicial ? b.estadoInicial.fecha : '');
+                
+                if (fechaA.getTime() !== fechaB.getTime()) {
+                    return fechaA.getTime() - fechaB.getTime();
+                }
+                
+                const horaA = parsearHoraTexto(a.estadoInicial ? a.estadoInicial.hora : '');
+                const horaB = parsearHoraTexto(b.estadoInicial ? b.estadoInicial.hora : '');
+                return horaA - horaB;
+            });
+
+            listaPartidos.forEach(p => {
+                const nuevoRecuadro = crearRecuadro(p.fila, p.tipo, p.indexFila, p.estadoInicial);
                 cont.appendChild(nuevoRecuadro);
             });
         }
@@ -1562,15 +1667,13 @@
             const esCasa = (tipo === 'casa');
             const nombreClub = obtenerNombreEquipo(fila);
 
-            let campoPredefinido = esCasa ? "PALAU D'ESPORTS (ALZIRA)" : "";
-
             const estado = estadoInicial || {
                 tipo: tipo,
                 rivalNombre: '',
                 rivalLogo: '',
                 fecha: '',
                 hora: '',
-                lugar: campoPredefinido
+                lugar: ''
             };
             mapaDatosPartidos[indexFila] = estado;
 
@@ -1696,23 +1799,6 @@
                     contenedorRecuadro.datosEstado.rivalNombre = nombre;
                     contenedorRecuadro.datosEstado.rivalLogo = rutaLogo;
                 }
-
-                if (contenedorRecuadro && elementoNombreRivalActual.parentElement.classList.contains('area-equipo-izq')) {
-                    const campoLugar = contenedorRecuadro.querySelector('.campo-lugar');
-                    const lugarRival = obtenerCampo(filaRival);
-                    if (campoLugar) {
-                        if (lugarRival && lugarRival.trim() !== '') {
-                            campoLugar.textContent = lugarRival;
-                            campoLugar.classList.remove('vacio');
-                            if (contenedorRecuadro.datosEstado) contenedorRecuadro.datosEstado.lugar = lugarRival;
-                        } else {
-                            campoLugar.textContent = 'UBICACION';
-                            campoLugar.classList.add('vacio');
-                            if (contenedorRecuadro.datosEstado) contenedorRecuadro.datosEstado.lugar = '';
-                        }
-                        setTimeout(() => autoAjustarTextoInfo(campoLugar), 20);
-                    }
-                }
             }
             if (elementoLogoRivalActual) {
                 elementoLogoRivalActual.src = rutaLogo;
@@ -1834,11 +1920,12 @@
             alAbrirModal();
         }
 
+        // 1. ELIMINADOS TEXTOS DE "FECHA" Y "CAMPO DE JUEGO" Y SU LÓGICA DE RELLENO
         function construirInfoPartido(recuadro, estado) {
             const info = document.createElement('div');
             info.className = 'area-info';
 
-            // 1. FECHA
+            // FECHA (sin el texto sustituto de "FECHA")
             const contFecha = document.createElement('div');
             contFecha.className = 'contenedor-item-info';
             const spanFecha = document.createElement('span');
@@ -1847,7 +1934,7 @@
             if (estado.fecha && estado.fecha.trim() !== '') {
                 spanFecha.textContent = estado.fecha;
             } else {
-                spanFecha.textContent = 'FECHA';
+                spanFecha.textContent = '';
                 spanFecha.classList.add('vacio');
             }
             
@@ -1878,6 +1965,8 @@
                         recuadro.datosEstado.fecha = fechaTxt;
                     }
                     autoAjustarTextoInfo(spanFecha);
+                    // Reordenar cronológicamente al cambiar la fecha de un recuadro
+                    generarRecuadros();
                 }
             });
 
@@ -1885,7 +1974,7 @@
             contFecha.appendChild(inputFecha);
             info.appendChild(contFecha);
 
-            // 2. HORA
+            // HORA
             const contHora = document.createElement('div');
             contHora.className = 'contenedor-item-info';
             const spanHora = document.createElement('span');
@@ -1904,77 +1993,6 @@
 
             contHora.appendChild(spanHora);
             info.appendChild(contHora);
-
-            // 3. CAMPO / UBICACION
-            const contLugar = document.createElement('div');
-            contLugar.className = 'contenedor-item-info';
-            const spanLugar = document.createElement('span');
-            spanLugar.className = 'campo-editable-info editable-texto campo-lugar';
-            spanLugar.contentEditable = 'true';
-
-            if (estado.lugar && estado.lugar.trim() !== '') {
-                spanLugar.textContent = estado.lugar;
-            } else {
-                spanLugar.textContent = 'UBICACION';
-                spanLugar.classList.add('vacio');
-            }
-
-            spanLugar.addEventListener('focus', function () {
-                if (this.classList.contains('vacio')) {
-                    this.textContent = '';
-                    this.classList.remove('vacio');
-                }
-            });
-
-            spanLugar.addEventListener('blur', function () {
-                if (this.textContent.trim() === '') {
-                    this.textContent = 'UBICACION';
-                    this.classList.add('vacio');
-                    if (recuadro && recuadro.datosEstado) recuadro.datosEstado.lugar = '';
-                } else {
-                    if (recuadro && recuadro.datosEstado) recuadro.datosEstado.lugar = this.textContent.trim();
-                }
-                autoAjustarTextoInfo(this);
-            });
-
-            spanLugar.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this.blur();
-                }
-            });
-
-            spanLugar.addEventListener('paste', function (e) {
-                e.preventDefault();
-                const text = (e.clipboardData || window.clipboardData).getData('text');
-                const cleanText = text.replace(/[\r\n]+/g, ' ').trim();
-
-                if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
-                    document.execCommand('insertText', false, cleanText);
-                } else {
-                    const selection = window.getSelection();
-                    if (selection && selection.rangeCount > 0 && this.contains(selection.anchorNode)) {
-                        const range = selection.getRangeAt(0);
-                        range.deleteContents();
-                        range.insertNode(document.createTextNode(cleanText));
-                        range.collapse(false);
-                        selection.removeAllRanges();
-                        selection.addRange(range);
-                    } else {
-                        this.textContent += cleanText;
-                    }
-                }
-            });
-
-            spanLugar.addEventListener('input', function () {
-                if (recuadro && recuadro.datosEstado && !this.classList.contains('vacio')) {
-                    recuadro.datosEstado.lugar = this.textContent.trim();
-                }
-                autoAjustarTextoInfo(this);
-            });
-
-            contLugar.appendChild(spanLugar);
-            info.appendChild(contLugar);
 
             return info;
         }
@@ -1996,7 +2014,6 @@
             }
         }
 
-        // Medidor de texto auxiliar en canvas
         let canvasContextMedicion = null;
         function getCanvasContext() {
             if (!canvasContextMedicion) {
@@ -2024,7 +2041,6 @@
                         lineas.push(lineaActual);
                         lineaActual = palabra;
                     } else {
-                        // Una sola palabra sobrepasa el ancho
                         lineas.push(palabra);
                         lineaActual = '';
                     }
@@ -2054,10 +2070,9 @@
             const fontStyleStr = estilo.fontStyle || 'italic';
             const fontFamily = estilo.fontFamily || 'sans-serif';
 
-            // Tamaño de fuente base (proporcional al contenedor del recuadro)
             const recuadro = el.closest('.recuadro-partido');
             const anchoBaseRecuadro = recuadro ? recuadro.clientWidth : anchoDisponible * 5;
-            let fontSizePx = anchoBaseRecuadro * 0.023; // 2.3cqw
+            let fontSizePx = anchoBaseRecuadro * 0.023;
             
             const minFontSizePx = anchoBaseRecuadro * 0.012;
 
@@ -2078,7 +2093,6 @@
                 fontSizePx -= 0.5;
             }
 
-            // Si es sumamente largo, se aplica en 3 líneas con el tamaño mínimo
             const fontCssFinal = `${fontStyleStr} ${fontWeight} ${fontSizePx}px ${fontFamily}`;
             const lineasFinales = calcularLineasSinDeformar(palabras, anchoDisponible, fontCssFinal);
             el.style.fontSize = fontSizePx + 'px';
@@ -2108,17 +2122,8 @@
             const dIni = fInicio.getDate();
             const mesIni = meses[fInicio.getMonth()];
             const anioIni = fInicio.getFullYear();
-            const dFin = fFin.getDate();
-            const mesFin = meses[fFin.getMonth()];
-            const anioFin = fFin.getFullYear();
 
-            if (dIni === dFin && fInicio.getMonth() === fFin.getMonth() && anioIni === anioFin) {
-                return `${dIni} de ${mesIni} del ${anioIni}`;
-            }
-            if (fInicio.getMonth() === fFin.getMonth() && anioIni === anioFin) {
-                return `del ${dIni} al ${dFin} de ${mesFin} del ${anioFin}`;
-            }
-            return `del ${dIni} de ${mesIni} al ${dFin} de ${mesFin} del ${anioFin}`;
+            return `${dIni} de ${mesIni} del ${anioIni}`;
         }
 
         function construirNombreArchivoCaptura() {
@@ -2157,21 +2162,6 @@
                 setTimeout(() => URL.revokeObjectURL(url), 15000);
             }
         }
-
-        /*
-         * ================================================================
-         * CAPTURA DE LA PÁGINA COMO JPG
-         * ================================================================
-         * html2canvas no siempre representa correctamente transformaciones
-         * CSS complejas (en particular, texto rotado) al convertir el DOM
-         * a un canvas. Para evitarlo, antes de capturar sustituimos SOLO en
-         * el DOM clonado por html2canvas la categoría vertical por una imagen
-         * SVG rasterizable que ya contiene el texto girado.
-         *
-         * Importante: el DOM real de la aplicación NO se modifica de forma
-         * permanente. Por eso la edición, selección y demás funcionalidades
-         * siguen funcionando exactamente igual después de descargar el JPG.
-         */
 
         let imagenMascaraCache = null;
 
@@ -2259,16 +2249,6 @@
             });
         }
 
-        /**
-         * Prepara una representación robusta de las categorías verticales
-         * exclusivamente dentro del documento clonado que recibe html2canvas.
-         *
-         * ¿Por qué SVG?
-         * - El navegador pinta el texto y la rotación dentro de la propia imagen.
-         * - html2canvas ya no necesita interpretar "transform: rotate(...)" sobre
-         *   un elemento de texto HTML.
-         * - El documento original conserva el texto HTML y su comportamiento.
-         */
         function prepararCategoriasParaCaptura(documentoClonado) {
             if (!documentoClonado) return;
 
@@ -2286,8 +2266,7 @@
                 const texto = (categoria.textContent || '').trim();
                 if (!texto) return;
 
-                // Mismo centro geométrico que el elemento CSS original....................................................................
-                const izquierdaPct = 0.4; /*posicion horizontal */
+                const izquierdaPct = 0.4;
                 const anchoElementoPct = 6.5;
                 const centroX = (anchoRecuadro * (izquierdaPct / 100)) +
                                 (anchoRecuadro * (anchoElementoPct / 100) / 2);
@@ -2299,7 +2278,6 @@
                 const fontStyle = estilo.fontStyle || 'italic';
                 const color = estilo.color || '#000000';
 
-                // Escapado XML para que el texto nunca rompa el SVG.
                 const textoSVG = texto
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
@@ -2309,11 +2287,6 @@
 
                 const fontFamilySVG = fontFamily.replace(/"/g, '&quot;');
 
-                /*
-                 * El texto se rota DENTRO del SVG. Por tanto html2canvas
-                 * captura una imagen ya girada y no necesita procesar la
-                 * transformación CSS problemática.
-                 */
                 const svg = `
                     <svg xmlns="http://www.w3.org/2000/svg"
                          width="${anchoRecuadro}"
@@ -2349,7 +2322,6 @@
                 imagenCategoria.src =
                     'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 
-                // La imagen ocupa todo el recuadro y el SVG decide dónde va el texto.
                 imagenCategoria.style.position = 'absolute';
                 imagenCategoria.style.top = '0';
                 imagenCategoria.style.left = '0';
@@ -2358,7 +2330,6 @@
                 imagenCategoria.style.zIndex = '5';
                 imagenCategoria.style.pointerEvents = 'none';
 
-                // Ocultamos la versión CSS SOLO dentro del clon.
                 categoria.style.visibility = 'hidden';
                 categoria.insertAdjacentElement('afterend', imagenCategoria);
             });
@@ -2409,15 +2380,9 @@
                     y: 0,
                     scrollX: 0,
                     scrollY: 0,
-
-                    /*
-                     * onclone corrige las categorías verticales únicamente en
-                     * la copia que html2canvas utiliza para generar el JPG.
-                     */
                     onclone: (documentoClonado) => {
                         prepararCategoriasParaCaptura(documentoClonado);
                     },
-
                     ignoreElements: (el) => el && el.classList && el.classList.contains('no-captura')
                 });
 
@@ -2447,11 +2412,7 @@
          * ================================================================
          * GUARDAR HISTÓRICO (Historico.txt)
          * ================================================================
-         * Usa File System Access API cuando está disponible y mantiene
-         * un fallback mediante localStorage + descarga del archivo.
          */
-        // ================== GUARDAR HISTÓRICO (Historico.txt) ==================
-
         const HIST_DB_NOMBRE = 'NouVoleiAlziraDB';
         const HIST_DB_VERSION = 1;
         const HIST_DB_STORE = 'handles';
@@ -2479,161 +2440,11 @@
                     const tx = db.transaction(HIST_DB_STORE, 'readonly');
                     const store = tx.objectStore(HIST_DB_STORE);
                     const req = store.get(HIST_CLAVE_HANDLE);
-                    req.onsuccess = () => resolve(req.result || null);
+                    req.onsuccess = () => resolve(req.result);
                     req.onerror = () => reject(req.error);
                 });
-            } catch (err) {
+            } catch (e) {
                 return null;
-            }
-        }
-
-        async function histGuardarHandle(handle) {
-            try {
-                const db = await histAbrirDB();
-                await new Promise((resolve, reject) => {
-                    const tx = db.transaction(HIST_DB_STORE, 'readwrite');
-                    const store = tx.objectStore(HIST_DB_STORE);
-                    const req = store.put(handle, HIST_CLAVE_HANDLE);
-                    req.onsuccess = () => resolve();
-                    req.onerror = () => reject(req.error);
-                });
-            } catch (err) {
-                console.warn('No se pudo recordar el archivo histórico seleccionado.', err);
-            }
-        }
-
-        function histObtenerTextoFechaGeneral() {
-            const elSpan = document.querySelector('#headerTextoFecha span');
-            if (elSpan && elSpan.textContent.trim() !== '') {
-                return elSpan.textContent.trim();
-            }
-            return '';
-        }
-
-        function histConstruirBloqueDatos() {
-            const lineas = [];
-            lineas.push(histObtenerTextoFechaGeneral());
-
-            const recuadros = document.querySelectorAll('.recuadro-partido');
-            recuadros.forEach(recuadro => {
-                const nombresEquipo = recuadro.querySelectorAll('.nombre-equipo');
-
-                // Reemplazar saltos de línea/etiquetas por espacios y limpiar espacios dobles
-                const equipoCasa = nombresEquipo[0] 
-                    ? (nombresEquipo[0].innerText || nombresEquipo[0].textContent).replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim() 
-                    : '';
-
-                const equipoVisitante = nombresEquipo[1] 
-                    ? (nombresEquipo[1].innerText || nombresEquipo[1].textContent).replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim() 
-                    : '';
-
-                const estado = recuadro.datosEstado || {};
-                const fecha = (estado.fecha || '').trim();
-                const hora = (estado.hora || '').trim();
-                const lugar = (estado.lugar || '').trim();
-                const categoria = (recuadro.getAttribute('data-categoria') || '').trim();
-
-                lineas.push(`${equipoCasa} | ${equipoVisitante} | ${fecha} | ${hora} | ${lugar} | ${categoria}`);
-            });
-
-            return lineas.join('\n');
-        }
-
-        async function histLeerArchivoComoTexto(handle) {
-            const archivo = await handle.getFile();
-            return await archivo.text();
-        }
-
-        async function histGuardarConFileSystemAPI(bloqueNuevo) {
-            let handle = await histObtenerHandleGuardado();
-
-            if (handle) {
-                const permisoActual = await handle.queryPermission({ mode: 'readwrite' });
-                if (permisoActual !== 'granted') {
-                    const permisoSolicitado = await handle.requestPermission({ mode: 'readwrite' });
-                    if (permisoSolicitado !== 'granted') {
-                        handle = null;
-                    }
-                }
-            }
-
-            if (!handle) {
-                handle = await window.showSaveFilePicker({
-                    suggestedName: 'Historico.txt',
-                    types: [{ description: 'Archivo de texto', accept: { 'text/plain': ['.txt'] } }]
-                });
-                await histGuardarHandle(handle);
-            }
-
-            let contenidoActual = '';
-            try {
-                contenidoActual = await histLeerArchivoComoTexto(handle);
-            } catch (err) {
-                contenidoActual = '';
-            }
-
-            const nuevoContenido = contenidoActual.trim() !== ''
-                ? bloqueNuevo + '\n\n' + contenidoActual
-                : bloqueNuevo;
-
-            const writable = await handle.createWritable();
-            await writable.write(nuevoContenido);
-            await writable.close();
-        }
-
-        function histDescargarFallback(bloqueNuevo) {
-            let contenidoPrevio = '';
-            try {
-                contenidoPrevio = localStorage.getItem(HIST_CLAVE_LOCALSTORAGE) || '';
-            } catch (err) {
-                contenidoPrevio = '';
-            }
-
-            const nuevoContenido = contenidoPrevio.trim() !== ''
-                ? bloqueNuevo + '\n\n' + contenidoPrevio
-                : bloqueNuevo;
-
-            try {
-                localStorage.setItem(HIST_CLAVE_LOCALSTORAGE, nuevoContenido);
-            } catch (err) {
-                console.warn('No se pudo guardar el histórico en el almacenamiento local del navegador.', err);
-            }
-
-            const blob = new Blob([nuevoContenido], { type: 'text/plain;charset=utf-8' });
-            descargarBlobComoArchivo(blob, 'Historico.txt');
-        }
-
-        async function guardarHistorico() {
-            const boton = document.getElementById('btnGuardarHistorico');
-            const textoBoton = document.getElementById('btnGuardarHistoricoTexto');
-            if (!boton || boton.disabled) return;
-
-            const textoOriginal = textoBoton ? textoBoton.textContent : 'Guardar histórico';
-            boton.disabled = true;
-            if (textoBoton) textoBoton.textContent = 'Guardando...';
-
-            try {
-                const bloqueNuevo = histConstruirBloqueDatos();
-
-                if ('showSaveFilePicker' in window) {
-                    try {
-                        await histGuardarConFileSystemAPI(bloqueNuevo);
-                    } catch (err) {
-                        if (err && err.name === 'AbortError') {
-                            return;
-                        }
-                        console.warn('No se pudo guardar directamente en el archivo, se usará la descarga.', err);
-                        histDescargarFallback(bloqueNuevo);
-                    }
-                } else {
-                    histDescargarFallback(bloqueNuevo);
-                }
-            } catch (err) {
-                console.error('Error al guardar el histórico:', err);
-                alert('No se ha podido guardar el histórico. Inténtalo de nuevo.');
-            } finally {
-                boton.disabled = false;
-                if (textoBoton) textoBoton.textContent = textoOriginal;
             }
         }
     </script>
