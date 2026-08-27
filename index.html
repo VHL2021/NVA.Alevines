@@ -9,9 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
     <title>Nou Volei Alzira - Selección de Equipos</title>
-    <!-- Librería SheetJS (XLSX) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Librería html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /*
@@ -749,6 +747,52 @@
             }
         }
 
+        /* Botón flotante: Cargar DATOS */
+        .btn-cargar-datos {
+            position: fixed;
+            right: calc(16px + env(safe-area-inset-right));
+            bottom: calc(16px + env(safe-area-inset-bottom) + 124px);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #ff9800;
+            color: #ffffff;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 30px;
+            font-size: 0.95em;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+            touch-action: manipulation;
+            transition: background-color 0.2s, transform 0.15s, opacity 0.2s;
+        }
+        .btn-cargar-datos svg {
+            flex-shrink: 0;
+        }
+        .btn-cargar-datos:active {
+            transform: scale(0.96);
+        }
+        .btn-cargar-datos:disabled {
+            opacity: 0.6;
+            cursor: default;
+            transform: none;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .btn-cargar-datos:hover {
+                background-color: #ffa726;
+            }
+        }
+        @media (max-width: 480px) {
+            .btn-cargar-datos {
+                padding: 10px 14px;
+                font-size: 0.8em;
+                bottom: calc(16px + env(safe-area-inset-bottom) + 108px);
+            }
+        }
+
         .selector-hora-wrap {
             display: flex;
             gap: 20px;
@@ -890,7 +934,6 @@
             <div class="header-texto-fecha" id="headerTextoFecha"></div>
         </div>
 
-        <!-- 2. CAMPO DE TEXTO DEBAJO DE LA CABECERA (CAMPO DE JUEGO) -->
         <div class="header-campo-juego-container">
             <input type="text" id="headerInputCampoJuego" class="header-campo-juego-input" value="PALAU D'ESPORTS (ALZIRA)" placeholder="CAMPO DE JUEGO" oninput="sincronizarCampoJuegoDesdeHeader(this.value)" />
         </div>
@@ -898,7 +941,6 @@
         <div id="contenedorRecuadros"></div>
     </div>
 
-    <!-- Modal Rango de Fechas -->
     <div class="modal-overlay" id="modalDateRange">
         <div class="date-range-modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px;">
@@ -923,7 +965,6 @@
         </div>
     </div>
 
-    <!-- Modal Selección Principal -->
     <div class="modal-overlay" id="modalEquipos">
         <div class="modal-content">
             <div class="modal-header">
@@ -934,7 +975,6 @@
                 </div>
             </div>
             <div class="modal-body">
-                <!-- 1. CASILLA NOMBRE DEL CAMPO DE JUEGO (Sincronizada con el header) -->
                 <div class="campo-juego-container">
                     <label for="inputCampoJuego">CAMPO DE JUEGO:</label>
                     <input type="text" id="inputCampoJuego" class="campo-juego-input" value="PALAU D'ESPORTS (ALZIRA)" placeholder="Nombre del campo..." oninput="sincronizarCampoJuegoDesdeModal(this.value)" />
@@ -945,9 +985,7 @@
                         <tr>
                             <th style="width: 40px;">Logo</th>
                             <th>Nombre</th>
-                            <!-- 2. ELIMINADA LA COLUMNA CATEGORÍA -->
                             <th style="text-align: center;">Juega</th>
-                            <!-- 3. NUEVA COLUMNA HORA -->
                             <th style="text-align: center;">Hora</th>
                         </tr>
                     </thead>                            
@@ -963,7 +1001,6 @@
         </div>
     </div>
 
-    <!-- Modal Rivales -->
     <div class="modal-overlay" id="modalRivales">
         <div class="modal-content">
             <div class="modal-header">
@@ -986,7 +1023,6 @@
         </div>
     </div>
 
-    <!-- Modal Modificar Rival Distinta Categoría -->
     <div class="modal-overlay" id="modalEditarRival">
         <div class="modal-content" style="max-width: 480px;">
             <div class="modal-header">
@@ -1005,7 +1041,6 @@
         </div>
     </div>
 
-    <!-- Modal Selector de Hora -->
     <div class="modal-overlay" id="modalHora">
         <div class="modal-content" style="max-width: 380px;">
             <div class="modal-header">
@@ -1033,20 +1068,27 @@
         </div>
     </div>
 
-    <!-- Botón flotante -->
+    <input type="file" id="inputCargarDatos" accept=".txt" style="display: none;" onchange="procesarArchivoDatos(this.files)" />
+
     <button type="button" id="btnCapturarPagina" class="btn-captura-pagina no-captura" onclick="capturarPaginaComoJPG()" aria-label="Descargar imagen de los partidos">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
-            <path d="M9 3l-1.83 2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+            <path d="M9 3l-1.83 2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
         </svg>
         <span id="btnCapturarTexto">Descargar imagen</span>
     </button>
 
-    <!-- Botón flotante: Guardar histórico -->
     <button type="button" id="btnGuardarHistorico" class="btn-guardar-historico no-captura" onclick="guardarHistorico()" aria-label="Guardar datos en el histórico">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
             <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
         </svg>
         <span id="btnGuardarHistoricoTexto">Guardar histórico</span>
+    </button>
+
+    <button type="button" id="btnCargarDatos" class="btn-cargar-datos no-captura" onclick="abrirExploradorCargarDatos()" aria-label="Cargar DATOS desde archivo TXT">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+        </svg>
+        <span id="btnCargarDatosTexto">Cargar DATOS</span>
     </button>
 
     <script>
@@ -1064,13 +1106,14 @@
         let listaEquiposGlobal = [];
         let listaOtrosEquiposGlobal = [];
         let workbookGlobal = null;
+
         const modal = document.getElementById('modalEquipos');
         const modalRivales = document.getElementById('modalRivales');
         const modalEditarRival = document.getElementById('modalEditarRival');
         const modalHora = document.getElementById('modalHora');
         const modalDateRange = document.getElementById('modalDateRange');
-        let elementoHoraActual = null;
 
+        let elementoHoraActual = null;
         let datosCargados = false;
         let elementoNombreRivalActual = null;
         let elementoLogoRivalActual = null;
@@ -1117,6 +1160,7 @@
         }
 
         let mapaDatosPartidos = {};
+
         const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
         let calFechaVista = new Date();
@@ -1141,7 +1185,6 @@
                 calFechaInicio = null;
                 calFechaFin = null;
             }
-
             renderizarCalendarioRango();
         }
 
@@ -1152,7 +1195,6 @@
                 calFechaFinEfectiva = new Date(calFechaInicio.getTime());
                 escribirTextoFechaEnCabecera(calFechaInicioEfectiva, calFechaFinEfectiva);
             }
-
             modalDateRange.style.display = 'none';
             alCerrarModal();
             abrirModal();
@@ -1187,7 +1229,6 @@
 
         function renderizarCalendarioRango() {
             if (!calFechaVista) calFechaVista = new Date();
-
             const anio = calFechaVista.getFullYear();
             const mes = calFechaVista.getMonth();
 
@@ -1248,8 +1289,7 @@
             elSpan.style.transform = 'scaleX(1)';
             elSpan.style.lineHeight = '1.2';
 
-            const padding = parseFloat(window.getComputedStyle(elContenedor).paddingLeft) + 
-                            parseFloat(window.getComputedStyle(elContenedor).paddingRight);
+            const padding = parseFloat(window.getComputedStyle(elContenedor).paddingLeft) + parseFloat(window.getComputedStyle(elContenedor).paddingRight);
             const anchoDisponible = elContenedor.clientWidth - padding;
             const anchoTexto = elSpan.scrollWidth;
 
@@ -1259,21 +1299,203 @@
             }
         }
 
-        const selectH = document.getElementById('selectHoras');
-        for (let i = 0; i < 24; i++) {
-            const opt = document.createElement('option');
-            const val = i.toString().padStart(2, '0');
-            opt.value = val;
-            opt.textContent = val;
-            if (i === 9) opt.selected = true;
-            selectH.appendChild(opt);
+        window.addEventListener('resize', autoAjustarTextoCabecera);
+
+        function poblarSelectHorasModal() {
+            const sHoras = document.getElementById('selectHoras');
+            if (!sHoras) return;
+            sHoras.innerHTML = '';
+            for (let i = 8; i <= 23; i++) {
+                const hStr = i.toString().padStart(2, '0');
+                const opt = document.createElement('option');
+                opt.value = hStr;
+                opt.textContent = hStr;
+                sHoras.appendChild(opt);
+            }
+        }
+
+        function abrirModalHora(elTextoEditable) {
+            elementoHoraActual = elTextoEditable;
+            poblarSelectHorasModal();
+
+            let valActual = (elTextoEditable.textContent || '').trim();
+            if (valActual.toUpperCase() === 'HORA') valActual = '09:00';
+
+            const partes = valActual.split(':');
+            let hVal = partes[0] || '09';
+            let mVal = partes[1] || '00';
+
+            if (hVal.length === 1) hVal = '0' + hVal;
+
+            const sHoras = document.getElementById('selectHoras');
+            const sMins = document.getElementById('selectMinutos');
+
+            if (sHoras) sHoras.value = hVal;
+            if (sMins) {
+                let existe = Array.from(sMins.options).some(o => o.value === mVal);
+                if (!existe) {
+                    const oCustom = document.createElement('option');
+                    oCustom.value = mVal;
+                    oCustom.textContent = mVal;
+                    sMins.appendChild(oCustom);
+                }
+                sMins.value = mVal;
+            }
+
+            modalHora.style.display = 'flex';
+            alAbrirModal();
+        }
+
+        function confirmarHoraModal() {
+            if (elementoHoraActual) {
+                const hVal = document.getElementById('selectHoras').value;
+                const mVal = document.getElementById('selectMinutos').value;
+                const horaFinal = `${hVal}:${mVal}`;
+
+                elementoHoraActual.textContent = horaFinal;
+                elementoHoraActual.classList.remove('vacio');
+
+                const recuadro = elementoHoraActual.closest('.recuadro-partido');
+                if (recuadro) {
+                    const idEquipo = recuadro.getAttribute('data-id-equipo');
+                    if (idEquipo) {
+                        const row = document.querySelector(`tr[data-id="${idEquipo}"]`);
+                        if (row) {
+                            const selHora = row.querySelector('.select-hora-tabla');
+                            if (selHora) selHora.value = horaFinal;
+                        }
+                    }
+                }
+
+                autoAjustarTextoSegunSuperficie(elementoHoraActual);
+            }
+            modalHora.style.display = 'none';
+            alCerrarModal();
+        }
+
+        async function cargarExcel() {
+            try {
+                const response = await fetch('DATOS/EQUIPOS.xlsx');
+                if (!response.ok) throw new Error("No se encontró DATOS/EQUIPOS.xlsx");
+                const arrayBuffer = await response.arrayBuffer();
+                
+                workbookGlobal = XLSX.read(arrayBuffer, { type: 'array' });
+                
+                const sheetEquipos = workbookGlobal.Sheets["EQUIPOS"];
+                if (sheetEquipos) {
+                    listaEquiposGlobal = XLSX.utils.sheet_to_json(sheetEquipos);
+                } else {
+                    listaEquiposGlobal = equiposRespaldo;
+                }
+
+                const sheetOtros = workbookGlobal.Sheets["OTROS EQUIPOS"];
+                if (sheetOtros) {
+                    listaOtrosEquiposGlobal = XLSX.utils.sheet_to_json(sheetOtros);
+                }
+
+                renderizarTabla(listaEquiposGlobal);
+                datosCargados = true;
+            } catch (error) {
+                console.warn("Cargando datos de respaldo local:", error.message);
+                listaEquiposGlobal = equiposRespaldo;
+                renderizarTabla(listaEquiposGlobal);
+                datosCargados = true;
+            }
+        }
+
+        function generarOpcionesHoraSelect(horaSeleccionada = '') {
+            let html = `<option value="">HORA</option>`;
+            for (let h = 8; h <= 23; h++) {
+                const hStr = h.toString().padStart(2, '0');
+                ['00', '15', '30', '45'].forEach(m => {
+                    const horaFormat = `${hStr}:${m}`;
+                    const selected = (horaFormat === horaSeleccionada) ? 'selected' : '';
+                    html += `<option value="${horaFormat}" ${selected}>${horaFormat}</option>`;
+                });
+            }
+            return html;
+        }
+
+        function renderizarTabla(equipos) {
+            const tbody = document.getElementById('tablaBody');
+            tbody.innerHTML = '';
+
+            equipos.forEach((eq, index) => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', index);
+                
+                const rutaLogo = `Imagenes/LOGOS LOCALES/${eq.LOGO}.png`;
+                const nombreEquipo = eq.EQUIPO || 'S/N';
+                const categoria = eq.CATEGORIA || 'S/C';
+
+                tr.innerHTML = `
+                    <td style="text-align: center;">
+                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.src='Imagenes/LOGOS LOCALES/NVA.png'">
+                    </td>
+                    <td>
+                        <strong style="color: #fff; font-size: 1.05em;">${nombreEquipo}</strong>
+                        <div style="color: #aaa; font-size: 0.85em; margin-top: 2px;">${categoria}</div>
+                    </td>
+                    <td class="acciones-td" style="text-align: center;">
+                        <button type="button" class="btn-casa" onclick="seleccionarRol(${index}, 'casa')">CASA</button>
+                        <button type="button" class="btn-fuera" onclick="seleccionarRol(${index}, 'fuera')">FUERA</button>
+                    </td>
+                    <td style="text-align: center;">
+                        <select class="select-hora-tabla" onchange="actualizarHoraModal(${index}, this.value)">
+                            ${generarOpcionesHoraSelect()}
+                        </select>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function actualizarHoraModal(indexEquipo, hora) {
+            mapaDatosPartidos[indexEquipo] = mapaDatosPartidos[indexEquipo] || {};
+            mapaDatosPartidos[indexEquipo].hora = hora;
+        }
+
+        function seleccionarRol(index, rol) {
+            const fila = document.querySelector(`tr[data-id="${index}"]`);
+            
+            mapaDatosPartidos[index] = mapaDatosPartidos[index] || {};
+
+            if (mapaDatosPartidos[index].rol === rol) {
+                delete mapaDatosPartidos[index].rol;
+                fila.classList.remove('selected-casa', 'selected-fuera');
+            } else {
+                mapaDatosPartidos[index].rol = rol;
+                fila.classList.remove('selected-casa', 'selected-fuera');
+                fila.classList.add(rol === 'casa' ? 'selected-casa' : 'selected-fuera');
+            }
+        }
+
+        function resetearSeleccion() {
+            mapaDatosPartidos = {};
+            document.querySelectorAll('#tablaBody tr').forEach(tr => {
+                tr.classList.remove('selected-casa', 'selected-fuera');
+                const selHora = tr.querySelector('.select-hora-tabla');
+                if (selHora) selHora.value = '';
+            });
+
+            const inputCampoModal = document.getElementById('inputCampoJuego');
+            const inputCampoHeader = document.getElementById('headerInputCampoJuego');
+            if (inputCampoModal) inputCampoModal.value = "PALAU D'ESPORTS (ALZIRA)";
+            if (inputCampoHeader) inputCampoHeader.value = "PALAU D'ESPORTS (ALZIRA)";
+
+            const contenedor = document.getElementById('contenedorRecuadros');
+            if (contenedor) contenedor.innerHTML = '';
         }
 
         function abrirModal() {
-            modal.style.display = 'flex';
-            alAbrirModal();
             if (!datosCargados) {
-                intentarCargarExcelOUsarRespaldo();
+                cargarExcel().then(() => {
+                    modal.style.display = 'flex';
+                    alAbrirModal();
+                });
+            } else {
+                modal.style.display = 'flex';
+                alAbrirModal();
             }
         }
 
@@ -1282,1170 +1504,490 @@
             alCerrarModal();
         }
 
-        function cerrarModalRivales() {
-            modalRivales.style.display = 'none';
-            alCerrarModal();
-        }
-
-        function resetearSeleccion() {
-            const filas = document.querySelectorAll('#tablaBody tr[id^="fila-"]');
-            filas.forEach(tr => {
-                tr.classList.remove('selected-casa', 'selected-fuera');
-            });
-            mapaDatosPartidos = {};
-            document.getElementById('contenedorRecuadros').innerHTML = '';
-        }
-
-        function abrirSelectorHora(spanHora, recuadro) {
-            elementoHoraActual = spanHora;
-            const textoActual = spanHora.textContent.trim();
-            
-            const regex = /^(\d{1,2})\s*:\s*(\d{2})\s*H$/i;
-            const match = textoActual.match(regex);
-            if (match) {
-                selectH.value = match[1].padStart(2, '0');
-                document.getElementById('selectMinutos').value = match[2];
-            } else {
-                selectH.value = '09';
-                document.getElementById('selectMinutos').value = '00';
-            }
-            modalHora.style.display = 'flex';
-            alAbrirModal();
-        }
-
-        function confirmarHoraModal() {
-            if (elementoHoraActual) {
-                const h = selectH.value;
-                const m = document.getElementById('selectMinutos').value;
-                const valorFinal = `${h} : ${m} H`;
-                elementoHoraActual.textContent = valorFinal;
-                elementoHoraActual.classList.remove('vacio');
-                autoAjustarTextoInfo(elementoHoraActual);
-
-                const rec = elementoHoraActual.closest('.recuadro-partido');
-                if (rec && rec.datosEstado) {
-                    rec.datosEstado.hora = valorFinal;
-                }
-            }
-            modalHora.style.display = 'none';
-            alCerrarModal();
-        }
-
-        async function intentarCargarExcelOUsarRespaldo() {
-            const fileNames = ['DATOS.xls'];
-            let response = null;
-
-            for (let name of fileNames) {
-                try {
-                    const res = await fetch(name);
-                    if (res.ok) {
-                        response = res;
-                        break;
-                    }
-                } catch (e) {}
-            }
-
-            if (response) {
-                try {
-                    const arrayBuffer = await response.arrayBuffer();
-                    const data = new Uint8Array(arrayBuffer);
-                    workbookGlobal = XLSX.read(data, {type: 'array'});
-                    
-                    let sheetName = null;
-                    const posiblesPestañas = ["Equipos NVA", "equipos nva", "Equipos_NVA", "Equipos"];
-                    
-                    for (let p of posiblesPestañas) {
-                        if (workbookGlobal.Sheets[p]) {
-                            sheetName = p;
-                            break;
-                        }
-                    }
-
-                    if (!sheetName && workbookGlobal.SheetNames.length > 0) {
-                        sheetName = workbookGlobal.SheetNames[0];
-                    }
-
-                    if (sheetName && workbookGlobal.Sheets[sheetName]) {
-                        const sheet = workbookGlobal.Sheets[sheetName];
-                        const datosExcel = XLSX.utils.sheet_to_json(sheet);
-                        if (datosExcel.length > 0) {
-                            listaEquiposGlobal = datosExcel;
-                            renderizarTabla(listaEquiposGlobal);
-                            cargarPestañaOtrosEquipos();
-                            datosCargados = true;
-                            return;
-                        }
-                    }
-                } catch (err) {
-                    console.warn("Error leyendo excel, usando respaldo:", err);
-                }
-            }
-
-            listaEquiposGlobal = equiposRespaldo;
-            listaOtrosEquiposGlobal = equiposRespaldo;
-            renderizarTabla(listaEquiposGlobal);
-            datosCargados = true;
-        }
-
-        function cargarPestañaOtrosEquipos() {
-            if (!workbookGlobal) return;
-            let sheetNameOtros = null;
-            const posibles = ["OTROS Equipos", "Otros Equipos", "otros equipos", "OTROS_EQUIPOS", "Otros"];
-            
-            for (let p of posibles) {
-                if (workbookGlobal.Sheets[p]) {
-                    sheetNameOtros = p;
-                    break;
-                }
-            }
-            if (!sheetNameOtros) {
-                for (let name of workbookGlobal.SheetNames) {
-                    if (name.toLowerCase().includes('otro')) {
-                        sheetNameOtros = name;
-                        break;
-                    }
-                }
-            }
-            if (sheetNameOtros && workbookGlobal.Sheets[sheetNameOtros]) {
-                const sheet = workbookGlobal.Sheets[sheetNameOtros];
-                listaOtrosEquiposGlobal = XLSX.utils.sheet_to_json(sheet);
-            } else {
-                listaOtrosEquiposGlobal = listaEquiposGlobal;
-            }
-        }
-
-        function obtenerNombreEquipo(fila) {
-            return (fila['EQUIPO'] || fila['Nombre'] || fila['Equipo'] || fila['nombre'] || 'Equipo').toString().trim();
-        }
-        function obtenerCategoria(fila) {
-            return (fila['CATEGORIA'] || fila['Categoria'] || fila['Categoría'] || fila['CATEGORÍA'] || '').toString().trim();
-        }
-        function obtenerCampo(fila) {
-            return (fila['CAMPO'] || fila['Campo'] || fila['campo'] || fila['LUGAR'] || fila['Lugar'] || fila['UBICACION'] || fila['Ubicacion'] || fila['UBICACIÓN'] || fila['Ubicación'] || fila['PABELLON'] || fila['Pabellon'] || fila['PABELLÓN'] || fila['Pabellón'] || '').toString().trim();
-        }
-        function obtenerColor(fila) {
-            let c = fila['COLOR'] || fila['Color'] || fila['color'] || '';
-            c = (typeof c === 'string') ? c.trim() : '';
-            if (c === '') return '#00B0F0';
-            if (!c.startsWith('#')) c = '#' + c;
-            return c;
-        }
-        
-        function obtenerRutaLogo(fila) {
-            const logoValor = fila['LOGO'] || fila['Logo'] || fila['logo'] || fila['Icono'] || fila['ICONO'] || fila['Imagen'] || '';
-            const nombre = obtenerNombreEquipo(fila);
-            let rutaBase = '';
-            if (logoValor && typeof logoValor === 'string' && logoValor.trim() !== '') {
-                let val = logoValor.trim();
-                if (!val.toLowerCase().endsWith('.png') && !val.toLowerCase().endsWith('.jpg') && !val.toLowerCase().endsWith('.jpeg') && !val.toLowerCase().endsWith('.svg')) {
-                    rutaBase = val + '.png';
-                } else {
-                    rutaBase = val;
-                }
-            } else {
-                rutaBase = nombre.trim() + '.png';
-            }
-            if (!rutaBase.toLowerCase().startsWith('logos/') && !rutaBase.toLowerCase().startsWith('logos\\')) {
-                return 'LOGOs/' + rutaBase;
-            }
-            return rutaBase;
-        }
-
-        const SVG_LOGO_VACIO = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='none'/></svg>";
-
-        /* Genera las opciones de hora de 9:00 a 15:00 en tramos de 30 minutos */
-        function generarOpcionesHoraSelect() {
-            let html = '<option value="">HORA</option>';
-            for (let h = 9; h <= 15; h++) {
-                const horaStr = `${h}:00`;
-                html += `<option value="${horaStr}">${horaStr}</option>`;
-                if (h < 15) {
-                    const horaMediaStr = `${h}:30`;
-                    html += `<option value="${horaMediaStr}">${horaMediaStr}</option>`;
-                }
-            }
-            return html;
-        }
-
-        function renderizarTabla(datos) {
-            const tbody = document.getElementById('tablaBody');
-            tbody.innerHTML = '';
-
-            const opcionesHora = generarOpcionesHoraSelect();
-
-            datos.forEach((fila, index) => {
-                const tr = document.createElement('tr');
-                tr.id = `fila-${index}`;
-
-                const nombre = obtenerNombreEquipo(fila);
-                const rutaLogo = obtenerRutaLogo(fila);
-
-                tr.innerHTML = `
-                    <td>
-                        <img src="${rutaLogo}" class="team-icon" alt="${nombre}" 
-                             onerror="this.onerror=null; this.src=SVG_LOGO_VACIO;">
-                    </td>
-                    <td style="font-weight: 600;">${nombre}</td>
-                    <td class="acciones-td" style="text-align: center;">
-                        <button class="btn-casa" onclick="seleccionarEquipo(${index}, 'casa')">CASA</button>
-                        <button class="btn-fuera" onclick="seleccionarEquipo(${index}, 'fuera')">FUERA</button>
-                    </td>
-                    <td style="text-align: center;">
-                        <select id="select-hora-${index}" class="select-hora-tabla">
-                            ${opcionesHora}
-                        </select>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function seleccionarEquipo(index, tipo) {
-            const tr = document.getElementById(`fila-${index}`);
-            const yaCasa = tr.classList.contains('selected-casa');
-            const yaFuera = tr.classList.contains('selected-fuera');
-
-            tr.classList.remove('selected-casa', 'selected-fuera');
-
-            if (tipo === 'casa' && !yaCasa) {
-                tr.classList.add('selected-casa');
-            } else if (tipo === 'fuera' && !yaFuera) {
-                tr.classList.add('selected-fuera');
-            }
-        }
-
-        const RUTA_FONDO = 'Imagenes/Recuadro (fondo).png';
-        const RUTA_MASCARA_IMG = 'Imagenes/Recuadro (mascara).png';
-        const RUTA_MASCARA = `url('${RUTA_MASCARA_IMG}')`;
-
-        function confirmarSeleccion() {
-            generarRecuadros();
-            cerrarModal();
-            const cont = document.getElementById('contenedorRecuadros');
-            if (cont.children.length > 0) {
-                cont.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-
-        // Función auxiliar para parsear texto de fecha a objeto Date para ordenar cronológicamente
-        function parsearFechaTexto(fechaTexto) {
-            if (!fechaTexto || fechaTexto.trim() === '' || fechaTexto.toUpperCase() === 'FECHA') {
-                return new Date(8640000000000000); // Fecha máxima si no hay fecha asignada
-            }
-            
-            // Si la fecha está en formato "D de MES de AAAA" o similar
-            const regex = /(\d{1,2})\s+de\s+([a-zA-ZáéíóúÁÉÍÓÚ]+)(?:\s+de\s+(\d{4}))?/i;
-            const match = fechaTexto.match(regex);
-            if (match) {
-                const dia = parseInt(match[1], 10);
-                const mesNombre = match[2].toLowerCase();
-                const anio = match[3] ? parseInt(match[3], 10) : (calFechaInicioEfectiva ? calFechaInicioEfectiva.getFullYear() : new Date().getFullYear());
-                
-                const mesIdx = meses.findIndex(m => m.toLowerCase() === mesNombre);
-                if (mesIdx !== -1) {
-                    return new Date(anio, mesIdx, dia);
-                }
-            }
-            
-            const timestamp = Date.parse(fechaTexto);
-            if (!isNaN(timestamp)) {
-                return new Date(timestamp);
-            }
-            
-            return new Date(8640000000000000);
-        }
-
-        // Función auxiliar para parsear hora
-        function parsearHoraTexto(horaTexto) {
-            if (!horaTexto || horaTexto.trim() === '' || horaTexto.toUpperCase() === 'HORA') {
-                return 9999;
-            }
-            const regex = /(\d{1,2})\s*:\s*(\d{2})/;
-            const match = horaTexto.match(regex);
-            if (match) {
-                return parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
-            }
-            return 9999;
-        }
-
-        function generarRecuadros() {
-            const cont = document.getElementById('contenedorRecuadros');
-            
-            const recuadrosExistentes = cont.querySelectorAll('.recuadro-partido');
-            recuadrosExistentes.forEach(rec => {
-                const idx = rec.getAttribute('data-index');
-                if (idx !== null && rec.datosEstado) {
-                    mapaDatosPartidos[idx] = { ...rec.datosEstado };
-                }
-            });
-
-            const filas = document.querySelectorAll('#tablaBody tr[id^="fila-"]');
-            const nuevosIndices = [];
-            
-            filas.forEach(tr => {
-                let tipo = null;
-                if (tr.classList.contains('selected-casa')) tipo = 'casa';
-                else if (tr.classList.contains('selected-fuera')) tipo = 'fuera';
-                if (!tipo) return;
-
-                const index = parseInt(tr.id.replace('fila-', ''), 10);
-                const selectHoraVal = document.getElementById(`select-hora-${index}`) ? document.getElementById(`select-hora-${index}`).value : '';
-                
-                nuevosIndices.push({ index, tipo, horaSeleccionada: selectHoraVal });
-            });
-
-            const setNuevos = new Set(nuevosIndices.map(n => n.index.toString()));
-            Object.keys(mapaDatosPartidos).forEach(k => {
-                if (!setNuevos.has(k)) {
-                    delete mapaDatosPartidos[k];
-                }
-            });
-
-            cont.innerHTML = '';
-
-            // Preparar elementos de partidos para ordenar cronológicamente
-            const listaPartidos = [];
-
-            nuevosIndices.forEach(item => {
-                const fila = listaEquiposGlobal[item.index];
-                if (!fila) return;
-
-                let estadoGuardado = mapaDatosPartidos[item.index];
-                if (estadoGuardado && estadoGuardado.tipo !== item.tipo) {
-                    estadoGuardado.tipo = item.tipo;
-                }
-                
-                // Si se ha seleccionado una hora en la lista desplegable de la tabla, actualizarla
-                if (item.horaSeleccionada) {
-                    const horaFormateada = `${item.horaSeleccionada} H`;
-                    if (!estadoGuardado) {
-                        estadoGuardado = {
-                            tipo: item.tipo,
-                            rivalNombre: '',
-                            rivalLogo: '',
-                            fecha: '',
-                            hora: horaFormateada,
-                            lugar: ''
-                        };
-                    } else {
-                        estadoGuardado.hora = horaFormateada;
-                    }
-                }
-
-                listaPartidos.push({
-                    fila: fila,
-                    tipo: item.tipo,
-                    indexFila: item.index,
-                    estadoInicial: estadoGuardado
-                });
-            });
-
-            // 3. ORDENAR LOS RECUADROS EN ORDEN CRONOLÓGICO SEGÚN SU FECHA (Y HORA)
-            listaPartidos.sort((a, b) => {
-                const fechaA = parsearFechaTexto(a.estadoInicial ? a.estadoInicial.fecha : '');
-                const fechaB = parsearFechaTexto(b.estadoInicial ? b.estadoInicial.fecha : '');
-                
-                if (fechaA.getTime() !== fechaB.getTime()) {
-                    return fechaA.getTime() - fechaB.getTime();
-                }
-                
-                const horaA = parsearHoraTexto(a.estadoInicial ? a.estadoInicial.hora : '');
-                const horaB = parsearHoraTexto(b.estadoInicial ? b.estadoInicial.hora : '');
-                return horaA - horaB;
-            });
-
-            listaPartidos.forEach(p => {
-                const nuevoRecuadro = crearRecuadro(p.fila, p.tipo, p.indexFila, p.estadoInicial);
-                cont.appendChild(nuevoRecuadro);
-            });
-        }
-
-        function crearRecuadro(fila, tipo, indexFila, estadoInicial) {
-            const color = obtenerColor(fila);
-            const logoClub = obtenerRutaLogo(fila);
-            const categoriaClub = obtenerCategoria(fila);
-            const esCasa = (tipo === 'casa');
-            const nombreClub = obtenerNombreEquipo(fila);
-
-            const estado = estadoInicial || {
-                tipo: tipo,
-                rivalNombre: '',
-                rivalLogo: '',
-                fecha: '',
-                hora: '',
-                lugar: ''
-            };
-            mapaDatosPartidos[indexFila] = estado;
-
-            const recuadro = document.createElement('div');
-            recuadro.className = 'recuadro-partido';
-            recuadro.setAttribute('data-index', indexFila);
-            recuadro.datosEstado = estado;
-            recuadro.setAttribute('data-categoria', categoriaClub);
-            recuadro.style.setProperty('--color-equipo', color);
-            recuadro.style.setProperty('--mask-img', RUTA_MASCARA);
-
-            const imgFondo = document.createElement('img');
-            imgFondo.className = 'capa-fondo';
-            imgFondo.src = RUTA_FONDO;
-            imgFondo.alt = 'Fondo';
-
-            const capaBorde = document.createElement('div');
-            capaBorde.className = 'capa-borde';
-
-            const primeraPalabraCat = categoriaClub ? categoriaClub.split(' ')[0] : '';
-            const textoVerticalCat = document.createElement('div');
-            textoVerticalCat.className = 'texto-categoria-vertical';
-            textoVerticalCat.textContent = primeraPalabraCat;
-
-            const contenido = document.createElement('div');
-            contenido.className = 'contenido-recuadro';
-
-            const areaIzq = document.createElement('div');
-            areaIzq.className = 'area-equipo-izq';
-            const spanIzq = document.createElement('span');
-            spanIzq.className = 'nombre-equipo';
-            areaIzq.appendChild(spanIzq);
-
-            const areaLogoIzq = document.createElement('div');
-            areaLogoIzq.className = 'area-logo-izq';
-            const logoIzq = document.createElement('img');
-            logoIzq.className = 'logo-img';
-            logoIzq.onerror = function () { this.onerror = null; this.src = SVG_LOGO_VACIO; };
-            areaLogoIzq.appendChild(logoIzq);
-
-            const areaLogoDer = document.createElement('div');
-            areaLogoDer.className = 'area-logo-der';
-            const logoDer = document.createElement('img');
-            logoDer.className = 'logo-img';
-            logoDer.onerror = function () { this.onerror = null; this.src = SVG_LOGO_VACIO; };
-            areaLogoDer.appendChild(logoDer);
-
-            const areaDer = document.createElement('div');
-            areaDer.className = 'area-equipo-der';
-            const spanDer = document.createElement('span');
-            spanDer.className = 'nombre-equipo';
-            areaDer.appendChild(spanDer);
-
-            if (esCasa) {
-                spanIzq.textContent = nombreClub;
-                logoIzq.src = logoClub;
-
-                if (estado.rivalNombre && estado.rivalNombre.trim() !== '') {
-                    spanDer.textContent = estado.rivalNombre;
-                    spanDer.classList.add('campo-editable');
-                    logoDer.src = estado.rivalLogo || SVG_LOGO_VACIO;
-                } else {
-                    spanDer.textContent = 'SELECCIONAR RIVAL';
-                    spanDer.classList.add('campo-editable', 'vacio');
-                    logoDer.src = SVG_LOGO_VACIO;
-                }
-                logoDer.style.cursor = 'pointer';
-
-                const dispararModal = () => abrirModalRivales(spanDer, logoDer, categoriaClub, recuadro);
-                spanDer.onclick = dispararModal;
-                logoDer.onclick = dispararModal;
-            } else {
-                if (estado.rivalNombre && estado.rivalNombre.trim() !== '') {
-                    spanIzq.textContent = estado.rivalNombre;
-                    spanIzq.classList.add('campo-editable');
-                    logoIzq.src = estado.rivalLogo || SVG_LOGO_VACIO;
-                } else {
-                    spanIzq.textContent = 'SELECCIONAR RIVAL';
-                    spanIzq.classList.add('campo-editable', 'vacio');
-                    logoIzq.src = SVG_LOGO_VACIO;
-                }
-                logoIzq.style.cursor = 'pointer';
-
-                spanDer.textContent = nombreClub;
-                logoDer.src = logoClub;
-
-                const dispararModal = () => abrirModalRivales(spanIzq, logoIzq, categoriaClub, recuadro);
-                spanIzq.onclick = dispararModal;
-                logoIzq.onclick = dispararModal;
-            }
-
-            const areaInfo = construirInfoPartido(recuadro, estado);
-
-            contenido.appendChild(areaIzq);
-            contenido.appendChild(areaLogoIzq);
-            contenido.appendChild(areaLogoDer);
-            contenido.appendChild(areaDer);
-            contenido.appendChild(areaInfo);
-
-            recuadro.appendChild(imgFondo);
-            recuadro.appendChild(capaBorde);
-            recuadro.appendChild(textoVerticalCat);
-            recuadro.appendChild(contenido);
-
-            setTimeout(() => {
-                autoAjustarTextoEquipo(spanIzq);
-                autoAjustarTextoEquipo(spanDer);
-                const camposInfo = areaInfo.querySelectorAll('.campo-editable-info');
-                camposInfo.forEach(c => autoAjustarTextoInfo(c));
-            }, 60);
-
-            return recuadro;
-        }
-
-        function aplicarRivalSeleccionado(nombre, rutaLogo, filaRival) {
-            if (elementoNombreRivalActual) {
-                elementoNombreRivalActual.textContent = nombre;
-                elementoNombreRivalActual.classList.remove('vacio');
-                setTimeout(() => autoAjustarTextoEquipo(elementoNombreRivalActual), 20);
-
-                const contenedorRecuadro = recuadroPadreRivalActual || elementoNombreRivalActual.closest('.recuadro-partido');
-                if (contenedorRecuadro && contenedorRecuadro.datosEstado) {
-                    contenedorRecuadro.datosEstado.rivalNombre = nombre;
-                    contenedorRecuadro.datosEstado.rivalLogo = rutaLogo;
-                }
-            }
-            if (elementoLogoRivalActual) {
-                elementoLogoRivalActual.src = rutaLogo;
-            }
-        }
-
-        function abrirModalEditarRival(fila) {
-            filaRivalPendienteEdicion = fila;
-            const input = document.getElementById('inputEditarNombreRival');
-            input.value = obtenerNombreEquipo(fila);
-            modalEditarRival.style.display = 'flex';
-            alAbrirModal();
-            setTimeout(() => {
-                input.focus();
-                input.select();
-            }, 100);
-        }
-
-        function cerrarModalEditarRival() {
-            modalEditarRival.style.display = 'none';
-            alCerrarModal();
-            filaRivalPendienteEdicion = null;
-        }
-
-        function confirmarEdicionRival() {
-            if (!filaRivalPendienteEdicion) return;
-            const nuevoNombre = document.getElementById('inputEditarNombreRival').value.trim() || obtenerNombreEquipo(filaRivalPendienteEdicion);
-            const rutaLogo = obtenerRutaLogo(filaRivalPendienteEdicion);
-            
-            aplicarRivalSeleccionado(nuevoNombre, rutaLogo, filaRivalPendienteEdicion);
-            cerrarModalEditarRival();
-        }
-
-        function abrirModalRivales(elementoNombre, elementoLogo, categoriaClub, recuadroPadre) {
-            elementoNombreRivalActual = elementoNombre;
-            elementoLogoRivalActual = elementoLogo;
+        function abrirModalRivales(elNombreRival, elLogoRival, recuadroPadre) {
+            elementoNombreRivalActual = elNombreRival;
+            elementoLogoRivalActual = elLogoRival;
             recuadroPadreRivalActual = recuadroPadre;
-            
+
+            const categoriaRecuadro = recuadroPadre.getAttribute('data-categoria') || '';
+
             const tbody = document.getElementById('tablaRivalesBody');
             tbody.innerHTML = '';
 
-            const catFiltro = (categoriaClub || '').trim().toLowerCase();
-            let mismaCategoria = [];
-            let sinCategoria = [];
+            let todosLosRivales = [];
+            
+            if (listaOtrosEquiposGlobal.length > 0) {
+                todosLosRivales = listaOtrosEquiposGlobal;
+            } else {
+                todosLosRivales = listaEquiposGlobal;
+            }
 
-            listaOtrosEquiposGlobal.forEach(fila => {
-                const cat = obtenerCategoria(fila);
-                const catLower = cat.trim().toLowerCase();
+            let rivalesOrdenados = [...todosLosRivales];
+            
+            if (categoriaRecuadro) {
+                rivalesOrdenados.sort((a, b) => {
+                    const catA = (a.CATEGORIA || '').trim().toUpperCase();
+                    const catB = (b.CATEGORIA || '').trim().toUpperCase();
+                    const catTarget = categoriaRecuadro.trim().toUpperCase();
 
-                if (catFiltro !== '' && catLower !== '' && catLower === catFiltro) {
-                    mismaCategoria.push(fila);
-                } else {
-                    sinCategoria.push(fila);
-                }
-            });
+                    const coincideA = (catA === catTarget);
+                    const coincideB = (catB === catTarget);
 
-            mismaCategoria.sort((a, b) => obtenerNombreEquipo(a).localeCompare(obtenerNombreEquipo(b), 'es', { sensitivity: 'base' }));
-            sinCategoria.sort((a, b) => obtenerNombreEquipo(a).localeCompare(obtenerNombreEquipo(b), 'es', { sensitivity: 'base' }));
+                    if (coincideA && !coincideB) return -1;
+                    if (!coincideA && coincideB) return 1;
+                    return 0;
+                });
+            }
 
-            mismaCategoria.forEach(fila => {
-                const tr = document.createElement('tr');
-                tr.className = 'item-rival fila-misma-categoria';
-
-                const nombre = obtenerNombreEquipo(fila);
-                const categoria = obtenerCategoria(fila);
-                const rutaLogo = obtenerRutaLogo(fila);
-
-                tr.innerHTML = `
-                    <td>
-                        <img src="${rutaLogo}" class="team-icon" alt="${nombre}" 
-                             onerror="this.onerror=null; this.src=SVG_LOGO_VACIO;">
-                    </td>
-                    <td style="font-weight: 700; color: #fff;">${nombre}</td>
-                    <td><span class="badge-cat-misma">${categoria}</span></td>
-                `;
-
-                tr.onclick = () => {
-                    cerrarModalRivales();
-                    aplicarRivalSeleccionado(nombre, rutaLogo, fila);
-                };
-                tbody.appendChild(tr);
-            });
-
-            sinCategoria.forEach(fila => {
+            rivalesOrdenados.forEach((eq, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = 'item-rival';
 
-                const nombre = obtenerNombreEquipo(fila);
-                const categoria = obtenerCategoria(fila);
-                const rutaLogo = obtenerRutaLogo(fila);
+                const catEq = (eq.CATEGORIA || '').trim().toUpperCase();
+                const catTarget = categoriaRecuadro.trim().toUpperCase();
+                const esMismaCategoria = (catEq && catTarget && catEq === catTarget);
+
+                if (esMismaCategoria) {
+                    tr.classList.add('fila-misma-categoria');
+                }
+
+                const rutaLogo = `Imagenes/LOGOS RIVALES/${eq.LOGO}.png`;
+                const nombreRival = eq.EQUIPO || 'RIVAL';
+                const catRival = eq.CATEGORIA || '';
+
+                let badgeHtml = '';
+                if (esMismaCategoria) {
+                    badgeHtml = `<span class="badge-cat-misma">MISMA CATEGORÍA</span>`;
+                } else if (catRival) {
+                    badgeHtml = `<span style="color: #aaa; font-size: 0.85em;">${catRival}</span>`;
+                } else {
+                    badgeHtml = `<span class="badge-cat-sin">Sin Categ.</span>`;
+                }
 
                 tr.innerHTML = `
-                    <td>
-                        <img src="${rutaLogo}" class="team-icon" alt="${nombre}" 
-                             onerror="this.onerror=null; this.src=SVG_LOGO_VACIO;">
+                    <td style="text-align: center;">
+                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.src='Imagenes/LOGOS RIVALES/SIN LOGO.png'">
                     </td>
-                    <td style="font-weight: 600; color: #ddd;">${nombre}</td>
-                    <td><span class="badge-cat-sin">${categoria || 'Otra categoría'}</span></td>
+                    <td><strong style="color: #fff; font-size: 1.05em;">${nombreRival}</strong></td>
+                    <td>${badgeHtml}</td>
                 `;
 
-                tr.onclick = () => {
-                    cerrarModalRivales();
-                    abrirModalEditarRival(fila);
-                };
+                tr.onclick = () => seleccionarRivalDirecto(nombreRival, rutaLogo, esMismaCategoria, eq);
                 tbody.appendChild(tr);
             });
-
-            if (mismaCategoria.length === 0 && sinCategoria.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="3" style="text-align: center; color: #999; padding: 25px;">
-                            No se encontraron equipos rivales.
-                        </td>
-                    </tr>
-                `;
-            }
 
             modalRivales.style.display = 'flex';
             alAbrirModal();
         }
 
-        // 1. ELIMINADOS TEXTOS DE "FECHA" Y "CAMPO DE JUEGO" Y SU LÓGICA DE RELLENO
-        function construirInfoPartido(recuadro, estado) {
-            const info = document.createElement('div');
-            info.className = 'area-info';
+        function cerrarModalRivales() {
+            modalRivales.style.display = 'none';
+            alCerrarModal();
+        }
 
-            // FECHA (sin el texto sustituto de "FECHA")
-            const contFecha = document.createElement('div');
-            contFecha.className = 'contenedor-item-info';
-            const spanFecha = document.createElement('span');
-            spanFecha.className = 'campo-editable-info';
-
-            if (estado.fecha && estado.fecha.trim() !== '') {
-                spanFecha.textContent = estado.fecha;
+        function seleccionarRivalDirecto(nombreRival, rutaLogo, esMismaCategoria, objetoRival) {
+            if (esMismaCategoria) {
+                aplicarRivalAEnvoltorio(nombreRival, rutaLogo);
+                cerrarModalRivales();
             } else {
-                spanFecha.textContent = '';
-                spanFecha.classList.add('vacio');
+                filaRivalPendienteEdicion = { nombreRival, rutaLogo, objetoRival };
+                const inputEdit = document.getElementById('inputEditarNombreRival');
+                if (inputEdit) inputEdit.value = nombreRival;
+                
+                modalEditarRival.style.display = 'flex';
+                alAbrirModal();
             }
-            
-            const inputFecha = document.createElement('input');
-            inputFecha.type = 'date';
-            inputFecha.className = 'input-picker-oculto';
+        }
 
-            spanFecha.onclick = () => {
-                if (typeof inputFecha.showPicker === 'function') {
-                    inputFecha.showPicker();
-                } else {
-                    inputFecha.focus();
-                    inputFecha.click();
-                }
-            };
+        function cerrarModalEditarRival() {
+            modalEditarRival.style.display = 'none';
+            alCerrarModal();
+        }
 
-            inputFecha.addEventListener('change', function () {
-                if (this.value) {
-                    const partes = this.value.split('-');
-                    const anio = partes[0];
-                    const mes = meses[parseInt(partes[1], 10) - 1];
-                    const dia = parseInt(partes[2], 10);
-                    const fechaTxt = `${dia} de ${mes} de ${anio}`;
+        function confirmarEdicionRival() {
+            const inputEdit = document.getElementById('inputEditarNombreRival');
+            if (inputEdit && filaRivalPendienteEdicion) {
+                const nuevoNombre = inputEdit.value.trim() || filaRivalPendienteEdicion.nombreRival;
+                aplicarRivalAEnvoltorio(nuevoNombre, filaRivalPendienteEdicion.rutaLogo);
+            }
+            cerrarModalEditarRival();
+            cerrarModalRivales();
+        }
 
-                    spanFecha.textContent = fechaTxt;
-                    spanFecha.classList.remove('vacio');
-                    if (recuadro && recuadro.datosEstado) {
-                        recuadro.datosEstado.fecha = fechaTxt;
-                    }
-                    autoAjustarTextoInfo(spanFecha);
-                    // Reordenar cronológicamente al cambiar la fecha de un recuadro
-                    generarRecuadros();
+        function aplicarRivalAEnvoltorio(nombre, rutaLogo) {
+            if (elementoNombreRivalActual) {
+                elementoNombreRivalActual.textContent = nombre;
+                elementoNombreRivalActual.classList.remove('vacio');
+                autoAjustarTextoSegunSuperficie(elementoNombreRivalActual);
+            }
+            if (elementoLogoRivalActual) {
+                elementoLogoRivalActual.src = rutaLogo;
+                elementoLogoRivalActual.onerror = function() {
+                    this.src = 'Imagenes/LOGOS RIVALES/SIN LOGO.png';
+                };
+            }
+        }
+
+        function autoAjustarTextoSegunSuperficie(elementoSpan) {
+            if (!elementoSpan) return;
+
+            elementoSpan.style.transform = 'scaleX(1)';
+            elementoSpan.style.display = 'inline-block';
+            elementoSpan.style.whiteSpace = 'nowrap';
+            elementoSpan.style.lineHeight = '1';
+
+            const contenedorPadre = elementoSpan.parentElement;
+            if (!contenedorPadre) return;
+
+            const estiloPadre = window.getComputedStyle(contenedorPadre);
+            const paddingIzquierdo = parseFloat(estiloPadre.paddingLeft) || 0;
+            const paddingDerecho = parseFloat(estiloPadre.paddingRight) || 0;
+
+            const anchoDisponible = contenedorPadre.clientWidth - (paddingIzquierdo + paddingDerecho);
+            const anchoTexto = elementoSpan.scrollWidth;
+
+            if (anchoTexto > anchoDisponible && anchoDisponible > 0) {
+                const factorEscalaX = anchoDisponible / anchoTexto;
+                elementoSpan.style.transform = `scaleX(${factorEscalaX})`;
+            }
+        }
+
+        function confirmarSeleccion() {
+            const contenedor = document.getElementById('contenedorRecuadros');
+            contenedor.innerHTML = '';
+
+            Object.keys(mapaDatosPartidos).forEach(indexStr => {
+                const index = parseInt(indexStr);
+                const config = mapaDatosPartidos[index];
+
+                if (config && config.rol) {
+                    const equipoData = listaEquiposGlobal[index];
+                    const recuadroHTML = crearRecuadroPartido(equipoData, config.rol, config.hora || '', index);
+                    contenedor.appendChild(recuadroHTML);
                 }
             });
 
-            contFecha.appendChild(spanFecha);
-            contFecha.appendChild(inputFecha);
-            info.appendChild(contFecha);
+            cerrarModal();
 
-            // HORA
-            const contHora = document.createElement('div');
-            contHora.className = 'contenedor-item-info';
-            const spanHora = document.createElement('span');
-            spanHora.className = 'campo-editable-info';
+            setTimeout(() => {
+                document.querySelectorAll('.nombre-equipo, .campo-editable-info').forEach(span => {
+                    autoAjustarTextoSegunSuperficie(span);
+                });
+            }, 100);
+        }
 
-            if (estado.hora && estado.hora.trim() !== '') {
-                spanHora.textContent = estado.hora;
+        function crearRecuadroPartido(equipo, rol, horaSeleccionada, indexEquipo) {
+            const recuadro = document.createElement('div');
+            recuadro.className = 'recuadro-partido';
+            recuadro.setAttribute('data-id-equipo', indexEquipo);
+            recuadro.setAttribute('data-categoria', equipo.CATEGORIA || '');
+
+            const colorHex = equipo.COLOR || '#00b0f0';
+            recuadro.style.setProperty('--color-equipo', colorHex);
+            recuadro.style.setProperty('--mask-img', "url('Imagenes/Borde Recuadro.png')");
+
+            const rutaLogoLocal = `Imagenes/LOGOS LOCALES/${equipo.LOGO}.png`;
+            const nombreLocal = equipo.EQUIPO || 'LOCAL';
+            const categoria = equipo.CATEGORIA || 'CATEGORIA';
+
+            let equipoCasaNombre = '';
+            let equipoCasaLogo = '';
+            let equipoRivalNombre = '';
+            let equipoRivalLogo = 'Imagenes/LOGOS RIVALES/SIN LOGO.png';
+
+            let esRivalIzq = false;
+            let esRivalDer = false;
+
+            if (rol === 'casa') {
+                equipoCasaNombre = nombreLocal;
+                equipoCasaLogo = rutaLogoLocal;
+                equipoRivalNombre = 'EQUIPO RIVAL';
+                esRivalDer = true;
             } else {
-                spanHora.textContent = 'HORA';
-                spanHora.classList.add('vacio');
+                equipoRivalNombre = 'EQUIPO RIVAL';
+                equipoCasaNombre = nombreLocal;
+                equipoCasaLogo = rutaLogoLocal;
+                esRivalIzq = true;
             }
 
-            spanHora.onclick = () => {
-                abrirSelectorHora(spanHora, recuadro);
-            };
+            const textoHora = horaSeleccionada ? horaSeleccionada : 'HORA';
+            const horaClaseVacio = horaSeleccionada ? '' : 'vacio';
 
-            contHora.appendChild(spanHora);
-            info.appendChild(contHora);
+            recuadro.innerHTML = `
+                <img src="Imagenes/Base Recuadro.png" class="capa-fondo" alt="Fondo">
+                <div class="capa-borde"></div>
+                <div class="texto-categoria-vertical">${categoria}</div>
 
-            return info;
+                <div class="contenido-recuadro">
+                    <div class="area-logo-izq">
+                        <img src="${esRivalIzq ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-izq" alt="Logo Izq" onerror="this.src='Imagenes/LOGOS LOCALES/NVA.png'">
+                    </div>
+                    <div class="area-equipo-izq">
+                        <span class="nombre-equipo ${esRivalIzq ? 'campo-editable vacio rival-izq' : ''}">${esRivalIzq ? equipoRivalNombre : equipoCasaNombre}</span>
+                    </div>
+
+                    <div class="area-logo-der">
+                        <img src="${esRivalDer ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-der" alt="Logo Der" onerror="this.src='Imagenes/LOGOS LOCALES/NVA.png'">
+                    </div>
+                    <div class="area-equipo-der">
+                        <span class="nombre-equipo ${esRivalDer ? 'campo-editable vacio rival-der' : ''}">${esRivalDer ? equipoRivalNombre : equipoCasaNombre}</span>
+                    </div>
+
+                    <div class="area-info">
+                        <div class="contenedor-item-info">
+                            <span class="campo-editable-info hora-partido ${horaClaseVacio}">${textoHora}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const spanRivalIzq = recuadro.querySelector('.rival-izq');
+            const logoIzq = recuadro.querySelector('.logo-izq');
+            if (spanRivalIzq) {
+                spanRivalIzq.onclick = () => abrirModalRivales(spanRivalIzq, logoIzq, recuadro);
+            }
+
+            const spanRivalDer = recuadro.querySelector('.rival-der');
+            const logoDer = recuadro.querySelector('.logo-der');
+            if (spanRivalDer) {
+                spanRivalDer.onclick = () => abrirModalRivales(spanRivalDer, logoDer, recuadro);
+            }
+
+            const spanHora = recuadro.querySelector('.hora-partido');
+            if (spanHora) {
+                spanHora.onclick = () => abrirModalHora(spanHora);
+            }
+
+            return recuadro;
         }
 
-        function autoAjustarTextoInfo(el) {
-            if (!el) return;
-            el.style.transform = 'scaleX(0.7)';
-            
-            const contenedor = el.parentElement;
-            if (!contenedor) return;
+        async function capturarPaginaComoJPG() {
+            const btnCaptura = document.getElementById('btnCapturarPagina');
+            const btnTexto = document.getElementById('btnCapturarTexto');
+            const areaCaptura = document.getElementById('areaCaptura');
 
-            const anchoDisponible = contenedor.clientWidth - 12;
-            const anchoTexto = el.scrollWidth;
-            const anchoRenderizado = anchoTexto * 0.7;
+            if (!areaCaptura) return;
 
-            if (anchoRenderizado > anchoDisponible && anchoDisponible > 0) {
-                const escalaFinal = (anchoDisponible / anchoTexto);
-                el.style.transform = `scaleX(${escalaFinal})`;
+            try {
+                if (btnCaptura) btnCaptura.disabled = true;
+                if (btnTexto) btnTexto.textContent = 'Generando imagen...';
+
+                await document.fonts.ready;
+
+                const canvas = await html2canvas(areaCaptura, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#000000',
+                    logging: false
+                });
+
+                const link = document.createElement('a');
+                link.download = `Partidos_NVA_${new Date().toISOString().slice(0, 10)}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.92);
+                link.click();
+            } catch (err) {
+                console.error('Error al generar la captura JPG:', err);
+                alert('No se pudo generar la imagen. Inténtalo de nuevo.');
+            } finally {
+                if (btnCaptura) btnCaptura.disabled = false;
+                if (btnTexto) btnTexto.textContent = 'Descargar imagen';
             }
         }
 
-        let canvasContextMedicion = null;
-        function getCanvasContext() {
-            if (!canvasContextMedicion) {
-                const canvas = document.createElement('canvas');
-                canvasContextMedicion = canvas.getContext('2d');
-            }
-            return canvasContextMedicion;
-        }
-
-        function calcularLineasSinDeformar(palabras, anchoMaximo, fontStyle) {
-            const ctx = getCanvasContext();
-            ctx.font = fontStyle;
-            const lineas = [];
-            let lineaActual = '';
-
-            for (let i = 0; i < palabras.length; i++) {
-                const palabra = palabras[i];
-                const lineaPrueba = lineaActual ? (lineaActual + ' ' + palabra) : palabra;
-                const anchoPrueba = ctx.measureText(lineaPrueba).width;
-
-                if (anchoPrueba <= anchoMaximo) {
-                    lineaActual = lineaPrueba;
-                } else {
-                    if (lineaActual) {
-                        lineas.push(lineaActual);
-                        lineaActual = palabra;
-                    } else {
-                        lineas.push(palabra);
-                        lineaActual = '';
-                    }
-                }
-            }
-            if (lineaActual) {
-                lineas.push(lineaActual);
-            }
-            return lineas;
-        }
-
-        function autoAjustarTextoEquipo(el) {
-            if (!el) return;
-            const contenedor = el.parentElement;
-            if (!contenedor) return;
-
-            const anchoDisponible = contenedor.clientWidth;
-            const altoDisponible = contenedor.clientHeight;
-            if (anchoDisponible <= 0 || altoDisponible <= 0) return;
-
-            const textoOriginal = (el.innerText || el.textContent).replace(/\s+/g, ' ').trim();
-            if (!textoOriginal) return;
-
-            const palabras = textoOriginal.split(' ');
-            const estilo = window.getComputedStyle(el);
-            const fontWeight = estilo.fontWeight || '750';
-            const fontStyleStr = estilo.fontStyle || 'italic';
-            const fontFamily = estilo.fontFamily || 'sans-serif';
-
-            const recuadro = el.closest('.recuadro-partido');
-            const anchoBaseRecuadro = recuadro ? recuadro.clientWidth : anchoDisponible * 5;
-            let fontSizePx = anchoBaseRecuadro * 0.023;
-            
-            const minFontSizePx = anchoBaseRecuadro * 0.012;
-
-            while (fontSizePx >= minFontSizePx) {
-                const fontCss = `${fontStyleStr} ${fontWeight} ${fontSizePx}px ${fontFamily}`;
-                const lineas = calcularLineasSinDeformar(palabras, anchoDisponible, fontCss);
-
-                const lineAlt = fontSizePx * 0.95;
-                const altoTotal = lineas.length * lineAlt;
-
-                if (lineas.length <= 3 && altoTotal <= altoDisponible) {
-                    el.style.fontSize = fontSizePx + 'px';
-                    el.style.lineHeight = '0.95';
-                    el.style.transform = 'none';
-                    el.innerHTML = lineas.map(l => `<span>${l}</span>`).join('<br>');
-                    return;
-                }
-                fontSizePx -= 0.5;
-            }
-
-            const fontCssFinal = `${fontStyleStr} ${fontWeight} ${fontSizePx}px ${fontFamily}`;
-            const lineasFinales = calcularLineasSinDeformar(palabras, anchoDisponible, fontCssFinal);
-            el.style.fontSize = fontSizePx + 'px';
-            el.style.lineHeight = '0.95';
-            el.style.transform = 'none';
-            el.innerHTML = lineasFinales.slice(0, 3).map(l => `<span>${l}</span>`).join('<br>');
-        }
-
-        window.addEventListener('resize', () => {
-            document.querySelectorAll('.nombre-equipo').forEach(el => autoAjustarTextoEquipo(el));
-            document.querySelectorAll('.campo-editable-info').forEach(el => autoAjustarTextoInfo(el));
-            autoAjustarTextoCabecera();
-        });
-
-        function esperarImagenesCargadas() {
-            const imgs = Array.from(document.images);
-            const pendientes = imgs.filter(img => img.src && !img.complete);
-            if (pendientes.length === 0) return Promise.resolve();
-            return Promise.all(pendientes.map(img => new Promise(resolve => {
-                img.addEventListener('load', resolve, { once: true });
-                img.addEventListener('error', resolve, { once: true });
-                setTimeout(resolve, 4000);
-            })));
-        }
-
-        function formatearFechaParaArchivo(fInicio, fFin) {
-            const dIni = fInicio.getDate();
-            const mesIni = meses[fInicio.getMonth()];
-            const anioIni = fInicio.getFullYear();
-
-            return `${dIni} de ${mesIni} del ${anioIni}`;
-        }
-
-        function construirNombreArchivoCaptura() {
-            let sufijo = '';
-            if (calFechaInicio && calFechaFin) {
-                sufijo = ' ' + formatearFechaParaArchivo(calFechaInicio, calFechaFin);
-            } else {
-                const elSpan = document.querySelector('#headerTextoFecha span');
-                if (elSpan && elSpan.textContent.trim() !== '') {
-                    sufijo = ' ' + elSpan.textContent.trim();
-                }
-            }
-            let nombre = 'Partidos' + sufijo;
-            nombre = nombre.replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ').trim();
-            return nombre + '.jpg';
+        function obtenerTextoLimpio(el) {
+            if (!el) return '';
+            let txt = el.textContent || '';
+            return txt.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
         }
 
         function descargarBlobComoArchivo(blob, nombreArchivo) {
             const url = URL.createObjectURL(blob);
-            const soportaDescarga = ('download' in document.createElement('a'));
-
-            if (soportaDescarga) {
-                const enlace = document.createElement('a');
-                enlace.href = url;
-                enlace.download = nombreArchivo;
-                enlace.style.display = 'none';
-                document.body.appendChild(enlace);
-                enlace.click();
-                document.body.removeChild(enlace);
-                setTimeout(() => URL.revokeObjectURL(url), 4000);
-            } else {
-                const nuevaVentana = window.open(url, '_blank');
-                if (!nuevaVentana) {
-                    alert('No se pudo abrir la imagen. Permite las ventanas emergentes e inténtalo de nuevo.');
-                }
-                setTimeout(() => URL.revokeObjectURL(url), 15000);
-            }
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nombreArchivo;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
-        let imagenMascaraCache = null;
-
-        function cargarImagenMascara() {
-            return new Promise((resolve, reject) => {
-                if (imagenMascaraCache) { resolve(imagenMascaraCache); return; }
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                img.onload = () => { imagenMascaraCache = img; resolve(img); };
-                img.onerror = () => reject(new Error('No se pudo cargar la imagen de máscara: ' + RUTA_MASCARA_IMG));
-                img.src = RUTA_MASCARA_IMG;
-            });
-        }
-
-        async function generarImagenesCapaBorde(escala) {
-            const capas = Array.from(document.querySelectorAll('.capa-borde'));
-            const reemplazos = [];
-            if (capas.length === 0) return reemplazos;
-
-            let maskImg = null;
-            try {
-                maskImg = await cargarImagenMascara();
-            } catch (err) {
-                console.warn('Captura: no se pudo preparar la máscara del recuadro, se ocultará el borde de color.', err);
-            }
-
-            capas.forEach(capa => {
-                if (!maskImg) {
-                    capa.classList.add('oculto-temporal-captura');
-                    reemplazos.push({ original: capa, generada: null });
-                    return;
-                }
-
-                const ancho = capa.offsetWidth;
-                const alto = capa.offsetHeight;
-                if (ancho === 0 || alto === 0) return;
-
-                try {
-                    const colorFinal = getComputedStyle(capa).backgroundColor || '#00b0f0';
-                    const factor = Math.max(1, Math.min(escala || 1.5, 3));
-
-                    const canvasTmp = document.createElement('canvas');
-                    canvasTmp.width = Math.round(ancho * factor);
-                    canvasTmp.height = Math.round(alto * factor);
-                    const ctx = canvasTmp.getContext('2d');
-
-                    ctx.drawImage(maskImg, 0, 0, canvasTmp.width, canvasTmp.height);
-                    ctx.globalCompositeOperation = 'source-in';
-                    ctx.fillStyle = colorFinal;
-                    ctx.fillRect(0, 0, canvasTmp.width, canvasTmp.height);
-
-                    const imgGenerada = document.createElement('img');
-                    imgGenerada.src = canvasTmp.toDataURL('image/png');
-                    imgGenerada.className = 'capa-borde-render no-captura-limpiar';
-                    imgGenerada.style.position = 'absolute';
-                    imgGenerada.style.top = '0';
-                    imgGenerada.style.left = '0';
-                    imgGenerada.style.width = '100%';
-                    imgGenerada.style.height = '100%';
-                    imgGenerada.style.pointerEvents = 'none';
-                    imgGenerada.alt = '';
-
-                    capa.classList.add('oculto-temporal-captura');
-                    capa.insertAdjacentElement('afterend', imgGenerada);
-
-                    reemplazos.push({ original: capa, generada: imgGenerada });
-                } catch (err) {
-                    console.warn('Captura: no se pudo generar el borde de color para un recuadro, se ocultará.', err);
-                    capa.classList.add('oculto-temporal-captura');
-                    reemplazos.push({ original: capa, generada: null });
-                }
-            });
-
-            return reemplazos;
-        }
-
-        function eliminarImagenesCapaBorde(reemplazos) {
-            reemplazos.forEach(({ original, generada }) => {
-                if (generada && generada.parentElement) {
-                    generada.parentElement.removeChild(generada);
-                }
-                if (original) {
-                    original.classList.remove('oculto-temporal-captura');
-                }
-            });
-        }
-
-        function prepararCategoriasParaCaptura(documentoClonado) {
-            if (!documentoClonado) return;
-
-            const categorias = documentoClonado.querySelectorAll('.texto-categoria-vertical');
-
-            categorias.forEach((categoria) => {
-                const recuadro = categoria.closest('.recuadro-partido');
-                if (!recuadro) return;
-
-                const anchoRecuadro = recuadro.offsetWidth;
-                const altoRecuadro = recuadro.offsetHeight;
-                if (anchoRecuadro <= 0 || altoRecuadro <= 0) return;
-
-                const estilo = window.getComputedStyle(categoria);
-                const texto = (categoria.textContent || '').trim();
-                if (!texto) return;
-
-                const izquierdaPct = 0.4;
-                const anchoElementoPct = 6.5;
-                const centroX = (anchoRecuadro * (izquierdaPct / 100)) +
-                                (anchoRecuadro * (anchoElementoPct / 100) / 2);
-                const centroY = altoRecuadro / 2;
-
-                const fontSize = parseFloat(estilo.fontSize) || (anchoRecuadro * 0.022);
-                const fontFamily = estilo.fontFamily || 'Arial, Helvetica, sans-serif';
-                const fontWeight = estilo.fontWeight || '800';
-                const fontStyle = estilo.fontStyle || 'italic';
-                const color = estilo.color || '#000000';
-
-                const textoSVG = texto
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&apos;');
-
-                const fontFamilySVG = fontFamily.replace(/"/g, '&quot;');
-
-                const svg = `
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         width="${anchoRecuadro}"
-                         height="${altoRecuadro}"
-                         viewBox="0 0 ${anchoRecuadro} ${altoRecuadro}">
-                        <defs>
-                            <filter id="sombraCategoria"
-                                    x="-30%" y="-30%" width="160%" height="160%">
-                                <feDropShadow dx="${fontSize * 0.05}"
-                                              dy="${fontSize * 0.05}"
-                                              stdDeviation="${fontSize * 0.10}"
-                                              flood-color="#ffffff"
-                                              flood-opacity="0.90"/>
-                            </filter>
-                        </defs>
-                        <text x="${centroX}"
-                              y="${centroY}"
-                              text-anchor="middle"
-                              dominant-baseline="middle"
-                              transform="rotate(270 ${centroX} ${centroY})"
-                              fill="${color}"
-                              font-family="${fontFamilySVG}"
-                              font-size="${fontSize}px"
-                              font-weight="${fontWeight}"
-                              font-style="${fontStyle}"
-                              filter="url(#sombraCategoria)">${textoSVG}</text>
-                    </svg>
-                `;
-
-                const imagenCategoria = documentoClonado.createElement('img');
-                imagenCategoria.className = 'categoria-vertical-render';
-                imagenCategoria.alt = '';
-                imagenCategoria.src =
-                    'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-
-                imagenCategoria.style.position = 'absolute';
-                imagenCategoria.style.top = '0';
-                imagenCategoria.style.left = '0';
-                imagenCategoria.style.width = '100%';
-                imagenCategoria.style.height = '100%';
-                imagenCategoria.style.zIndex = '5';
-                imagenCategoria.style.pointerEvents = 'none';
-
-                categoria.style.visibility = 'hidden';
-                categoria.insertAdjacentElement('afterend', imagenCategoria);
-            });
-        }
-
-        async function capturarPaginaComoJPG() {
-            const boton = document.getElementById('btnCapturarPagina');
-            const textoBoton = document.getElementById('btnCapturarTexto');
-            if (!boton || boton.disabled) return;
-
-            if (typeof html2canvas !== 'function') {
-                alert('No se ha podido cargar la herramienta de captura. Revisa tu conexión a Internet e inténtalo de nuevo.');
+        function guardarHistorico() {
+            const recuadros = document.querySelectorAll('#contenedorRecuadros .recuadro-partido');
+            if (recuadros.length === 0) {
+                alert('No hay partidos seleccionados para guardar.');
                 return;
             }
 
-            const textoOriginal = textoBoton ? textoBoton.textContent : 'Descargar imagen';
-            boton.disabled = true;
-            if (textoBoton) textoBoton.textContent = 'Generando...';
+            // Fecha General desde la cabecera
+            const headerFechaEl = document.getElementById('headerTextoFecha');
+            const spanFecha = headerFechaEl ? headerFechaEl.querySelector('span') : null;
+            const fechaGeneral = spanFecha ? obtenerTextoLimpio(spanFecha) : '';
 
-            let reemplazosCapaBorde = [];
+            // Campo de Juego General
+            const headerCampoInput = document.getElementById('headerInputCampoJuego');
+            const campoGeneral = headerCampoInput ? headerCampoInput.value.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim() : '';
 
-            try {
-                await esperarImagenesCargadas();
+            // Fila 1: FECHA | CAMPO
+            let bloqueTexto = `${fechaGeneral} | ${campoGeneral}\n`;
 
-                const areaCaptura = document.getElementById('areaCaptura') || document.body;
-                const anchoExacto = areaCaptura.offsetWidth;
-                const altoExacto = areaCaptura.offsetHeight;
-                const anchoVentana = window.innerWidth;
-                const altoVentana = window.innerHeight;
+            // Fila 2 (por cada partido): Equipo Casa | Equipo Rival | Hora | Categoria
+            recuadros.forEach((rec) => {
+                const spanIzq = rec.querySelector('.area-equipo-izq .nombre-equipo');
+                const spanDer = rec.querySelector('.area-equipo-der .nombre-equipo');
+                
+                const equipoCasa = obtenerTextoLimpio(spanIzq);
+                const equipoRival = obtenerTextoLimpio(spanDer);
 
-                const escala = window.devicePixelRatio && window.devicePixelRatio > 1
-                    ? Math.min(window.devicePixelRatio, 2.5)
-                    : 1.5;
+                // Hora del partido
+                const spanHora = rec.querySelector('.area-info .contenedor-item-info:nth-child(2) .campo-editable-info');
+                let hora = obtenerTextoLimpio(spanHora);
+                if (hora.toUpperCase() === 'HORA') hora = '';
 
-                reemplazosCapaBorde = await generarImagenesCapaBorde(escala);
-                await new Promise(resolve => setTimeout(resolve, 60));
+                // Categoría del partido
+                const categoria = rec.getAttribute('data-categoria') || '';
 
-                const canvas = await html2canvas(areaCaptura, {
-                    backgroundColor: '#000000',
-                    useCORS: true,
-                    allowTaint: false,
-                    scale: escala,
-                    width: anchoExacto,
-                    height: altoExacto,
-                    windowWidth: anchoVentana,
-                    windowHeight: altoVentana,
-                    x: 0,
-                    y: 0,
-                    scrollX: 0,
-                    scrollY: 0,
-                    onclone: (documentoClonado) => {
-                        prepararCategoriasParaCaptura(documentoClonado);
-                    },
-                    ignoreElements: (el) => el && el.classList && el.classList.contains('no-captura')
-                });
-
-                const nombreArchivo = construirNombreArchivoCaptura();
-
-                canvas.toBlob((blob) => {
-                    if (!blob) {
-                        alert('No se ha podido generar la imagen. Inténtalo de nuevo.');
-                        return;
-                    }
-                    descargarBlobComoArchivo(blob, nombreArchivo);
-                }, 'image/jpeg', 0.92);
-
-            } catch (err) {
-                console.error('Error al generar la captura de la página:', err);
-                alert('No se ha podido generar la imagen. Inténtalo de nuevo.');
-            } finally {
-                eliminarImagenesCapaBorde(reemplazosCapaBorde);
-                boton.disabled = false;
-                if (textoBoton) textoBoton.textContent = textoOriginal;
-            }
-        }
-    </script>
-
-    <script>
-        /*
-         * ================================================================
-         * GUARDAR HISTÓRICO (Historico.txt)
-         * ================================================================
-         */
-        const HIST_DB_NOMBRE = 'NouVoleiAlziraDB';
-        const HIST_DB_VERSION = 1;
-        const HIST_DB_STORE = 'handles';
-        const HIST_CLAVE_HANDLE = 'historicoTxtHandle';
-        const HIST_CLAVE_LOCALSTORAGE = 'historicoTxtContenido';
-
-        function histAbrirDB() {
-            return new Promise((resolve, reject) => {
-                if (!('indexedDB' in window)) { reject(new Error('IndexedDB no soportado')); return; }
-                const req = indexedDB.open(HIST_DB_NOMBRE, HIST_DB_VERSION);
-                req.onupgradeneeded = () => {
-                    if (!req.result.objectStoreNames.contains(HIST_DB_STORE)) {
-                        req.result.createObjectStore(HIST_DB_STORE);
-                    }
-                };
-                req.onsuccess = () => resolve(req.result);
-                req.onerror = () => reject(req.error);
+                bloqueTexto += `${equipoCasa} | ${equipoRival} | ${hora} | ${categoria}\n`;
             });
+
+            // Generar descarga del archivo Historico.txt
+            const blob = new Blob([bloqueTexto], { type: 'text/plain;charset=utf-8' });
+            descargarBlobComoArchivo(blob, 'Historico.txt');
         }
 
-        async function histObtenerHandleGuardado() {
-            try {
-                const db = await histAbrirDB();
-                return await new Promise((resolve, reject) => {
-                    const tx = db.transaction(HIST_DB_STORE, 'readonly');
-                    const store = tx.objectStore(HIST_DB_STORE);
-                    const req = store.get(HIST_CLAVE_HANDLE);
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => reject(req.error);
-                });
-            } catch (e) {
-                return null;
+        /* Funcionalidades para Cargar DATOS desde archivo .txt */
+        function abrirExploradorCargarDatos() {
+            const input = document.getElementById('inputCargarDatos');
+            if (input) {
+                input.value = '';
+                input.click();
             }
+        }
+
+        function procesarArchivoDatos(files) {
+            if (!files || files.length === 0) return;
+            const file = files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const contenido = e.target.result;
+                cargarDatosDesdeTexto(contenido);
+            };
+
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        async function cargarDatosDesdeTexto(contenido) {
+            if (!datosCargados) {
+                await cargarExcel();
+            }
+
+            const lineas = contenido.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+            if (lineas.length === 0) return;
+
+            // Fila 1: Fecha | Campo
+            const primeraLinea = lineas[0].split('|').map(s => s.trim());
+            const fechaStr = primeraLinea[0] || '';
+            const campoStr = primeraLinea[1] || '';
+
+            // Actualizar Campo de Juego
+            if (campoStr) {
+                const inputModal = document.getElementById('inputCampoJuego');
+                const inputHeader = document.getElementById('headerInputCampoJuego');
+                if (inputModal) inputModal.value = campoStr;
+                if (inputHeader) inputHeader.value = campoStr;
+            }
+
+            // Actualizar Fecha de Cabecera
+            if (fechaStr) {
+                const elContenedor = document.getElementById('headerTextoFecha');
+                if (elContenedor) {
+                    elContenedor.innerHTML = `<span>${fechaStr}</span>`;
+                    autoAjustarTextoCabecera();
+                }
+            }
+
+            // Filas siguientes: Partidos
+            const lineasPartidos = lineas.slice(1);
+            const contenedor = document.getElementById('contenedorRecuadros');
+            if (contenedor) contenedor.innerHTML = '';
+
+            lineasPartidos.forEach((linea) => {
+                const partes = linea.split('|').map(s => s.trim());
+                if (partes.length < 2) return;
+
+                const eqCasaTxt = partes[0] || '';
+                const eqRivalTxt = partes[1] || '';
+                const horaTxt = partes[2] || '';
+                const catTxt = partes[3] || '';
+
+                // Buscar en listaEquiposGlobal por EQUIPO o CATEGORIA
+                let matchIdx = -1;
+                let rol = 'casa';
+
+                if (catTxt) {
+                    matchIdx = listaEquiposGlobal.findIndex(e => 
+                        (e.CATEGORIA || '').trim().toUpperCase() === catTxt.toUpperCase()
+                    );
+                }
+
+                if (matchIdx === -1 && eqCasaTxt) {
+                    matchIdx = listaEquiposGlobal.findIndex(e => 
+                        (e.EQUIPO || '').trim().toUpperCase() === eqCasaTxt.toUpperCase()
+                    );
+                    if (matchIdx !== -1) rol = 'casa';
+                }
+
+                if (matchIdx === -1 && eqRivalTxt) {
+                    matchIdx = listaEquiposGlobal.findIndex(e => 
+                        (e.EQUIPO || '').trim().toUpperCase() === eqRivalTxt.toUpperCase()
+                    );
+                    if (matchIdx !== -1) rol = 'fuera';
+                }
+
+                if (matchIdx !== -1) {
+                    const equipoBase = listaEquiposGlobal[matchIdx];
+                    const recuadro = crearRecuadroPartido(equipoBase, rol, horaTxt, matchIdx);
+
+                    // Si el nombre o logo de los equipos no coinciden exactamente, ajustarlos
+                    const spanIzq = recuadro.querySelector('.area-equipo-izq .nombre-equipo');
+                    const spanDer = recuadro.querySelector('.area-equipo-der .nombre-equipo');
+                    const imgLogoIzq = recuadro.querySelector('.logo-izq');
+                    const imgLogoDer = recuadro.querySelector('.logo-der');
+
+                    if (spanIzq && eqCasaTxt) {
+                        spanIzq.textContent = eqCasaTxt;
+                        spanIzq.classList.remove('vacio');
+                    }
+                    if (spanDer && eqRivalTxt) {
+                        spanDer.textContent = eqRivalTxt;
+                        spanDer.classList.remove('vacio');
+                    }
+
+                    // Intentar buscar los rivales/otros equipos para sus logos
+                    let todosLosOtros = listaOtrosEquiposGlobal.length > 0 ? listaOtrosEquiposGlobal : listaEquiposGlobal;
+                    
+                    if (rol === 'casa') {
+                        const objRival = todosLosOtros.find(e => (e.EQUIPO || '').trim().toUpperCase() === eqRivalTxt.toUpperCase());
+                        if (objRival && imgLogoDer) {
+                            imgLogoDer.src = `Imagenes/LOGOS RIVALES/${objRival.LOGO}.png`;
+                        }
+                    } else {
+                        const objRival = todosLosOtros.find(e => (e.EQUIPO || '').trim().toUpperCase() === eqCasaTxt.toUpperCase());
+                        if (objRival && imgLogoIzq) {
+                            imgLogoIzq.src = `Imagenes/LOGOS RIVALES/${objRival.LOGO}.png`;
+                        }
+                    }
+
+                    contenedor.appendChild(recuadro);
+                }
+            });
+
+            setTimeout(() => {
+                document.querySelectorAll('.nombre-equipo, .campo-editable-info').forEach(span => {
+                    autoAjustarTextoSegunSuperficie(span);
+                });
+            }, 100);
         }
     </script>
 </body>
