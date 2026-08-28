@@ -1574,13 +1574,13 @@
 
         async function cargarExcel() {
             try {
-                const response = await fetch('DATOS/EQUIPOS.xlsx');
-                if (!response.ok) throw new Error("No se encontró DATOS/EQUIPOS.xlsx");
+                const response = await fetch('DATOS.xls');
+                if (!response.ok) throw new Error("No se encontró DATOS.xls");
                 const arrayBuffer = await response.arrayBuffer();
                 
                 workbookGlobal = XLSX.read(arrayBuffer, { type: 'array' });
                 
-                const sheetEquipos = workbookGlobal.Sheets["EQUIPOS"];
+                const sheetEquipos = workbookGlobal.Sheets["EQUIPOS NVA"];
                 if (sheetEquipos) {
                     listaEquiposGlobal = XLSX.utils.sheet_to_json(sheetEquipos);
                 } else {
