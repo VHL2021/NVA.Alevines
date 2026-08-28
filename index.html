@@ -1849,16 +1849,23 @@
                 });
             }, 100);
         }
+            
+        const RUTA_MASCARA_IMG = 'Imagenes/Recuadro (mascara).png';
+        const RUTA_MASCARA = `url('${RUTA_MASCARA_IMG}')`;
 
         function crearRecuadroPartido(equipo, rol, horaSeleccionada, indexEquipo, tanteoIzqVal = '0', tanteoDerVal = '0') {
+
+            
             const recuadro = document.createElement('div');
             recuadro.className = 'recuadro-partido';
             recuadro.setAttribute('data-id-equipo', indexEquipo);
             recuadro.setAttribute('data-categoria', equipo.CATEGORIA || '');
-
+            
             const colorHex = equipo.COLOR || '#00b0f0';
             recuadro.style.setProperty('--color-equipo', colorHex);
-            recuadro.style.setProperty('--mask-img', "url('Imagenes/Recuadro%20(mascara).png')");
+            recuadro.style.setProperty('--mask-img', RUTA_MASCARA);
+            
+
 
             const rutaLogoLocal = obtenerRutaLogo(equipo.LOGO);
             const nombreLocal = equipo.EQUIPO || 'LOCAL';
