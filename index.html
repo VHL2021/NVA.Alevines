@@ -9,9 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="format-detection" content="telephone=no">
     <title>Nou Volei Alzira - Selección de Equipos</title>
-    <!-- Librería SheetJS (XLSX) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Librería html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
@@ -30,7 +28,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overscroll-behavior-y: none;
         }
-        button, [onclick], .cal-cell:not(.empty), .campo-editable-info, .nombre-equipo.campo-editable, .header-hotspot-calendario {
+        button, [onclick], .cal-cell:not(.empty), .campo-editable-info, .nombre-equipo.campo-editable, .header-hotspot-calendario, .tanteo-box {
             touch-action: manipulation;
         }
         body.modal-abierto {
@@ -461,7 +459,7 @@
             left: 0.2%;
             width: 6.5%;
             height: 100%;
-            display: flex;
+            display: none; /*flex;*/
             align-items: center;
             justify-content: center;
             color: #000000;
@@ -488,22 +486,22 @@
 
         .area-equipo-izq {
             position: absolute;
-            top: 10%;
-            left: 6.5%;
-            width: 17.5%;
-            height: 80%;
+            top: 25%;
+            left: 5%;
+            width: 16%;
+            height: 50%;
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            overflow: visible;
+            overflow: hidden;
         }
 
         .area-logo-izq {
             position: absolute;
-            top: 13%;
+            top: 15%;
             right:66.5%;
-            width: 11%;
-            height: 74%;
+            width: 12%;
+            height: 70%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -512,10 +510,10 @@
 
         .area-logo-der {
             position: absolute;
-            top: 13%;
-            left: 37.5%;
-            width: 11%;
-            height: 74%;
+            top: 15%;
+            left: 49%;
+            width: 12%;
+            height: 70%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -524,21 +522,93 @@
 
         .area-equipo-der {
             position: absolute;
-            top: 10%;
-            left: 47%;
-            width: 17.5%;
-            height: 80%;
+            top: 25%;
+            left: 61.5%;
+            width: 16%;
+            height: 50%;
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            overflow: visible;
+            overflow: hidden;
+        }
+
+        /* ÁREA DE TANTEOS */
+        .area-tanteo-container {
+            position: absolute;
+            top: 11%;
+            left: 33%;
+            width: 17%;
+            height: 70%;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 20;
+        }
+
+        body.modo-resultados .area-tanteo-container {
+            display: flex;
+        }
+
+        .tanteo-box {
+            width: 30%;
+            height: 100%;
+            /*background-color: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00b0f0;
+            border-radius: 6px;*/
+            color: #ffffff;
+            font-size: 9cqw;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.5s; /*background-color 0.2s, border-color 0.2s;*/
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .tanteo-box:hover {
+                /*background-color: rgba(0, 176, 240, 0.3);
+                border-color: #ffffff;*/
+                color: #ff0000;
+            }
+        }
+
+        .modal-tanteo-opciones {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 10px;
+        }
+
+        .btn-tanteo-opcion {
+            background-color: #242424;
+            color: #fff;
+            border: 2px solid #00b0f0;
+            border-radius: 8px;
+            font-size: 2em;
+            font-weight: bold;
+            padding: 15px 0;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-tanteo-opcion:active {
+            transform: scale(0.95);
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .btn-tanteo-opcion:hover {
+                background-color: #00b0f0;
+                color: #000;
+            }
         }
 
         .area-info {
             position: absolute;
             top: 10%;
-            left: 66%;
-            width: 31%;
+            left: 78%;
+            width: 20%;
             height: 80%;
             display: flex;
             flex-direction: column;
@@ -562,27 +632,73 @@
             font-weight: 750;
             font-style: italic;
             text-transform: uppercase;
-            font-size: 2.3cqw;
+            font-size: 2.1cqw;
             line-height: 0.95;
             color: #ffffff;
-            white-space: normal; 
-            word-break: normal;
-            display: block;
-            width: 100%;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word;
+            padding: 0.1em 0.2em !important;
+            box-sizing: border-box;
             max-height: 100%;
-            justify-content: flex-end;
-            overflow: visible;
-            padding: 0.2em 0.3em !important;
-            box-sizing: content-box;
+            max-width: 100%;
+            transform-origin: center center;
         }
 
         .area-equipo-izq .nombre-equipo {
             text-align: right;
+            transform-origin: right center;
         }
 
         .area-equipo-der .nombre-equipo {
             text-align: left;
+            transform-origin: left center;
         }
+
+        /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+        /*
+        .area-logo-der {
+            background-color: rgba(0, 255, 204, 0.25) !important;
+            outline: 2px dashed #00ffcc !important;
+            z-index: 10 !important;
+            pointer-events: auto !important; /* Permite detectar el ratón sobre la zona 
+        }
+        
+        .area-logo-izq {
+            background-color: rgba(0, 255, 204, 0.25) !important;
+            outline: 2px dashed #00ffcc !important;
+            z-index: 10 !important;
+            pointer-events: auto !important; /* Permite detectar el ratón sobre la zona 
+        }
+        
+        .area-equipo-der {
+            background-color: rgba(0, 255, 204, 0.25) !important;
+            outline: 2px dashed #00ffcc !important;
+            z-index: 10 !important;
+            pointer-events: auto !important; /* Permite detectar el ratón sobre la zona 
+        }
+
+        .area-equipo-izq {
+            background-color: rgba(0, 255, 204, 0.25) !important;
+            outline: 2px dashed #00ffcc !important;
+            z-index: 10 !important;
+            pointer-events: auto !important; /* Permite detectar el ratón sobre la zona 
+        }
+
+
+        .contenedor-item-info {
+            background-color: rgba(0, 255, 204, 0.25) !important;
+            outline: 2px dashed #00ffcc !important;
+            z-index: 10 !important;
+            pointer-events: auto !important; /* Permite detectar el ratón sobre la zona 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
         .nombre-equipo.campo-editable {
             cursor: pointer;
@@ -601,6 +717,7 @@
             width: 100%;
             display: flex;
             align-items: center;
+            justify-content: center;
             overflow: hidden;
         }
 
@@ -616,8 +733,9 @@
             cursor: pointer;
             white-space: nowrap;
             display: inline-block;
-            transform-origin: left center;
+            transform-origin: center center;
             width: auto;
+            text-align: center;
         }
         .campo-editable-info.editable-texto {
             cursor: text;
@@ -768,6 +886,47 @@
             }
         }
 
+        /* BOTÓN TOGGLE MODO (PARTIDOS / RESULTADOS) */
+        .btn-toggle-modo {
+            position: fixed;
+            right: calc(16px + env(safe-area-inset-right));
+            bottom: calc(16px + env(safe-area-inset-bottom) + 186px);
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #e91e63;
+            color: #ffffff;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 30px;
+            font-size: 0.95em;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+            touch-action: manipulation;
+            transition: background-color 0.2s, transform 0.15s, opacity 0.2s;
+        }
+        .btn-toggle-modo svg {
+            flex-shrink: 0;
+        }
+        .btn-toggle-modo:active {
+            transform: scale(0.96);
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .btn-toggle-modo:hover {
+                background-color: #f48fb1;
+            }
+        }
+        @media (max-width: 480px) {
+            .btn-toggle-modo {
+                padding: 10px 14px;
+                font-size: 0.8em;
+                bottom: calc(16px + env(safe-area-inset-bottom) + 162px);
+            }
+        }
+
         .selector-hora-wrap {
             display: flex;
             gap: 20px;
@@ -915,7 +1074,6 @@
         <div id="contenedorRecuadros"></div>
     </div>
 
-    <!-- Modal Rango de Fechas -->
     <div class="modal-overlay" id="modalDateRange">
         <div class="date-range-modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px;">
@@ -940,7 +1098,6 @@
         </div>
     </div>
 
-    <!-- Modal Selección Principal -->
     <div class="modal-overlay" id="modalEquipos">
         <div class="modal-content">
             <div class="modal-header">
@@ -977,7 +1134,6 @@
         </div>
     </div>
 
-    <!-- Modal Rivales -->
     <div class="modal-overlay" id="modalRivales">
         <div class="modal-content">
             <div class="modal-header">
@@ -1000,7 +1156,6 @@
         </div>
     </div>
 
-    <!-- Modal Modificar Rival Distinta Categoría -->
     <div class="modal-overlay" id="modalEditarRival">
         <div class="modal-content" style="max-width: 480px;">
             <div class="modal-header">
@@ -1019,7 +1174,6 @@
         </div>
     </div>
 
-    <!-- Modal Selector de Hora -->
     <div class="modal-overlay" id="modalHora">
         <div class="modal-content" style="max-width: 380px;">
             <div class="modal-header">
@@ -1047,7 +1201,31 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modalTanteo">
+        <div class="modal-content" style="max-width: 320px;">
+            <div class="modal-header">
+                <h2>Seleccionar Tanteo</h2>
+                <button class="btn-reset" style="background-color: #555; padding: 4px 12px; font-size: 0.85em;" onclick="cerrarModalTanteo()">CANCELAR</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-tanteo-opciones">
+                    <button class="btn-tanteo-opcion" onclick="seleccionarTanteoValor(0)">0</button>
+                    <button class="btn-tanteo-opcion" onclick="seleccionarTanteoValor(1)">1</button>
+                    <button class="btn-tanteo-opcion" onclick="seleccionarTanteoValor(2)">2</button>
+                    <button class="btn-tanteo-opcion" onclick="seleccionarTanteoValor(3)">3</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <input type="file" id="inputCargarDatos" accept=".txt" style="display: none;" onchange="procesarArchivoDatos(this.files)" />
+
+    <button type="button" id="btnToggleModo" class="btn-toggle-modo no-captura" onclick="toggleModoPartidosResultados()" aria-label="Cambiar entre partidos y resultados">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        <span id="btnToggleModoTexto">PARTIDOS</span>
+    </button>
 
     <button type="button" id="btnCapturarPagina" class="btn-captura-pagina no-captura" onclick="capturarPaginaComoJPG()" aria-label="Descargar imagen de los partidos">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
@@ -1060,7 +1238,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
             <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
         </svg>
-        <span id="btnGuardarHistoricoTexto">Guardar histórico</span>
+        <span id="btnGuardarHistoricoTexto">Guardar DATOS</span>
     </button>
 
     <button type="button" id="btnCargarDatos" class="btn-cargar-datos no-captura" onclick="abrirExploradorCargarDatos()" aria-label="Cargar DATOS desde archivo TXT">
@@ -1091,8 +1269,11 @@
         const modalEditarRival = document.getElementById('modalEditarRival');
         const modalHora = document.getElementById('modalHora');
         const modalDateRange = document.getElementById('modalDateRange');
+        const modalTanteo = document.getElementById('modalTanteo');
 
         let elementoHoraActual = null;
+        let elementoTanteoActual = null;
+        let modoResultados = false;
         let datosCargados = false;
         let elementoNombreRivalActual = null;
         let elementoLogoRivalActual = null;
@@ -1145,6 +1326,36 @@
                 document.body.style.width = '';
                 window.scrollTo(0, scrollYAntesDelModal);
             }
+        }
+
+        function toggleModoPartidosResultados() {
+            modoResultados = !modoResultados;
+            const btnTexto = document.getElementById('btnToggleModoTexto');
+            if (modoResultados) {
+                document.body.classList.add('modo-resultados');
+                if (btnTexto) btnTexto.textContent = 'RESULTADOS';
+            } else {
+                document.body.classList.remove('modo-resultados');
+                if (btnTexto) btnTexto.textContent = 'PARTIDOS';
+            }
+        }
+
+        function abrirModalTanteo(elBox) {
+            elementoTanteoActual = elBox;
+            modalTanteo.style.display = 'flex';
+            alAbrirModal();
+        }
+
+        function cerrarModalTanteo() {
+            modalTanteo.style.display = 'none';
+            alCerrarModal();
+        }
+
+        function seleccionarTanteoValor(val) {
+            if (elementoTanteoActual) {
+                elementoTanteoActual.textContent = val;
+            }
+            cerrarModalTanteo();
         }
 
         let mapaDatosPartidos = {};
@@ -1621,9 +1832,6 @@
             if (!elementoSpan) return;
 
             elementoSpan.style.transform = 'scaleX(1)';
-            elementoSpan.style.display = 'inline-block';
-            elementoSpan.style.whiteSpace = 'nowrap';
-            elementoSpan.style.lineHeight = '1';
 
             const contenedorPadre = elementoSpan.parentElement;
             if (!contenedorPadre) return;
@@ -1631,13 +1839,39 @@
             const estiloPadre = window.getComputedStyle(contenedorPadre);
             const paddingIzquierdo = parseFloat(estiloPadre.paddingLeft) || 0;
             const paddingDerecho = parseFloat(estiloPadre.paddingRight) || 0;
+            const paddingSuperior = parseFloat(estiloPadre.paddingTop) || 0;
+            const paddingInferior = parseFloat(estiloPadre.paddingBottom) || 0;
 
             const anchoDisponible = contenedorPadre.clientWidth - (paddingIzquierdo + paddingDerecho);
-            const anchoTexto = elementoSpan.scrollWidth;
+            const altoDisponible = contenedorPadre.clientHeight - (paddingSuperior + paddingInferior);
 
-            if (anchoTexto > anchoDisponible && anchoDisponible > 0) {
-                const factorEscalaX = anchoDisponible / anchoTexto;
-                elementoSpan.style.transform = `scaleX(${factorEscalaX})`;
+            const esNombreEquipo = elementoSpan.classList.contains('nombre-equipo');
+
+            if (!esNombreEquipo) {
+                elementoSpan.style.display = 'inline-block';
+                elementoSpan.style.whiteSpace = 'nowrap';
+                elementoSpan.style.lineHeight = '1';
+
+                const anchoTexto = elementoSpan.scrollWidth;
+
+                if (anchoTexto > anchoDisponible && anchoDisponible > 0) {
+                    const factorEscalaX = anchoDisponible / anchoTexto;
+                    elementoSpan.style.transform = `scaleX(${factorEscalaX})`;
+                }
+            } else {
+                const anchoTexto = elementoSpan.scrollWidth;
+                const altoTexto = elementoSpan.scrollHeight;
+
+                const excedeAncho = anchoTexto > anchoDisponible && anchoDisponible > 0;
+                const excedeAlto = altoTexto > altoDisponible && altoDisponible > 0;
+
+                if (excedeAncho || excedeAlto) {
+                    const factorEscalaX = excedeAncho ? (anchoDisponible / anchoTexto) : 1;
+                    const factorEscalaY = excedeAlto ? (altoDisponible / altoTexto) : 1;
+                    const factorEscala = Math.min(factorEscalaX, factorEscalaY);
+
+                    elementoSpan.style.transform = `scale(${factorEscala})`;
+                }
             }
         }
 
@@ -1665,7 +1899,7 @@
             }, 100);
         }
 
-        function crearRecuadroPartido(equipo, rol, horaSeleccionada, indexEquipo) {
+        function crearRecuadroPartido(equipo, rol, horaSeleccionada, indexEquipo, tanteoIzqVal = '0', tanteoDerVal = '0') {
             const recuadro = document.createElement('div');
             recuadro.className = 'recuadro-partido';
             recuadro.setAttribute('data-id-equipo', indexEquipo);
@@ -1713,6 +1947,11 @@
                     </div>
                     <div class="area-equipo-izq">
                         <span class="nombre-equipo ${esRivalIzq ? 'campo-editable vacio rival-izq' : ''}">${esRivalIzq ? equipoRivalNombre : equipoCasaNombre}</span>
+                    </div>
+
+                    <div class="area-tanteo-container">
+                        <div class="tanteo-box tanteo-izq" onclick="abrirModalTanteo(this)">${tanteoIzqVal}</div>
+                        <div class="tanteo-box tanteo-der" onclick="abrirModalTanteo(this)">${tanteoDerVal}</div>
                     </div>
 
                     <div class="area-logo-der">
@@ -1824,13 +2063,18 @@
                 const equipoCasa = obtenerTextoLimpio(spanIzq);
                 const equipoRival = obtenerTextoLimpio(spanDer);
 
-                const spanHora = rec.querySelector('.area-info .contenedor-item-info:nth-child(2) .campo-editable-info');
+                const spanHora = rec.querySelector('.area-info .contenedor-item-info .campo-editable-info');
                 let hora = obtenerTextoLimpio(spanHora);
                 if (hora.toUpperCase() === 'HORA') hora = '';
 
+                const tanteoIzqEl = rec.querySelector('.tanteo-izq');
+                const tanteoDerEl = rec.querySelector('.tanteo-der');
+                const tIzq = tanteoIzqEl ? obtenerTextoLimpio(tanteoIzqEl) : '0';
+                const tDer = tanteoDerEl ? obtenerTextoLimpio(tanteoDerEl) : '0';
+
                 const categoria = rec.getAttribute('data-categoria') || '';
 
-                bloqueTexto += `${equipoCasa} | ${equipoRival} | ${hora} | ${categoria}\n`;
+                bloqueTexto += `${equipoCasa} | ${equipoRival} | ${hora} | ${categoria} | ${tIzq} | ${tDer}\n`;
             });
 
             const blob = new Blob([bloqueTexto], { type: 'text/plain;charset=utf-8' });
@@ -1897,6 +2141,8 @@
                 const eqRivalTxt = partes[1] || '';
                 const horaTxt = partes[2] || '';
                 const catTxt = partes[3] || '';
+                const tIzqTxt = partes[4] || '0';
+                const tDerTxt = partes[5] || '0';
 
                 let matchIdx = -1;
                 let rol = 'casa';
@@ -1923,7 +2169,7 @@
 
                 if (matchIdx !== -1) {
                     const equipoBase = listaEquiposGlobal[matchIdx];
-                    const recuadro = crearRecuadroPartido(equipoBase, rol, horaTxt, matchIdx);
+                    const recuadro = crearRecuadroPartido(equipoBase, rol, horaTxt, matchIdx, tIzqTxt, tDerTxt);
 
                     const spanIzq = recuadro.querySelector('.area-equipo-izq .nombre-equipo');
                     const spanDer = recuadro.querySelector('.area-equipo-der .nombre-equipo');
