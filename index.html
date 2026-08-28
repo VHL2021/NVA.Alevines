@@ -451,6 +451,7 @@
             mask-repeat: no-repeat;
             background-color: var(--color-equipo, #00b0f0);
             pointer-events: none;
+            z-index: 20;
         }
 
         .texto-categoria-vertical {
@@ -838,6 +839,7 @@
             }
         }
 
+        /* BOTÓN TOGGLE MODO (PARTIDOS / RESULTADOS) */
         .btn-toggle-modo {
             position: fixed;
             right: calc(16px + env(safe-area-inset-right));
@@ -1241,6 +1243,22 @@
                 return `LOGOs/${str}`;
             }
             return `LOGOs/${str}.png`;
+        }
+
+        function obtenerColorEquipo(equipo) {
+            if (!equipo) return '#00b0f0';
+            for (let key in equipo) {
+                if (key.trim().toUpperCase() === 'COLOR') {
+                    let val = String(equipo[key]).trim();
+                    if (val) {
+                        if (!val.startsWith('#') && /^[0-9A-Fa-f]{6}$/.test(val)) {
+                            val = '#' + val;
+                        }
+                        return val;
+                    }
+                }
+            }
+            return '#00b0f0';
         }
 
         function sincronizarCampoJuegoDesdeHeader(val) {
@@ -1849,23 +1867,19 @@
                 });
             }, 100);
         }
-            
+
         const RUTA_MASCARA_IMG = 'Imagenes/Recuadro (mascara).png';
         const RUTA_MASCARA = `url('${RUTA_MASCARA_IMG}')`;
 
         function crearRecuadroPartido(equipo, rol, horaSeleccionada, indexEquipo, tanteoIzqVal = '0', tanteoDerVal = '0') {
-
-            
             const recuadro = document.createElement('div');
             recuadro.className = 'recuadro-partido';
             recuadro.setAttribute('data-id-equipo', indexEquipo);
             recuadro.setAttribute('data-categoria', equipo.CATEGORIA || '');
-            
-            const colorHex = equipo.COLOR || '#00b0f0';
+
+            const colorHex = obtenerColorEquipo(equipo);
             recuadro.style.setProperty('--color-equipo', colorHex);
             recuadro.style.setProperty('--mask-img', RUTA_MASCARA);
-            
-
 
             const rutaLogoLocal = obtenerRutaLogo(equipo.LOGO);
             const nombreLocal = equipo.EQUIPO || 'LOCAL';
