@@ -1102,6 +1102,15 @@
         let contadorModalesAbiertos = 0;
         let scrollYAntesDelModal = 0;
 
+        function obtenerRutaLogo(nombreLogo) {
+            if (!nombreLogo) return 'LOGOs/NVA.png';
+            let str = String(nombreLogo).trim();
+            if (str.match(/\.(png|jpg|jpeg|webp|svg)$/i)) {
+                return `LOGOs/${str}`;
+            }
+            return `LOGOs/${str}.png`;
+        }
+
         function sincronizarCampoJuegoDesdeHeader(val) {
             const inputModal = document.getElementById('inputCampoJuego');
             if (inputModal) inputModal.value = val;
@@ -1403,13 +1412,13 @@
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-id', index);
                 
-                const rutaLogo = `Imagenes/LOGOs/${eq.LOGO}.png`;
+                const rutaLogo = obtenerRutaLogo(eq.LOGO);
                 const nombreEquipo = eq.EQUIPO || 'S/N';
                 const categoria = eq.CATEGORIA || 'S/C';
 
                 tr.innerHTML = `
                     <td style="text-align: center;">
-                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.onerror=null; this.src='Imagenes/LOGOs/NVA.png';">
+                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.onerror=null; this.src='LOGOs/NVA.png';">
                     </td>
                     <td>
                         <strong style="color: #fff; font-size: 1.05em;">${nombreEquipo}</strong>
@@ -1530,7 +1539,7 @@
                     tr.classList.add('fila-misma-categoria');
                 }
 
-                const rutaLogo = `Imagenes/LOGOs/${eq.LOGO}.png`;
+                const rutaLogo = obtenerRutaLogo(eq.LOGO);
                 const nombreRival = eq.EQUIPO || 'RIVAL';
                 const catRival = eq.CATEGORIA || '';
 
@@ -1545,7 +1554,7 @@
 
                 tr.innerHTML = `
                     <td style="text-align: center;">
-                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.onerror=null; this.src='Imagenes/LOGOs/noescudo.png';">
+                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.onerror=null; this.src='LOGOs/noescudo.png';">
                     </td>
                     <td><strong style="color: #fff; font-size: 1.05em;">${nombreRival}</strong></td>
                     <td>${badgeHtml}</td>
@@ -1602,7 +1611,7 @@
             if (elementoLogoRivalActual) {
                 elementoLogoRivalActual.onerror = function() {
                     this.onerror = null;
-                    this.src = 'Imagenes/LOGOs/noescudo.png';
+                    this.src = 'LOGOs/noescudo.png';
                 };
                 elementoLogoRivalActual.src = rutaLogo;
             }
@@ -1666,14 +1675,14 @@
             recuadro.style.setProperty('--color-equipo', colorHex);
             recuadro.style.setProperty('--mask-img', "url('Imagenes/Recuadro (mascara).png')");
 
-            const rutaLogoLocal = `Imagenes/LOGOs/${equipo.LOGO}.png`;
+            const rutaLogoLocal = obtenerRutaLogo(equipo.LOGO);
             const nombreLocal = equipo.EQUIPO || 'LOCAL';
             const categoria = equipo.CATEGORIA || 'CATEGORIA';
 
             let equipoCasaNombre = '';
             let equipoCasaLogo = '';
             let equipoRivalNombre = '';
-            let equipoRivalLogo = 'Imagenes/LOGOs/noescudo.png';
+            let equipoRivalLogo = 'LOGOs/noescudo.png';
 
             let esRivalIzq = false;
             let esRivalDer = false;
@@ -1700,14 +1709,14 @@
 
                 <div class="contenido-recuadro">
                     <div class="area-logo-izq">
-                        <img src="${esRivalIzq ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-izq" alt="Logo Izq" onerror="this.onerror=null; this.src='Imagenes/LOGOs/noescudo.png';">
+                        <img src="${esRivalIzq ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-izq" alt="Logo Izq" onerror="this.onerror=null; this.src='LOGOs/noescudo.png';">
                     </div>
                     <div class="area-equipo-izq">
                         <span class="nombre-equipo ${esRivalIzq ? 'campo-editable vacio rival-izq' : ''}">${esRivalIzq ? equipoRivalNombre : equipoCasaNombre}</span>
                     </div>
 
                     <div class="area-logo-der">
-                        <img src="${esRivalDer ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-der" alt="Logo Der" onerror="this.onerror=null; this.src='Imagenes/LOGOs/noescudo.png';">
+                        <img src="${esRivalDer ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-der" alt="Logo Der" onerror="this.onerror=null; this.src='LOGOs/noescudo.png';">
                     </div>
                     <div class="area-equipo-der">
                         <span class="nombre-equipo ${esRivalDer ? 'campo-editable vacio rival-der' : ''}">${esRivalDer ? equipoRivalNombre : equipoCasaNombre}</span>
@@ -1935,12 +1944,12 @@
                     if (rol === 'casa') {
                         const objRival = todosLosOtros.find(e => (e.EQUIPO || '').trim().toUpperCase() === eqRivalTxt.toUpperCase());
                         if (objRival && imgLogoDer) {
-                            imgLogoDer.src = `Imagenes/LOGOs/${objRival.LOGO}.png`;
+                            imgLogoDer.src = obtenerRutaLogo(objRival.LOGO);
                         }
                     } else {
                         const objRival = todosLosOtros.find(e => (e.EQUIPO || '').trim().toUpperCase() === eqCasaTxt.toUpperCase());
                         if (objRival && imgLogoIzq) {
-                            imgLogoIzq.src = `Imagenes/LOGOs/${objRival.LOGO}.png`;
+                            imgLogoIzq.src = obtenerRutaLogo(objRival.LOGO);
                         }
                     }
 
