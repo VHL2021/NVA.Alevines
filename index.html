@@ -95,7 +95,7 @@
         .header-campo-juego-container {
             width: 100%;
             background-color: #000000;
-            padding: 8px 16px;
+            padding: 10px 16px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -115,7 +115,12 @@
             text-transform: uppercase;
             text-align: center;
             text-shadow: 2px 2px 6px rgba(0,0,0,0.9);
-            padding: 4px 0;
+            padding: 8px 0;
+            margin: 0;
+            line-height: 1.4;
+            height: auto;
+            display: block;
+            box-sizing: content-box;
         }
 
         @media (max-width: 600px) {
@@ -1974,7 +1979,7 @@
 
                 await document.fonts.ready;
 
-                // 1. Cargar la imagen de la máscara original una sola vez para reutilizarla
+                // Cargar la imagen de la máscara original una sola vez para reutilizarla
                 const imgMask = new Image();
                 imgMask.crossOrigin = 'anonymous';
                 await new Promise((resolve, reject) => {
@@ -2011,6 +2016,7 @@
 
                     const dataUrlTintada = canvasTemp.toDataURL('image/png');
 
+                    // Aplicar la imagen tintada directamente como fondo para que html2canvas la renderice sin problemas
                     borde.style.webkitMaskImage = 'none';
                     borde.style.maskImage = 'none';
                     borde.style.backgroundImage = `url('${dataUrlTintada}')`;
@@ -2019,35 +2025,33 @@
                     borde.style.backgroundColor = 'transparent';
                 }
 
-                // --- SOLUCIÓN AL CORTE DEL TEXTO ---
-                // 2. Guardar y eliminar los 'transforms' de los campos de texto durante el renderizado
-                const elementosTexto = areaCaptura.querySelectorAll('.nombre-equipo, .campo-editable-info, .header-texto-fecha span');
-                const respaldosTransforms = [];
-
-                elementosTexto.forEach(el => {
-                    respaldosTransforms.push({
-                        element: el,
-                        transform: el.style.transform,
-                        display: el.style.display,
-                        lineHeight: el.style.lineHeight
-                    });
-
-                    // Desactivar el escalado transform y forzar ajuste en pantalla completa
-                    el.style.transform = 'none';
-                    el.style.display = 'block';
-                    el.style.lineHeight = 'normal';
-                });
-
-                // 3. Renderizar el área completa a canvas
                 const canvas = await html2canvas(areaCaptura, {
                     scale: 2,
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#000000',
-                    logging: false
+                    logging: false,
+                    onclone: (clonedDoc) => {
+                        const clonedInput = clonedDoc.getElementById('headerInputCampoJuego');
+                        if (clonedInput) {
+                            const parent = clonedInput.parentElement;
+                            const textVal = clonedInput.value || '';
+                            const tempDiv = clonedDoc.createElement('div');
+                            tempDiv.className = clonedInput.className;
+                            tempDiv.textContent = textVal;
+                            tempDiv.style.lineHeight = 'normal';
+                            tempDiv.style.padding = '8px 0';
+                            tempDiv.style.margin = '0';
+                            tempDiv.style.boxSizing = 'border-box';
+                            tempDiv.style.display = 'block';
+                            tempDiv.style.overflow = 'visible';
+                            tempDiv.style.height = 'auto';
+                            parent.replaceChild(tempDiv, clonedInput);
+                        }
+                    }
                 });
 
-                // 4. Restaurar estilos de las máscaras
+                // Restaurar los estilos originales de las capas
                 respaldosMask.forEach(item => {
                     item.element.style.backgroundImage = item.backgroundImage;
                     item.element.style.maskImage = item.maskImage;
@@ -2057,22 +2061,10 @@
                     item.element.style.backgroundRepeat = '';
                 });
 
-                // 5. Restaurar estilos y re-ejecutar el auto-ajuste de los textos
-                respaldosTransforms.forEach(item => {
-                    item.element.style.transform = item.transform;
-                    item.element.style.display = item.display;
-                    item.element.style.lineHeight = item.lineHeight;
-                });
-
-                // Asegurar recálculo de escala visual en pantalla despues de la captura
-                elementosTexto.forEach(span => autoAjustarTextoSegunSuperficie(span));
-
-                // 6. Descargar el archivo JPG resultante
                 const link = document.createElement('a');
                 link.download = `Partidos_NVA_${new Date().toISOString().slice(0, 10)}.jpg`;
                 link.href = canvas.toDataURL('image/jpeg', 0.92);
                 link.click();
-
             } catch (err) {
                 console.error('Error al generar la captura JPG:', err);
                 alert('No se pudo generar la imagen. Inténtalo de nuevo.');
