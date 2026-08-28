@@ -1580,14 +1580,14 @@
                 
                 workbookGlobal = XLSX.read(arrayBuffer, { type: 'array' });
                 
-                const sheetEquipos = workbookGlobal.Sheets["EQUIPOS NVA"];
+                const sheetEquipos = workbookGlobal.Sheets["Equipos NVA"];
                 if (sheetEquipos) {
                     listaEquiposGlobal = XLSX.utils.sheet_to_json(sheetEquipos);
                 } else {
                     listaEquiposGlobal = equiposRespaldo;
                 }
 
-                const sheetOtros = workbookGlobal.Sheets["OTROS EQUIPOS"];
+                const sheetOtros = workbookGlobal.Sheets["OTROS Equipos"];
                 if (sheetOtros) {
                     listaOtrosEquiposGlobal = XLSX.utils.sheet_to_json(sheetOtros);
                 }
