@@ -1974,12 +1974,43 @@
 
                 await document.fonts.ready;
 
+                // Solución para aplicar la máscara correctamente en html2canvas (convirtiendo el enmascarado a un canvas de datos o clonando la opacidad)
+                const capasBorde = areaCaptura.querySelectorAll('.capa-borde');
+                const respaldosMask = [];
+                capasBorde.forEach((borde) => {
+                    respaldosMask.push({
+                        element: borde,
+                        maskImage: borde.style.maskImage,
+                        webkitMaskImage: borde.style.webkitMaskImage,
+                        backgroundColor: borde.style.backgroundColor
+                    });
+                    
+                    // Forzamos estilos computados o emulados para que html2canvas interprete correctamente la máscara de color
+                    const colorComputed = window.getComputedStyle(borde).backgroundColor;
+                    borde.style.webkitMaskImage = 'none';
+                    borde.style.maskImage = 'none';
+                    borde.style.backgroundImage = RUTA_MASCARA;
+                    borde.style.webkitMaskSize = '100% 100%';
+                    borde.style.maskSize = '100% 100%';
+                    borde.style.webkitMaskRepeat = 'no-repeat';
+                    borde.style.maskRepeat = 'no-repeat';
+                    borde.style.backgroundColor = 'transparent';
+                });
+
                 const canvas = await html2canvas(areaCaptura, {
                     scale: 2,
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#000000',
                     logging: false
+                });
+
+                // Restaurar los estilos originales de las capas de borde
+                respaldosMask.forEach(item => {
+                    item.element.style.backgroundImage = '';
+                    item.element.style.maskImage = item.maskImage;
+                    item.element.style.webkitMaskImage = item.webkitMaskImage;
+                    item.element.style.backgroundColor = item.backgroundColor;
                 });
 
                 const link = document.createElement('a');
