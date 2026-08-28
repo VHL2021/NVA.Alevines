@@ -552,9 +552,6 @@
         .tanteo-box {
             width: 30%;
             height: 100%;
-            /*background-color: rgba(0, 0, 0, 0.7);
-            border: 2px solid #00b0f0;
-            border-radius: 6px;*/
             color: #ffffff;
             font-size: 9cqw;
             font-weight: 500;
@@ -563,13 +560,11 @@
             justify-content: center;
             cursor: pointer;
             user-select: none;
-            transition: color 0.5s; /*background-color 0.2s, border-color 0.2s;*/
+            transition: color 0.5s;
         }
 
         @media (hover: hover) and (pointer: fine) {
             .tanteo-box:hover {
-                /*background-color: rgba(0, 176, 240, 0.3);
-                border-color: #ffffff;*/
                 color: #ff0000;
             }
         }
@@ -656,49 +651,6 @@
             text-align: left;
             transform-origin: left center;
         }
-
-        /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-        /*
-        .area-logo-der {
-            background-color: rgba(0, 255, 204, 0.25) !important;
-            outline: 2px dashed #00ffcc !important;
-            z-index: 10 !important;
-            pointer-events: auto !important; /* Permite detectar el ratón sobre la zona 
-        }
-        
-        .area-logo-izq {
-            background-color: rgba(0, 255, 204, 0.25) !important;
-            outline: 2px dashed #00ffcc !important;
-            z-index: 10 !important;
-            pointer-events: auto !important; /* Permite detectar el ratón sobre la zona 
-        }
-        
-        .area-equipo-der {
-            background-color: rgba(0, 255, 204, 0.25) !important;
-            outline: 2px dashed #00ffcc !important;
-            z-index: 10 !important;
-            pointer-events: auto !important; /* Permite detectar el ratón sobre la zona 
-        }
-
-        .area-equipo-izq {
-            background-color: rgba(0, 255, 204, 0.25) !important;
-            outline: 2px dashed #00ffcc !important;
-            z-index: 10 !important;
-            pointer-events: auto !important; /* Permite detectar el ratón sobre la zona 
-        }
-
-
-        .contenedor-item-info {
-            background-color: rgba(0, 255, 204, 0.25) !important;
-            outline: 2px dashed #00ffcc !important;
-            z-index: 10 !important;
-            pointer-events: auto !important; /* Permite detectar el ratón sobre la zona 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /*---------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
         .nombre-equipo.campo-editable {
             cursor: pointer;
@@ -886,7 +838,6 @@
             }
         }
 
-        /* BOTÓN TOGGLE MODO (PARTIDOS / RESULTADOS) */
         .btn-toggle-modo {
             position: fixed;
             right: calc(16px + env(safe-area-inset-right));
@@ -1907,7 +1858,7 @@
 
             const colorHex = equipo.COLOR || '#00b0f0';
             recuadro.style.setProperty('--color-equipo', colorHex);
-            recuadro.style.setProperty('--mask-img', "url('Imagenes/Recuadro (mascara).png')");
+            recuadro.style.setProperty('--mask-img', "url('Imagenes/Recuadro%20(mascara).png')");
 
             const rutaLogoLocal = obtenerRutaLogo(equipo.LOGO);
             const nombreLocal = equipo.EQUIPO || 'LOCAL';
