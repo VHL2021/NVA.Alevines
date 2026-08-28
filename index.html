@@ -1974,28 +1974,51 @@
 
                 await document.fonts.ready;
 
-                // Solución para aplicar la máscara correctamente en html2canvas (convirtiendo el enmascarado a un canvas de datos o clonando la opacidad)
+                // Cargar la imagen de la máscara original una sola vez para reutilizarla
+                const imgMask = new Image();
+                imgMask.crossOrigin = 'anonymous';
+                await new Promise((resolve, reject) => {
+                    imgMask.onload = resolve;
+                    imgMask.onerror = reject;
+                    imgMask.src = RUTA_MASCARA_IMG;
+                });
+
                 const capasBorde = areaCaptura.querySelectorAll('.capa-borde');
                 const respaldosMask = [];
-                capasBorde.forEach((borde) => {
+
+                for (const borde of capasBorde) {
+                    const recuadro = borde.closest('.recuadro-partido');
+                    const colorEquipo = recuadro ? recuadro.style.getPropertyValue('--color-equipo') || '#00b0f0' : '#00b0f0';
+
                     respaldosMask.push({
                         element: borde,
                         maskImage: borde.style.maskImage,
                         webkitMaskImage: borde.style.webkitMaskImage,
-                        backgroundColor: borde.style.backgroundColor
+                        backgroundColor: borde.style.backgroundColor,
+                        backgroundImage: borde.style.backgroundImage
                     });
-                    
-                    // Forzamos estilos computados o emulados para que html2canvas interprete correctamente la máscara de color
-                    const colorComputed = window.getComputedStyle(borde).backgroundColor;
+
+                    // Crear un canvas auxiliar para tintar la máscara con el color del equipo
+                    const canvasTemp = document.createElement('canvas');
+                    canvasTemp.width = imgMask.naturalWidth || 800;
+                    canvasTemp.height = imgMask.naturalHeight || 130;
+                    const ctxTemp = canvasTemp.getContext('2d');
+
+                    ctxTemp.drawImage(imgMask, 0, 0, canvasTemp.width, canvasTemp.height);
+                    ctxTemp.globalCompositeOperation = 'source-in';
+                    ctxTemp.fillStyle = colorEquipo;
+                    ctxTemp.fillRect(0, 0, canvasTemp.width, canvasTemp.height);
+
+                    const dataUrlTintada = canvasTemp.toDataURL('image/png');
+
+                    // Aplicar la imagen tintada directamente como fondo para que html2canvas la renderice sin problemas
                     borde.style.webkitMaskImage = 'none';
                     borde.style.maskImage = 'none';
-                    borde.style.backgroundImage = RUTA_MASCARA;
-                    borde.style.webkitMaskSize = '100% 100%';
-                    borde.style.maskSize = '100% 100%';
-                    borde.style.webkitMaskRepeat = 'no-repeat';
-                    borde.style.maskRepeat = 'no-repeat';
+                    borde.style.backgroundImage = `url('${dataUrlTintada}')`;
+                    borde.style.backgroundSize = '100% 100%';
+                    borde.style.backgroundRepeat = 'no-repeat';
                     borde.style.backgroundColor = 'transparent';
-                });
+                }
 
                 const canvas = await html2canvas(areaCaptura, {
                     scale: 2,
@@ -2005,12 +2028,14 @@
                     logging: false
                 });
 
-                // Restaurar los estilos originales de las capas de borde
+                // Restaurar los estilos originales de las capas
                 respaldosMask.forEach(item => {
-                    item.element.style.backgroundImage = '';
+                    item.element.style.backgroundImage = item.backgroundImage;
                     item.element.style.maskImage = item.maskImage;
                     item.element.style.webkitMaskImage = item.webkitMaskImage;
                     item.element.style.backgroundColor = item.backgroundColor;
+                    item.element.style.backgroundSize = '';
+                    item.element.style.backgroundRepeat = '';
                 });
 
                 const link = document.createElement('a');
