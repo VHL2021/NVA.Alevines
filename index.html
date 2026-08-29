@@ -1038,9 +1038,10 @@
             display: none;
             width: 100%;
             padding: 1vh 1.2vw 4vh;
-            gap: 1.5vw;
+            gap: 2vw;
             justify-content: center;
             align-items: stretch;
+            flex-wrap: nowrap;
         }
 
         body.modo-resultados #contenedorFotosResultados {
@@ -1049,8 +1050,10 @@
 
         .foto-resultado {
             position: relative;
-            flex: 1 1 0;
-            min-width: 0;
+            flex: 0 0 41vw;
+            width: 41vw;
+            min-width: 41vw;
+            max-width: 41vw;
             aspect-ratio: 16 / 9;
             border: 8px solid var(--foto-color, #c28b06);
             border-radius: 10px;
@@ -1198,15 +1201,19 @@
 
         @media (max-width: 600px) {
             #contenedorFotosResultados {
-                flex-direction: column;
-                gap: 12px;
-                padding-left: 10px;
-                padding-right: 10px;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                gap: 2vw;
+                padding-left: 1vw;
+                padding-right: 1vw;
+                overflow-x: hidden;
             }
 
             .foto-resultado {
-                width: 100%;
-                flex: none;
+                width: 41vw;
+                min-width: 41vw;
+                max-width: 41vw;
+                flex: 0 0 41vw;
                 aspect-ratio: 16 / 9;
                 border-width: 6px;
             }
@@ -2811,19 +2818,27 @@
             const colores = [];
             const vistos = new Set();
 
+            // La fuente es exclusivamente la hoja "Equipos NVA" de DATOS.xls.
+            // Mientras el Excel todavía no se haya cargado se utiliza el respaldo
+            // integrado del mismo listado para que la interfaz siga funcionando.
             const fuente = (listaEquiposGlobal && listaEquiposGlobal.length)
                 ? listaEquiposGlobal
                 : equiposRespaldo;
 
             fuente.forEach(eq => {
                 const color = obtenerColorEquipo(eq);
-                if (!vistos.has(color)) {
-                    vistos.add(color);
+                // Normalizamos el color para que #FF5050, #ff5050 o #Ff5050
+                // se consideren exactamente el mismo color.
+                const claveColor = normalizarTexto(color).toLowerCase();
+                if (!claveColor || claveColor === '#00b0f0') return;
+
+                if (!vistos.has(claveColor)) {
+                    vistos.add(claveColor);
                     colores.push(color);
                 }
             });
 
-            return colores.length ? colores : ['#c28b06', '#ccca20'];
+            return colores;
         }
 
         function nombreColorFoto(color, indice) {
