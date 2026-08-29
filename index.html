@@ -885,6 +885,61 @@
             }
         }
 
+        /* ================================================================
+           MENÚ FLOTANTE DE ACCIONES
+           - Las acciones permanecen ocultas hasta pulsar <.
+           - El botón < se desplaza a la izquierda y pasa a ser >.
+           ================================================================ */
+        .btn-menu-flotante-toggle {
+            position: fixed;
+            right: calc(16px + env(safe-area-inset-right));
+            bottom: calc(16px + env(safe-area-inset-bottom));
+            z-index: 600;
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            border-radius: 50%;
+            background: #444;
+            color: #fff;
+            font: 700 1.35rem/1 Arial, sans-serif;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0,0,0,.55);
+            touch-action: manipulation;
+            transition: right .25s ease, transform .15s ease, background-color .2s ease;
+        }
+        .btn-menu-flotante-toggle:active { transform: scale(.94); }
+        .menu-flotantes-abierto .btn-menu-flotante-toggle {
+            right: calc(16px + env(safe-area-inset-right) + 260px);
+            background: #333;
+        }
+        .btn-captura-pagina,
+        .btn-guardar-historico,
+        .btn-cargar-datos,
+        .btn-toggle-modo {
+            transition: right .25s ease, bottom .25s ease, transform .15s ease, opacity .2s ease, visibility .2s ease;
+        }
+        body:not(.menu-flotantes-abierto) .btn-captura-pagina,
+        body:not(.menu-flotantes-abierto) .btn-guardar-historico,
+        body:not(.menu-flotantes-abierto) .btn-cargar-datos,
+        body:not(.menu-flotantes-abierto) .btn-toggle-modo {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateX(24px);
+        }
+        @media (max-width: 480px) {
+            .btn-menu-flotante-toggle {
+                width: 42px;
+                height: 42px;
+            }
+            .menu-flotantes-abierto .btn-menu-flotante-toggle {
+                right: calc(16px + env(safe-area-inset-right) + 205px);
+            }
+        }
+
         .selector-hora-wrap {
             display: flex;
             gap: 20px;
@@ -1466,6 +1521,8 @@
 
     <input type="file" id="inputCargarDatos" accept=".txt,text/plain" style="display: none;" onchange="procesarArchivoDatos(this.files)" />
 
+    <button type="button" id="btnMenuFlotanteToggle" class="btn-menu-flotante-toggle no-captura" onclick="toggleMenuFlotante()" aria-label="Mostrar acciones flotantes" aria-expanded="false">&lt;</button>
+
     <button type="button" id="btnToggleModo" class="btn-toggle-modo no-captura" onclick="toggleModoPartidosResultados()" aria-label="Cambiar entre partidos y resultados">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
             <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
@@ -1699,6 +1756,16 @@
                 document.body.style.right = '';
                 document.body.style.width = '';
                 window.scrollTo(0, scrollYAntesDelModal);
+            }
+        }
+
+        function toggleMenuFlotante() {
+            const abierto = document.body.classList.toggle('menu-flotantes-abierto');
+            const boton = document.getElementById('btnMenuFlotanteToggle');
+            if (boton) {
+                boton.textContent = abierto ? '>' : '<';
+                boton.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+                boton.setAttribute('aria-label', abierto ? 'Ocultar acciones flotantes' : 'Mostrar acciones flotantes');
             }
         }
 
@@ -2797,20 +2864,24 @@
         function obtenerColoresNVAParaFotos() {
             const colores = [];
             const vistos = new Set();
-
-            const fuente = (listaEquiposGlobal && listaEquiposGlobal.length)
+            const fuente = (Array.isArray(listaEquiposGlobal) && listaEquiposGlobal.length)
                 ? listaEquiposGlobal
                 : equiposRespaldo;
 
             fuente.forEach(eq => {
                 const color = obtenerColorEquipo(eq);
-                if (!vistos.has(color)) {
-                    vistos.add(color);
+                if (!color) return;
+                const clave = String(color).trim().toLowerCase();
+                if (!vistos.has(clave)) {
+                    vistos.add(clave);
                     colores.push(color);
                 }
             });
 
-            return colores.length ? colores : ['#c28b06', '#ccca20'];
+            // Siempre debe existir una paleta funcional con los dos primeros colores.
+            return colores.slice(0, 2).length >= 2
+                ? colores.slice(0, 2)
+                : ['#c28b06', '#ccca20'];
         }
 
         function nombreColorFoto(color, indice) {
@@ -2835,14 +2906,10 @@
                 const recuadro = document.getElementById(`fotoResultado${indice}`);
                 if (!paleta || !recuadro) return;
 
-                const valorActual =
-                    recuadro.style.getPropertyValue('--foto-color').trim() ||
-                    colores[indice - 1] ||
-                    colores[0];
-
+                const actual = (recuadro.style.getPropertyValue('--foto-color') || '').trim().toLowerCase();
                 paleta.innerHTML = '';
 
-                colores.slice(0, 2).forEach((color, i) => {
+                colores.forEach((color, i) => {
                     const boton = document.createElement('button');
                     boton.type = 'button';
                     boton.className = 'foto-color-muestra';
@@ -2850,19 +2917,19 @@
                     boton.setAttribute('role', 'radio');
                     boton.setAttribute('aria-label', nombreColorFoto(color, i + 1));
                     boton.setAttribute('title', nombreColorFoto(color, i + 1));
-                    boton.setAttribute('aria-checked', color.toLowerCase() === valorActual.toLowerCase() ? 'true' : 'false');
-                    boton.tabIndex = color.toLowerCase() === valorActual.toLowerCase() ? 0 : -1;
-                    boton.onclick = (event) => {
+                    boton.setAttribute('aria-checked', String(color).toLowerCase() === actual ? 'true' : 'false');
+                    boton.tabIndex = String(color).toLowerCase() === actual ? 0 : -1;
+
+                    const seleccionar = (event) => {
+                        event.preventDefault();
                         event.stopPropagation();
                         cambiarColorMarcoFoto(indice, color);
                     };
-                    boton.onkeydown = (event) => {
-                        if (event.key === 'Enter' || event.key === ' ') {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            cambiarColorMarcoFoto(indice, color);
-                        }
-                    };
+                    boton.addEventListener('pointerdown', seleccionar, { passive: false });
+                    boton.addEventListener('click', seleccionar);
+                    boton.addEventListener('keydown', event => {
+                        if (event.key === 'Enter' || event.key === ' ') seleccionar(event);
+                    });
                     paleta.appendChild(boton);
                 });
             });
@@ -3036,7 +3103,7 @@
 
             /* En táctil, pulsar directamente el marco abre/cierra la paleta de colores
                en lugar de abrir inmediatamente el selector de archivos. */
-            if (event && event.pointerType === 'touch' && recuadro && event.target === recuadro) {
+            if (event && (event.pointerType === 'touch' || event.pointerType === 'pen') && recuadro) {
                 event.preventDefault();
                 event.stopPropagation();
                 recuadro.classList.toggle('mostrar-selector-color');
