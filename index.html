@@ -1017,6 +1017,12 @@
     </style>
 </head>
 <body>
+    <div id="errorCargaDatos" role="alert" aria-live="assertive" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; width:min(720px,calc(100% - 40px)); box-sizing:border-box; padding:18px 22px; background:#7f1d1d; color:#fff; border:2px solid #ef4444; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,.45); font-family:Arial,sans-serif;">
+        <div style="font-size:18px;font-weight:700;margin-bottom:8px;">⚠ No se pudo cargar DATOS.xls</div>
+        <div id="textoErrorCargaDatos" style="font-size:14px;line-height:1.5;"></div>
+        <div style="font-size:13px;line-height:1.5;margin-top:8px;">Comprueba que <strong>DATOS.xls</strong> está en la misma carpeta que este archivo HTML y que la aplicación se está ejecutando mediante un servidor local (por ejemplo, Live Server).</div>
+    </div>
+
 
     <div id="areaCaptura" style="background-color: #000000; width: 100%; overflow: hidden;">
         <div class="header-container" id="cabeceraContainer">
@@ -1313,7 +1319,7 @@
         // Ejemplo: "Alevi Negro NVA" -> "LOGOs/Alevi Negro NVA.png".
         function obtenerRutaLogo(nombreLogo) {
             let nombre = normalizarTexto(nombreLogo);
-            if (!nombre) return 'LOGOs/noescudo.png';
+            if (!nombre) return 'LOGOs/no escudo.png';
 
             // El Excel contiene el nombre del archivo SIN extensión.
             // Eliminamos únicamente una posible ruta accidental y una extensión
@@ -1322,7 +1328,7 @@
             nombre = nombre.split('/').pop().trim();
             nombre = nombre.replace(/\.png$/i, '');
 
-            return `LOGOs/${encodeURI(nombre)}.png`;
+            return `LOGOs/${encodeURIComponent(nombre).replace(/%2F/gi, '/')}.png`;
         }
 
         function obtenerCandidatosLogo(nombreLogo) {
@@ -1330,7 +1336,7 @@
             return [ruta];
         }
 
-        function configurarLogo(img, nombreLogo, fallback = 'LOGOs/noescudo.png') {
+        function configurarLogo(img, nombreLogo, fallback = 'LOGOs/no escudo.png') {
             if (!img) return;
             const candidatos = obtenerCandidatosLogo(nombreLogo);
             let indice = 0;
@@ -1644,9 +1650,23 @@
             alCerrarModal();
         }
 
+        function mostrarErrorCargaDatos(mensaje) {
+            const panel = document.getElementById('errorCargaDatos');
+            const texto = document.getElementById('textoErrorCargaDatos');
+            if (texto) texto.textContent = mensaje || 'No se pudo leer el archivo DATOS.xls.';
+            if (panel) panel.style.display = 'block';
+            console.error('ERROR DE CARGA DE DATOS:', mensaje);
+        }
+
+        function ocultarErrorCargaDatos() {
+            const panel = document.getElementById('errorCargaDatos');
+            if (panel) panel.style.display = 'none';
+        }
+
         async function cargarExcel() {
             try {
-                // XLSX debe estar disponible antes de intentar interpretar DATOS.xls.
+                ocultarErrorCargaDatos();
+
                 if (typeof XLSX === 'undefined') {
                     throw new Error('La librería XLSX no está disponible.');
                 }
@@ -1666,9 +1686,6 @@
                     }
                 }
 
-                // Al abrir index.html directamente con file://, el navegador puede
-                // bloquear fetch() por seguridad. En ese caso usamos el respaldo
-                // incorporado en el propio HTML, evitando que la aplicación falle.
                 if (!arrayBuffer) {
                     throw new Error(
                         `No se pudo cargar DATOS.xls${ultimoError ? ` (${ultimoError.message})` : ''}.`
@@ -1686,10 +1703,11 @@
                 const sheetEquipos = buscarHoja('Equipos NVA');
                 const sheetOtros = buscarHoja('OTROS Equipos');
 
-                listaEquiposGlobal = sheetEquipos
-                    ? normalizarListaEquipos(XLSX.utils.sheet_to_json(sheetEquipos, { defval: '' }))
-                    : [];
+                if (!sheetEquipos) {
+                    throw new Error(`No existe la hoja "Equipos NVA". Hojas encontradas: ${(workbookGlobal.SheetNames || []).join(', ') || 'ninguna'}.`);
+                }
 
+                listaEquiposGlobal = normalizarListaEquipos(XLSX.utils.sheet_to_json(sheetEquipos, { defval: '' }));
                 listaOtrosEquiposGlobal = sheetOtros
                     ? normalizarListaEquipos(XLSX.utils.sheet_to_json(sheetOtros, { defval: '' }))
                     : [];
@@ -1700,13 +1718,21 @@
 
                 renderizarTabla(listaEquiposGlobal);
                 datosCargados = true;
+                ocultarErrorCargaDatos();
+                console.info(`DATOS.xls cargado correctamente: ${listaEquiposGlobal.length} equipos NVA.`);
             } catch (error) {
-                console.warn('Cargando datos de respaldo local:', error.message);
-                listaEquiposGlobal = normalizarListaEquipos(equiposRespaldo);
+                listaEquiposGlobal = [];
                 listaOtrosEquiposGlobal = [];
                 workbookGlobal = null;
-                renderizarTabla(listaEquiposGlobal);
-                datosCargados = true;
+                datosCargados = false;
+
+                const mensaje = error && error.message ? error.message : 'Error desconocido al cargar DATOS.xls.';
+                mostrarErrorCargaDatos(mensaje);
+
+                const tbody = document.getElementById('tablaBody');
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:25px;color:#ff6b6b;font-weight:700;">No se han podido cargar los equipos porque DATOS.xls no está disponible.</td></tr>';
+                }
             }
         }
 
@@ -1761,7 +1787,7 @@
                     </td>
                 `;
                 tbody.appendChild(tr);
-                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/NVA.png');
+                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/no escudo.png');
             });
         }
 
@@ -1893,7 +1919,7 @@
 
                 tr.onclick = () => seleccionarRivalDirecto(nombreRival, rutaLogo, esMismaCategoria, eq);
                 tbody.appendChild(tr);
-                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/noescudo.png');
+                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/no escudo.png');
             });
 
             modalRivales.style.display = 'flex';
@@ -1941,7 +1967,7 @@
                 autoAjustarTextoSegunSuperficie(elementoNombreRivalActual);
             }
             if (elementoLogoRivalActual) {
-                configurarLogo(elementoLogoRivalActual, rutaLogo, 'LOGOs/noescudo.png');
+                configurarLogo(elementoLogoRivalActual, rutaLogo, 'LOGOs/no escudo.png');
             }
         }
 
@@ -2036,7 +2062,7 @@
             let equipoCasaNombre = '';
             let equipoCasaLogo = '';
             let equipoRivalNombre = '';
-            let equipoRivalLogo = 'LOGOs/noescudo.png';
+            let equipoRivalLogo = 'LOGOs/no escudo.png';
 
             let esRivalIzq = false;
             let esRivalDer = false;
@@ -2089,8 +2115,8 @@
                 </div>
             `;
 
-            configurarLogo(recuadro.querySelector('.logo-izq'), esRivalIzq ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/noescudo.png');
-            configurarLogo(recuadro.querySelector('.logo-der'), esRivalDer ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/noescudo.png');
+            configurarLogo(recuadro.querySelector('.logo-izq'), esRivalIzq ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/no escudo.png');
+            configurarLogo(recuadro.querySelector('.logo-der'), esRivalDer ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/no escudo.png');
 
             const spanRivalIzq = recuadro.querySelector('.rival-izq');
             const logoIzq = recuadro.querySelector('.logo-izq');
@@ -2436,12 +2462,12 @@
                     if (rol === 'casa') {
                         const objRival = todosLosOtros.find(e => normalizarClave(e.EQUIPO) === normalizarClave(eqRivalTxt));
                         if (objRival && imgLogoDer) {
-                            configurarLogo(imgLogoDer, objRival.LOGO, 'LOGOs/noescudo.png');
+                            configurarLogo(imgLogoDer, objRival.LOGO, 'LOGOs/no escudo.png');
                         }
                     } else {
                         const objRival = todosLosOtros.find(e => normalizarClave(e.EQUIPO) === normalizarClave(eqCasaTxt));
                         if (objRival && imgLogoIzq) {
-                            configurarLogo(imgLogoIzq, objRival.LOGO, 'LOGOs/noescudo.png');
+                            configurarLogo(imgLogoIzq, objRival.LOGO, 'LOGOs/no escudo.png');
                         }
                     }
 
