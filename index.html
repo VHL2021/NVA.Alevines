@@ -1335,9 +1335,20 @@
 
             nombre = nombre.replace(/\\/g, '/');
             nombre = nombre.split('/').pop().trim();
+
+            // El valor puede llegar aquí directamente desde Excel (texto normal)
+            // o puede llegar como una ruta ya codificada desde otra función.
+            // Si ya contiene %20, primero la decodificamos para evitar %2520.
+            try {
+                nombre = decodeURIComponent(nombre);
+            } catch (e) {
+                // Si contiene un porcentaje no válido, conservamos el texto original.
+            }
+
             nombre = nombre.replace(/\.png$/i, '');
 
             // Los nombres de la primera columna de DATOS.xls son la base del PNG.
+            // Una sola codificación convierte los espacios en %20.
             return `LOGOs/${encodeURIComponent(nombre)}.png`;
         }
 
