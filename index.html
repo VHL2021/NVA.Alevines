@@ -1015,18 +1015,6 @@
             }
         }
     
-        /* Mensaje de diagnóstico para logos que no pueden cargarse. */
-        .logo-error-path {
-            display: block;
-            margin-top: 3px;
-            max-width: 180px;
-            font-size: 9px;
-            line-height: 1.15;
-            color: #ff6b6b;
-            word-break: break-all;
-            text-align: center;
-        }
-
         /* ================================================================
            FOTOGRAFÍAS PARA EL MODO RESULTADOS
            - Solo se muestran cuando body tiene .modo-resultados.
@@ -1038,10 +1026,9 @@
             display: none;
             width: 100%;
             padding: 1vh 1.2vw 4vh;
-            gap: 2vw;
+            gap: 1.5vw;
             justify-content: center;
             align-items: stretch;
-            flex-wrap: nowrap;
         }
 
         body.modo-resultados #contenedorFotosResultados {
@@ -1050,33 +1037,21 @@
 
         .foto-resultado {
             position: relative;
-            flex: 0 0 45vw;
-            width: 45vw;
-            min-width: 40vw;
-            max-width: 46vw;
+            flex: 1 1 0;
+            min-width: 0;
             aspect-ratio: 16 / 9;
-            border: 15px solid var(--foto-color, #c28b06);
-            border-radius: 30px;
+            border: 8px solid var(--foto-color, #c28b06);
+            border-radius: 10px;
             background: #111;
             overflow: hidden;
             cursor: pointer;
-            box-shadow: 0 0 18px rgba(255,255,255,0.45);
+            box-shadow: 0 5px 18px rgba(0,0,0,.45);
             transition: border-color .2s ease, box-shadow .2s ease;
         }
 
         .foto-resultado:focus-within,
         .foto-resultado:hover {
             box-shadow: 0 7px 24px rgba(0,0,0,.6);
-        }
-
-        .foto-resultado::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: 10;
-            pointer-events: none;
-            border-radius: 15px;
-            box-shadow: inset 0 0 15px 15px var(--foto-color); /*rgba(0,0,0,0.8);*/
         }
 
         /* La fotografía se transforma mediante JavaScript para permitir zoom y desplazamiento. */
@@ -1211,19 +1186,15 @@
 
         @media (max-width: 600px) {
             #contenedorFotosResultados {
-                flex-direction: row;
-                flex-wrap: nowrap;
-                gap: 2vw;
-                padding-left: 1vw;
-                padding-right: 1vw;
-                overflow-x: hidden;
+                flex-direction: column;
+                gap: 12px;
+                padding-left: 10px;
+                padding-right: 10px;
             }
 
             .foto-resultado {
-                width: 41vw;
-                min-width: 41vw;
-                max-width: 41vw;
-                flex: 0 0 41vw;
+                width: 100%;
+                flex: none;
                 aspect-ratio: 16 / 9;
                 border-width: 6px;
             }
@@ -1631,29 +1602,6 @@
             return [obtenerRutaLogo(nombreLogo)];
         }
 
-        function mostrarErrorLogo(img, rutaIntentada, nombreLogo) {
-            if (!img) return;
-
-            const contenedor = img.parentElement;
-            if (contenedor) {
-                const anterior = contenedor.querySelector('.logo-error-path');
-                if (anterior) anterior.remove();
-
-                const aviso = document.createElement('span');
-                aviso.className = 'logo-error-path';
-                aviso.textContent = `No carga: ${rutaIntentada}`;
-                aviso.title = `Logo indicado en DATOS.xls: ${nombreLogo || '(vacío)'}\nRuta intentada: ${rutaIntentada}`;
-                contenedor.appendChild(aviso);
-            }
-
-            // También queda disponible en consola para poder copiar exactamente la ruta.
-            console.error('[LOGO NO CARGADO]', {
-                nombreExcel: nombreLogo || '',
-                rutaIntentada: rutaIntentada,
-                urlCompleta: new URL(rutaIntentada, document.baseURI).href
-            });
-        }
-
         function configurarLogo(img, nombreLogo, fallback = 'LOGOs/noescudo.png') {
             if (!img) return;
 
@@ -1668,8 +1616,6 @@
 
             img.onerror = function() {
                 const rutaFallida = candidatos[indice] || rutaInicial;
-                mostrarErrorLogo(this, rutaFallida, nombreLogo);
-
                 indice++;
                 if (indice < candidatos.length) {
                     this.src = candidatos[indice];
@@ -2828,27 +2774,19 @@
             const colores = [];
             const vistos = new Set();
 
-            // La fuente es exclusivamente la hoja "Equipos NVA" de DATOS.xls.
-            // Mientras el Excel todavía no se haya cargado se utiliza el respaldo
-            // integrado del mismo listado para que la interfaz siga funcionando.
             const fuente = (listaEquiposGlobal && listaEquiposGlobal.length)
                 ? listaEquiposGlobal
                 : equiposRespaldo;
 
             fuente.forEach(eq => {
                 const color = obtenerColorEquipo(eq);
-                // Normalizamos el color para que #FF5050, #ff5050 o #Ff5050
-                // se consideren exactamente el mismo color.
-                const claveColor = normalizarTexto(color).toLowerCase();
-                if (!claveColor || claveColor === '#00b0f0') return;
-
-                if (!vistos.has(claveColor)) {
-                    vistos.add(claveColor);
+                if (!vistos.has(color)) {
+                    vistos.add(color);
                     colores.push(color);
                 }
             });
 
-            return colores;
+            return colores.length ? colores : ['#c28b06', '#ccca20'];
         }
 
         function nombreColorFoto(color, indice) {
