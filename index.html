@@ -1014,7 +1014,19 @@
                 padding-right: 2px !important;
             }
         }
-    </style>
+    
+        /* Mensaje de diagnóstico para logos que no pueden cargarse. */
+        .logo-error-path {
+            display: block;
+            margin-top: 3px;
+            max-width: 180px;
+            font-size: 9px;
+            line-height: 1.15;
+            color: #ff6b6b;
+            word-break: break-all;
+            text-align: center;
+        }
+</style>
 </head>
 <body>
     <div id="errorCargaDatos" role="alert" aria-live="assertive" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; width:min(720px,calc(100% - 40px)); box-sizing:border-box; padding:18px 22px; background:#7f1d1d; color:#fff; border:2px solid #ef4444; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,.45); font-family:Arial,sans-serif;">
@@ -1319,31 +1331,59 @@
         // Ejemplo: "Alevi Negro NVA" -> "LOGOs/Alevi Negro NVA.png".
         function obtenerRutaLogo(nombreLogo) {
             let nombre = normalizarTexto(nombreLogo);
-            if (!nombre) return 'LOGOs/no escudo.png';
+            if (!nombre) return 'LOGOs/noescudo.png';
 
-            // El Excel contiene el nombre del archivo SIN extensión.
-            // Eliminamos únicamente una posible ruta accidental y una extensión
-            // existente para construir siempre la ruta PNG esperada.
             nombre = nombre.replace(/\\/g, '/');
             nombre = nombre.split('/').pop().trim();
             nombre = nombre.replace(/\.png$/i, '');
 
-            return `LOGOs/${encodeURIComponent(nombre).replace(/%2F/gi, '/')}.png`;
+            // Los nombres de la primera columna de DATOS.xls son la base del PNG.
+            return `LOGOs/${encodeURIComponent(nombre)}.png`;
         }
 
         function obtenerCandidatosLogo(nombreLogo) {
-            const ruta = obtenerRutaLogo(nombreLogo);
-            return [ruta];
+            return [obtenerRutaLogo(nombreLogo)];
         }
 
-        function configurarLogo(img, nombreLogo, fallback = 'LOGOs/no escudo.png') {
+        function mostrarErrorLogo(img, rutaIntentada, nombreLogo) {
             if (!img) return;
+
+            const contenedor = img.parentElement;
+            if (contenedor) {
+                const anterior = contenedor.querySelector('.logo-error-path');
+                if (anterior) anterior.remove();
+
+                const aviso = document.createElement('span');
+                aviso.className = 'logo-error-path';
+                aviso.textContent = `No carga: ${rutaIntentada}`;
+                aviso.title = `Logo indicado en DATOS.xls: ${nombreLogo || '(vacío)'}\nRuta intentada: ${rutaIntentada}`;
+                contenedor.appendChild(aviso);
+            }
+
+            // También queda disponible en consola para poder copiar exactamente la ruta.
+            console.error('[LOGO NO CARGADO]', {
+                nombreExcel: nombreLogo || '',
+                rutaIntentada: rutaIntentada,
+                urlCompleta: new URL(rutaIntentada, document.baseURI).href
+            });
+        }
+
+        function configurarLogo(img, nombreLogo, fallback = 'LOGOs/noescudo.png') {
+            if (!img) return;
+
             const candidatos = obtenerCandidatosLogo(nombreLogo);
             let indice = 0;
+            const rutaInicial = candidatos[0];
 
             img.dataset.logoNombre = normalizarTexto(nombreLogo);
+            img.dataset.logoRutaIntentada = rutaInicial;
             img.dataset.logoFallback = fallback;
+            img.title = `Logo: ${rutaInicial}`;
+
             img.onerror = function() {
+                const rutaFallida = candidatos[indice] || rutaInicial;
+                mostrarErrorLogo(this, rutaFallida, nombreLogo);
+
                 indice++;
                 if (indice < candidatos.length) {
                     this.src = candidatos[indice];
@@ -1353,7 +1393,7 @@
                 }
             };
 
-            img.src = candidatos[0];
+            img.src = rutaInicial;
         }
 
         function obtenerColorEquipo(equipo) {
@@ -1787,7 +1827,7 @@
                     </td>
                 `;
                 tbody.appendChild(tr);
-                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/no escudo.png');
+                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/noescudo.png');
             });
         }
 
@@ -1919,7 +1959,7 @@
 
                 tr.onclick = () => seleccionarRivalDirecto(nombreRival, rutaLogo, esMismaCategoria, eq);
                 tbody.appendChild(tr);
-                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/no escudo.png');
+                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/noescudo.png');
             });
 
             modalRivales.style.display = 'flex';
@@ -1967,7 +2007,7 @@
                 autoAjustarTextoSegunSuperficie(elementoNombreRivalActual);
             }
             if (elementoLogoRivalActual) {
-                configurarLogo(elementoLogoRivalActual, rutaLogo, 'LOGOs/no escudo.png');
+                configurarLogo(elementoLogoRivalActual, rutaLogo, 'LOGOs/noescudo.png');
             }
         }
 
@@ -2062,7 +2102,7 @@
             let equipoCasaNombre = '';
             let equipoCasaLogo = '';
             let equipoRivalNombre = '';
-            let equipoRivalLogo = 'LOGOs/no escudo.png';
+            let equipoRivalLogo = 'LOGOs/noescudo.png';
 
             let esRivalIzq = false;
             let esRivalDer = false;
@@ -2115,8 +2155,8 @@
                 </div>
             `;
 
-            configurarLogo(recuadro.querySelector('.logo-izq'), esRivalIzq ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/no escudo.png');
-            configurarLogo(recuadro.querySelector('.logo-der'), esRivalDer ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/no escudo.png');
+            configurarLogo(recuadro.querySelector('.logo-izq'), esRivalIzq ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/noescudo.png');
+            configurarLogo(recuadro.querySelector('.logo-der'), esRivalDer ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/noescudo.png');
 
             const spanRivalIzq = recuadro.querySelector('.rival-izq');
             const logoIzq = recuadro.querySelector('.logo-izq');
@@ -2462,12 +2502,12 @@
                     if (rol === 'casa') {
                         const objRival = todosLosOtros.find(e => normalizarClave(e.EQUIPO) === normalizarClave(eqRivalTxt));
                         if (objRival && imgLogoDer) {
-                            configurarLogo(imgLogoDer, objRival.LOGO, 'LOGOs/no escudo.png');
+                            configurarLogo(imgLogoDer, objRival.LOGO, 'LOGOs/noescudo.png');
                         }
                     } else {
                         const objRival = todosLosOtros.find(e => normalizarClave(e.EQUIPO) === normalizarClave(eqCasaTxt));
                         if (objRival && imgLogoIzq) {
-                            configurarLogo(imgLogoIzq, objRival.LOGO, 'LOGOs/no escudo.png');
+                            configurarLogo(imgLogoIzq, objRival.LOGO, 'LOGOs/noescudo.png');
                         }
                     }
 
