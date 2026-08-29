@@ -1199,10 +1199,18 @@
                 border-width: 6px;
             }
 
+            /* En táctil la paleta permanece oculta hasta pulsar el marco. */
             .foto-selector-color {
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-4px);
+            }
+
+            .foto-resultado:active .foto-selector-color,
+            .foto-selector-color:active {
                 opacity: 1;
                 visibility: visible;
-                transform: none;
+                transform: translateY(0);
             }
 
             .foto-boton-cambiar {
@@ -2483,6 +2491,26 @@
                             el.style.display = 'none';
                         });
 
+                        /*
+                         * Mantener en el JPG exactamente la misma relación de aspecto
+                         * y transformación de cada fotografía que se ve en pantalla.
+                         * Se fuerza object-fit: cover para evitar cualquier deformación.
+                         */
+                        clonedDoc.querySelectorAll('.foto-resultado img').forEach((img, i) => {
+                            img.style.width = '100%';
+                            img.style.height = '100%';
+                            img.style.objectFit = 'cover';
+                            img.style.objectPosition = 'center center';
+                            img.style.position = 'absolute';
+                            img.style.inset = '0';
+                            img.style.display = 'block';
+                            img.style.transformOrigin = 'center center';
+                            const estado = estadoFotosResultados[i + 1];
+                            if (estado) {
+                                img.style.transform = `translate3d(${estado.x}px, ${estado.y}px, 0) scale(${estado.scale})`;
+                            }
+                        });
+
                         const clonedInput = clonedDoc.getElementById('headerInputCampoJuego');
                         if (clonedInput) {
                             const parent = clonedInput.parentElement;
@@ -2804,7 +2832,7 @@
         }
 
         function poblarSelectoresColorFotos() {
-            const colores = obtenerColoresNVAParaFotos();
+            const colores = obtenerColoresNVAParaFotos().slice(0, 2);
 
             [1, 2].forEach(indice => {
                 const paleta = document.getElementById(`selectorColorFoto${indice}`);
@@ -2869,8 +2897,25 @@
 
             const ancho = recuadro.clientWidth;
             const alto = recuadro.clientHeight;
-            const limiteX = Math.max(0, (ancho * estado.scale - ancho) / 2);
-            const limiteY = Math.max(0, (alto * estado.scale - alto) / 2);
+            if (!ancho || !alto) return;
+
+            /*
+             * object-fit: cover mantiene la relación de aspecto original.
+             * Calculamos el tamaño REAL que ocupa la fotografía dentro del marco
+             * para permitir desplazamiento incluso con zoom = 1 cuando la foto
+             * sobresale verticalmente (por ejemplo, foto más alta que el marco).
+             */
+            const ratioImagen = (imagen.naturalWidth > 0 && imagen.naturalHeight > 0)
+                ? imagen.naturalWidth / imagen.naturalHeight
+                : ancho / alto;
+
+            const anchoBase = Math.max(ancho, alto * ratioImagen);
+            const altoBase = Math.max(alto, ancho / ratioImagen);
+            const anchoRender = anchoBase * estado.scale;
+            const altoRender = altoBase * estado.scale;
+
+            const limiteX = Math.max(0, (anchoRender - ancho) / 2);
+            const limiteY = Math.max(0, (altoRender - alto) / 2);
 
             estado.x = Math.max(-limiteX, Math.min(limiteX, estado.x));
             estado.y = Math.max(-limiteY, Math.min(limiteY, estado.y));
