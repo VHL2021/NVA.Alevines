@@ -1308,41 +1308,26 @@
         // Convierte nombres de logo procedentes del Excel a una ruta válida.
         // Si el Excel no incluye extensión, se usa .png como extensión principal.
         // Admite: "Equipo", "Equipo.png", "LOGOs/Equipo.png" y LOGOs\\Equipo.png.
+        // Los nombres de la columna LOGO de DATOS.xls son exactamente el nombre
+        // base del archivo que existe dentro de LOGOs.
+        // Ejemplo: "Alevi Negro NVA" -> "LOGOs/Alevi Negro NVA.png".
         function obtenerRutaLogo(nombreLogo) {
-            const valorOriginal = normalizarTexto(nombreLogo);
-            if (!valorOriginal) return 'LOGOs/NVA.png';
+            let nombre = normalizarTexto(nombreLogo);
+            if (!nombre) return 'LOGOs/noescudo.png';
 
-            if (/^(data:|blob:|https?:\/\/)/i.test(valorOriginal)) {
-                return valorOriginal;
-            }
+            // El Excel contiene el nombre del archivo SIN extensión.
+            // Eliminamos únicamente una posible ruta accidental y una extensión
+            // existente para construir siempre la ruta PNG esperada.
+            nombre = nombre.replace(/\\/g, '/');
+            nombre = nombre.split('/').pop().trim();
+            nombre = nombre.replace(/\.png$/i, '');
 
-            let nombre = valorOriginal.replace(/\\/g, '/');
-            nombre = nombre.replace(/^\.\//, '');
-            nombre = nombre.replace(/^LOGOs\//i, '');
-            nombre = nombre.split('/').pop() || '';
-
-            // Los datos de DATOS.xls pueden guardar solo el nombre base.
-            // En ese caso la ruta principal debe apuntar al PNG real.
-            if (!/\.(png|jpg|jpeg|webp|svg)$/i.test(nombre)) {
-                nombre += '.png';
-            }
-
-            return `LOGOs/${encodeURI(nombre)}`;
+            return `LOGOs/${encodeURI(nombre)}.png`;
         }
 
-        // Genera alternativas cuando un Excel no coincide con la extensión real
-        // del archivo del logo.
         function obtenerCandidatosLogo(nombreLogo) {
-            const valor = normalizarTexto(nombreLogo);
-            if (!valor) return ['LOGOs/NVA.png'];
-            if (/^(data:|blob:|https?:\/\/)/i.test(valor)) return [valor];
-
-            let nombre = valor.replace(/\\/g, '/').replace(/^\.\//, '').replace(/^LOGOs\//i, '').split('/').pop() || '';
-            const base = nombre.replace(/\.(png|jpg|jpeg|webp|svg)$/i, '');
-            const extension = (nombre.match(/\.([a-z0-9]+)$/i) || [])[1]?.toLowerCase();
-            const extensiones = extension ? [extension, 'png', 'jpg', 'jpeg', 'webp', 'svg'] : ['png', 'jpg', 'jpeg', 'webp', 'svg'];
-
-            return [...new Set(extensiones.map(ext => `LOGOs/${encodeURI(base)}.${ext}`))];
+            const ruta = obtenerRutaLogo(nombreLogo);
+            return [ruta];
         }
 
         function configurarLogo(img, nombreLogo, fallback = 'LOGOs/noescudo.png') {
