@@ -1176,7 +1176,7 @@
         </div>
     </div>
 
-    <input type="file" id="inputCargarDatos" accept=".txt" style="display: none;" onchange="procesarArchivoDatos(this.files)" />
+    <input type="file" id="inputCargarDatos" accept=".txt,text/plain" style="display: none;" onchange="procesarArchivoDatos(this.files)" />
 
     <button type="button" id="btnToggleModo" class="btn-toggle-modo no-captura" onclick="toggleModoPartidosResultados()" aria-label="Cambiar entre partidos y resultados">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
@@ -1241,27 +1241,135 @@
         let contadorModalesAbiertos = 0;
         let scrollYAntesDelModal = 0;
 
+        // ---------------------------------------------------------------------
+        // NORMALIZACIÓN Y CARGA DE DATOS
+        // ---------------------------------------------------------------------
+        // Los archivos Excel/CSV suelen llegar con BOM, espacios, acentos o
+        // encabezados ligeramente diferentes. Centralizamos aquí la limpieza
+        // para que equipos, rivales, logos y colores utilicen siempre el mismo
+        // formato interno.
+        function normalizarTexto(valor) {
+            return String(valor ?? '')
+                .replace(/^\uFEFF/, '')
+                .replace(/[\u00A0]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function normalizarClave(valor) {
+            return normalizarTexto(valor)
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toUpperCase();
+        }
+
+        function escaparHTML(valor) {
+            return normalizarTexto(valor).replace(/[&<>'"]/g, caracter => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            })[caracter]);
+        }
+
+        function normalizarRegistroEquipo(registro) {
+            const resultado = { LOGO: '', EQUIPO: '', CATEGORIA: '', COLOR: '', CAMPO: '' };
+            if (!registro || typeof registro !== 'object') return resultado;
+
+            const alias = {
+                LOGO: ['LOGO', 'LOGOS', 'ESCUDO', 'IMAGEN'],
+                EQUIPO: ['EQUIPO', 'NOMBRE', 'NOMBRE EQUIPO', 'TEAM'],
+                CATEGORIA: ['CATEGORIA', 'CATEGORÍA', 'CATEGORIA EQUIPO', 'CATEGORÍA EQUIPO'],
+                COLOR: ['COLOR', 'COLOUR', 'COLOR EQUIPO'],
+                CAMPO: ['CAMPO', 'CAMPO DE JUEGO', 'PISTA', 'PABELLON', 'PABELLÓN']
+            };
+
+            Object.entries(registro).forEach(([clave, valor]) => {
+                const claveNormalizada = normalizarClave(clave);
+                for (const campo of Object.keys(alias)) {
+                    if (alias[campo].some(a => normalizarClave(a) === claveNormalizada)) {
+                        resultado[campo] = normalizarTexto(valor);
+                        break;
+                    }
+                }
+            });
+
+            return resultado;
+        }
+
+        function normalizarListaEquipos(lista) {
+            if (!Array.isArray(lista)) return [];
+            return lista
+                .map(normalizarRegistroEquipo)
+                .filter(eq => eq.EQUIPO || eq.CATEGORIA || eq.LOGO);
+        }
+
+        // Convierte nombres de logo procedentes del Excel a una ruta válida.
+        // Admite: "Equipo", "Equipo.png", "LOGOs/Equipo.png" y\\Equipo.png.
         function obtenerRutaLogo(nombreLogo) {
-            if (!nombreLogo) return 'LOGOs/NVA.png';
-            let str = String(nombreLogo).trim();
-            if (str.match(/\.(png|jpg|jpeg|webp|svg)$/i)) {
-                return `LOGOs/${str}`;
+            const valorOriginal = normalizarTexto(nombreLogo);
+            if (!valorOriginal) return 'LOGOs/NVA.png';
+
+            if (/^(data:|blob:|https?:\/\/)/i.test(valorOriginal)) {
+                return valorOriginal;
             }
-            return `LOGOs/${str}.png`;
+
+            let nombre = valorOriginal.replace(/\\/g, '/');
+            nombre = nombre.replace(/^\.\//, '');
+            nombre = nombre.replace(/^LOGOs\//i, '');
+            nombre = nombre.split('/').pop() || '';
+
+            // encodeURI evita que espacios y caracteres especiales rompan la ruta
+            // sin modificar los separadores de directorio.
+            return `LOGOs/${encodeURI(nombre)}`;
+        }
+
+        // Genera alternativas cuando un Excel no coincide con la extensión real
+        // del archivo del logo.
+        function obtenerCandidatosLogo(nombreLogo) {
+            const valor = normalizarTexto(nombreLogo);
+            if (!valor) return ['LOGOs/NVA.png'];
+            if (/^(data:|blob:|https?:\/\/)/i.test(valor)) return [valor];
+
+            let nombre = valor.replace(/\\/g, '/').replace(/^\.\//, '').replace(/^LOGOs\//i, '').split('/').pop() || '';
+            const base = nombre.replace(/\.(png|jpg|jpeg|webp|svg)$/i, '');
+            const extension = (nombre.match(/\.([a-z0-9]+)$/i) || [])[1]?.toLowerCase();
+            const extensiones = extension ? [extension, 'png', 'jpg', 'jpeg', 'webp', 'svg'] : ['png', 'jpg', 'jpeg', 'webp', 'svg'];
+
+            return [...new Set(extensiones.map(ext => `LOGOs/${encodeURI(base)}.${ext}`))];
+        }
+
+        function configurarLogo(img, nombreLogo, fallback = 'LOGOs/noescudo.png') {
+            if (!img) return;
+            const candidatos = obtenerCandidatosLogo(nombreLogo);
+            let indice = 0;
+
+            img.dataset.logoNombre = normalizarTexto(nombreLogo);
+            img.dataset.logoFallback = fallback;
+            img.onerror = function() {
+                indice++;
+                if (indice < candidatos.length) {
+                    this.src = candidatos[indice];
+                } else {
+                    this.onerror = null;
+                    this.src = fallback;
+                }
+            };
+
+            img.src = candidatos[0];
         }
 
         function obtenerColorEquipo(equipo) {
             if (!equipo) return '#00b0f0';
-            for (let key in equipo) {
-                if (key.trim().toUpperCase() === 'COLOR') {
-                    let val = String(equipo[key]).trim();
-                    if (val) {
-                        if (!val.startsWith('#') && /^[0-9A-Fa-f]{6}$/.test(val)) {
-                            val = '#' + val;
-                        }
-                        return val;
-                    }
-                }
+            const valor = normalizarTexto(equipo.COLOR);
+            if (!valor) return '#00b0f0';
+
+            let color = valor;
+            if (/^[0-9A-Fa-f]{6}$/.test(color)) color = '#' + color;
+            if (/^[0-9A-Fa-f]{3}$/.test(color)) color = '#' + color;
+            if (/^#[0-9A-Fa-f]{6}$/.test(color) || /^#[0-9A-Fa-f]{3}$/.test(color) || /^(rgb|rgba|hsl|hsla)\(/i.test(color)) {
+                return color;
             }
             return '#00b0f0';
         }
@@ -1548,29 +1656,65 @@
 
         async function cargarExcel() {
             try {
-                const response = await fetch('DATOS.xls');
-                if (!response.ok) throw new Error("No se encontró DATOS.xls");
-                const arrayBuffer = await response.arrayBuffer();
-                
-                workbookGlobal = XLSX.read(arrayBuffer, { type: 'array' });
-                
-                const sheetEquipos = workbookGlobal.Sheets["Equipos NVA"];
-                if (sheetEquipos) {
-                    listaEquiposGlobal = XLSX.utils.sheet_to_json(sheetEquipos);
-                } else {
-                    listaEquiposGlobal = equiposRespaldo;
+                // XLSX debe estar disponible antes de intentar interpretar DATOS.xls.
+                if (typeof XLSX === 'undefined') {
+                    throw new Error('La librería XLSX no está disponible.');
                 }
 
-                const sheetOtros = workbookGlobal.Sheets["OTROS Equipos"];
-                if (sheetOtros) {
-                    listaOtrosEquiposGlobal = XLSX.utils.sheet_to_json(sheetOtros);
+                const rutasExcel = ['DATOS.xls', './DATOS.xls'];
+                let arrayBuffer = null;
+                let ultimoError = null;
+
+                for (const ruta of rutasExcel) {
+                    try {
+                        const response = await fetch(ruta, { cache: 'no-store' });
+                        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                        arrayBuffer = await response.arrayBuffer();
+                        break;
+                    } catch (err) {
+                        ultimoError = err;
+                    }
+                }
+
+                // Al abrir index.html directamente con file://, el navegador puede
+                // bloquear fetch() por seguridad. En ese caso usamos el respaldo
+                // incorporado en el propio HTML, evitando que la aplicación falle.
+                if (!arrayBuffer) {
+                    throw new Error(
+                        `No se pudo cargar DATOS.xls${ultimoError ? ` (${ultimoError.message})` : ''}.`
+                    );
+                }
+
+                workbookGlobal = XLSX.read(arrayBuffer, { type: 'array' });
+
+                const buscarHoja = (nombre) => {
+                    const objetivo = normalizarClave(nombre);
+                    const nombreReal = (workbookGlobal.SheetNames || []).find(n => normalizarClave(n) === objetivo);
+                    return nombreReal ? workbookGlobal.Sheets[nombreReal] : null;
+                };
+
+                const sheetEquipos = buscarHoja('Equipos NVA');
+                const sheetOtros = buscarHoja('OTROS Equipos');
+
+                listaEquiposGlobal = sheetEquipos
+                    ? normalizarListaEquipos(XLSX.utils.sheet_to_json(sheetEquipos, { defval: '' }))
+                    : [];
+
+                listaOtrosEquiposGlobal = sheetOtros
+                    ? normalizarListaEquipos(XLSX.utils.sheet_to_json(sheetOtros, { defval: '' }))
+                    : [];
+
+                if (listaEquiposGlobal.length === 0) {
+                    throw new Error('La hoja "Equipos NVA" no contiene equipos válidos.');
                 }
 
                 renderizarTabla(listaEquiposGlobal);
                 datosCargados = true;
             } catch (error) {
-                console.warn("Cargando datos de respaldo local:", error.message);
-                listaEquiposGlobal = equiposRespaldo;
+                console.warn('Cargando datos de respaldo local:', error.message);
+                listaEquiposGlobal = normalizarListaEquipos(equiposRespaldo);
+                listaOtrosEquiposGlobal = [];
+                workbookGlobal = null;
                 renderizarTabla(listaEquiposGlobal);
                 datosCargados = true;
             }
@@ -1610,11 +1754,11 @@
 
                 tr.innerHTML = `
                     <td style="text-align: center;">
-                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.onerror=null; this.src='LOGOs/NVA.png';">
+                        <img src="" class="team-icon" alt="Logo">
                     </td>
                     <td>
-                        <strong style="color: #fff; font-size: 1.05em;">${nombreEquipo}</strong>
-                        <div style="color: #aaa; font-size: 0.85em; margin-top: 2px;">${categoria}</div>
+                        <strong style="color: #fff; font-size: 1.05em;">${escaparHTML(nombreEquipo)}</strong>
+                        <div style="color: #aaa; font-size: 0.85em; margin-top: 2px;">${escaparHTML(categoria)}</div>
                     </td>
                     <td class="acciones-td" style="text-align: center;">
                         <button type="button" class="btn-casa" onclick="seleccionarRol(${index}, 'casa')">CASA</button>
@@ -1627,6 +1771,7 @@
                     </td>
                 `;
                 tbody.appendChild(tr);
+                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/NVA.png');
             });
         }
 
@@ -1710,9 +1855,9 @@
             
             if (categoriaRecuadro) {
                 rivalesOrdenados.sort((a, b) => {
-                    const catA = (a.CATEGORIA || '').trim().toUpperCase();
-                    const catB = (b.CATEGORIA || '').trim().toUpperCase();
-                    const catTarget = categoriaRecuadro.trim().toUpperCase();
+                    const catA = normalizarClave(a.CATEGORIA);
+                    const catB = normalizarClave(b.CATEGORIA);
+                    const catTarget = normalizarClave(categoriaRecuadro);
 
                     const coincideA = (catA === catTarget);
                     const coincideB = (catB === catTarget);
@@ -1727,8 +1872,8 @@
                 const tr = document.createElement('tr');
                 tr.className = 'item-rival';
 
-                const catEq = (eq.CATEGORIA || '').trim().toUpperCase();
-                const catTarget = categoriaRecuadro.trim().toUpperCase();
+                const catEq = normalizarClave(eq.CATEGORIA);
+                const catTarget = normalizarClave(categoriaRecuadro);
                 const esMismaCategoria = (catEq && catTarget && catEq === catTarget);
 
                 if (esMismaCategoria) {
@@ -1743,21 +1888,22 @@
                 if (esMismaCategoria) {
                     badgeHtml = `<span class="badge-cat-misma">MISMA CATEGORÍA</span>`;
                 } else if (catRival) {
-                    badgeHtml = `<span style="color: #aaa; font-size: 0.85em;">${catRival}</span>`;
+                    badgeHtml = `<span style="color: #aaa; font-size: 0.85em;">${escaparHTML(catRival)}</span>`;
                 } else {
                     badgeHtml = `<span class="badge-cat-sin">Sin Categ.</span>`;
                 }
 
                 tr.innerHTML = `
                     <td style="text-align: center;">
-                        <img src="${rutaLogo}" class="team-icon" alt="Logo" onerror="this.onerror=null; this.src='LOGOs/noescudo.png';">
+                        <img src="" class="team-icon" alt="Logo">
                     </td>
-                    <td><strong style="color: #fff; font-size: 1.05em;">${nombreRival}</strong></td>
+                    <td><strong style="color: #fff; font-size: 1.05em;">${escaparHTML(nombreRival)}</strong></td>
                     <td>${badgeHtml}</td>
                 `;
 
                 tr.onclick = () => seleccionarRivalDirecto(nombreRival, rutaLogo, esMismaCategoria, eq);
                 tbody.appendChild(tr);
+                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/noescudo.png');
             });
 
             modalRivales.style.display = 'flex';
@@ -1805,11 +1951,7 @@
                 autoAjustarTextoSegunSuperficie(elementoNombreRivalActual);
             }
             if (elementoLogoRivalActual) {
-                elementoLogoRivalActual.onerror = function() {
-                    this.onerror = null;
-                    this.src = 'LOGOs/noescudo.png';
-                };
-                elementoLogoRivalActual.src = rutaLogo;
+                configurarLogo(elementoLogoRivalActual, rutaLogo, 'LOGOs/noescudo.png');
             }
         }
 
@@ -1927,14 +2069,14 @@
             recuadro.innerHTML = `
                 <img src="Imagenes/Recuadro (fondo).png" class="capa-fondo" alt="Fondo" onerror="this.onerror=null; this.src='';">
                 <div class="capa-borde"></div>
-                <div class="texto-categoria-vertical">${categoria}</div>
+                <div class="texto-categoria-vertical">${escaparHTML(categoria)}</div>
 
                 <div class="contenido-recuadro">
                     <div class="area-logo-izq">
-                        <img src="${esRivalIzq ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-izq" alt="Logo Izq" onerror="this.onerror=null; this.src='LOGOs/noescudo.png';">
+                        <img src="" class="logo-img logo-izq" alt="Logo Izq">
                     </div>
                     <div class="area-equipo-izq">
-                        <span class="nombre-equipo ${esRivalIzq ? 'campo-editable vacio rival-izq' : ''}">${esRivalIzq ? equipoRivalNombre : equipoCasaNombre}</span>
+                        <span class="nombre-equipo ${esRivalIzq ? 'campo-editable vacio rival-izq' : ''}">${escaparHTML(esRivalIzq ? equipoRivalNombre : equipoCasaNombre)}</span>
                     </div>
 
                     <div class="area-tanteo-container">
@@ -1943,10 +2085,10 @@
                     </div>
 
                     <div class="area-logo-der">
-                        <img src="${esRivalDer ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-der" alt="Logo Der" onerror="this.onerror=null; this.src='LOGOs/noescudo.png';">
+                        <img src="" class="logo-img logo-der" alt="Logo Der">
                     </div>
                     <div class="area-equipo-der">
-                        <span class="nombre-equipo ${esRivalDer ? 'campo-editable vacio rival-der' : ''}">${esRivalDer ? equipoRivalNombre : equipoCasaNombre}</span>
+                        <span class="nombre-equipo ${esRivalDer ? 'campo-editable vacio rival-der' : ''}">${escaparHTML(esRivalDer ? equipoRivalNombre : equipoCasaNombre)}</span>
                     </div>
 
                     <div class="area-info">
@@ -1956,6 +2098,9 @@
                     </div>
                 </div>
             `;
+
+            configurarLogo(recuadro.querySelector('.logo-izq'), esRivalIzq ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/noescudo.png');
+            configurarLogo(recuadro.querySelector('.logo-der'), esRivalDer ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/noescudo.png');
 
             const spanRivalIzq = recuadro.querySelector('.rival-izq');
             const logoIzq = recuadro.querySelector('.logo-izq');
@@ -2151,17 +2296,46 @@
             }
         }
 
-        function procesarArchivoDatos(files) {
+        async function procesarArchivoDatos(files) {
             if (!files || files.length === 0) return;
+
             const file = files[0];
-            const reader = new FileReader();
+            const btn = document.getElementById('btnCargarDatos');
+            const btnTexto = document.getElementById('btnCargarDatosTexto');
 
-            reader.onload = function(e) {
-                const contenido = e.target.result;
-                cargarDatosDesdeTexto(contenido);
-            };
+            try {
+                if (btn) btn.disabled = true;
+                if (btnTexto) btnTexto.textContent = 'Cargando DATOS...';
 
-            reader.readAsText(file, 'UTF-8');
+                // Leemos como bytes para detectar correctamente UTF-8 con BOM y
+                // archivos TXT antiguos guardados como Windows-1252/ANSI.
+                const buffer = await file.arrayBuffer();
+                const contenido = decodificarTextoDatos(buffer);
+                await cargarDatosDesdeTexto(contenido);
+            } catch (error) {
+                console.error('Error al cargar el archivo TXT:', error);
+                alert(`No se pudo cargar el archivo TXT.\n\n${error.message || error}`);
+            } finally {
+                if (btn) btn.disabled = false;
+                if (btnTexto) btnTexto.textContent = 'Cargar DATOS';
+            }
+        }
+
+        function decodificarTextoDatos(buffer) {
+            const bytes = new Uint8Array(buffer);
+            const tieneUTF8BOM = bytes.length >= 3 && bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF;
+            const tieneUTF16LE = bytes.length >= 2 && bytes[0] === 0xFF && bytes[1] === 0xFE;
+            const tieneUTF16BE = bytes.length >= 2 && bytes[0] === 0xFE && bytes[1] === 0xFF;
+
+            if (tieneUTF16LE) return new TextDecoder('utf-16le').decode(bytes).replace(/^\uFEFF/, '');
+            if (tieneUTF16BE) return new TextDecoder('utf-16be').decode(bytes).replace(/^\uFEFF/, '');
+
+            // UTF-8 es el formato preferido. Si no es válido, probamos Windows-1252.
+            try {
+                return new TextDecoder('utf-8', { fatal: true }).decode(bytes).replace(/^\uFEFF/, '');
+            } catch (_) {
+                return new TextDecoder('windows-1252').decode(bytes).replace(/^\uFEFF/, '');
+            }
         }
 
         async function cargarDatosDesdeTexto(contenido) {
@@ -2169,7 +2343,7 @@
                 await cargarExcel();
             }
 
-            const lineas = contenido.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+            const lineas = String(contenido || '').replace(/^\uFEFF/, '').split(/\r?\n/).map(l => normalizarTexto(l)).filter(l => l.length > 0);
             if (lineas.length === 0) return;
 
             const primeraLinea = lineas[0].split('|').map(s => s.trim());
@@ -2202,47 +2376,45 @@
                 const partes = linea.split('|').map(s => s.trim());
                 if (partes.length < 2) return;
 
-                const eqCasaTxt = partes[0] || '';
-                const eqRivalTxt = partes[1] || '';
-                const horaTxt = partes[2] || '';
-                const catTxt = partes[3] || '';
-                const tIzqTxt = partes[4] || '0';
-                const tDerTxt = partes[5] || '0';
+                const eqCasaTxt = normalizarTexto(partes[0]);
+                const eqRivalTxt = normalizarTexto(partes[1]);
+                const horaTxt = normalizarTexto(partes[2]);
+                const catTxt = normalizarTexto(partes[3]);
+                const tIzqTxt = normalizarTexto(partes[4]) || '0';
+                const tDerTxt = normalizarTexto(partes[5]) || '0';
 
                 let matchIdx = -1;
                 let rol = 'casa';
+                const casaNorm = normalizarClave(eqCasaTxt);
+                const rivalNorm = normalizarClave(eqRivalTxt);
+                const catNorm = normalizarClave(catTxt);
 
-                // Prioridad 1: Buscar por categoría exacta en el listado NVA
-                if (catTxt) {
-                    matchIdx = listaEquiposGlobal.findIndex(e => 
-                        (e.CATEGORIA || '').trim().toUpperCase() === catTxt.toUpperCase()
+                // 1) Prioridad máxima: equipo + categoría. Esto evita que, cuando
+                // existen varios equipos con el mismo nombre, se seleccione otro
+                // equipo de una categoría diferente.
+                if (catNorm) {
+                    matchIdx = listaEquiposGlobal.findIndex(e =>
+                        normalizarClave(e.CATEGORIA) === catNorm &&
+                        (normalizarClave(e.EQUIPO) === casaNorm || normalizarClave(e.EQUIPO) === rivalNorm)
                     );
                 }
 
-                // Prioridad 2: Buscar equipo casa en listado NVA
-                if (matchIdx === -1 && eqCasaTxt) {
-                    matchIdx = listaEquiposGlobal.findIndex(e => 
-                        (e.EQUIPO || '').trim().toUpperCase() === eqCasaTxt.toUpperCase()
-                    );
+                // 2) Buscar por nombre exacto normalizado.
+                if (matchIdx === -1 && casaNorm) {
+                    matchIdx = listaEquiposGlobal.findIndex(e => normalizarClave(e.EQUIPO) === casaNorm);
                     if (matchIdx !== -1) rol = 'casa';
                 }
 
-                // Prioridad 3: Buscar equipo rival en listado NVA (juega fuera)
-                if (matchIdx === -1 && eqRivalTxt) {
-                    matchIdx = listaEquiposGlobal.findIndex(e => 
-                        (e.EQUIPO || '').trim().toUpperCase() === eqRivalTxt.toUpperCase()
-                    );
+                if (matchIdx === -1 && rivalNorm) {
+                    matchIdx = listaEquiposGlobal.findIndex(e => normalizarClave(e.EQUIPO) === rivalNorm);
                     if (matchIdx !== -1) rol = 'fuera';
                 }
 
-                // Determinar rol con base en cuál de los dos equipos es de NVA
+                // Determinar el lado que ocupa el equipo NVA.
                 if (matchIdx !== -1) {
-                    const eqNvaNombre = (listaEquiposGlobal[matchIdx].EQUIPO || '').trim().toUpperCase();
-                    if (eqCasaTxt.toUpperCase() === eqNvaNombre) {
-                        rol = 'casa';
-                    } else if (eqRivalTxt.toUpperCase() === eqNvaNombre) {
-                        rol = 'fuera';
-                    }
+                    const eqNvaNombre = normalizarClave(listaEquiposGlobal[matchIdx].EQUIPO);
+                    if (casaNorm === eqNvaNombre) rol = 'casa';
+                    else if (rivalNorm === eqNvaNombre) rol = 'fuera';
                 }
 
                 if (matchIdx !== -1) {
@@ -2272,14 +2444,14 @@
                     let todosLosOtros = listaOtrosEquiposGlobal.length > 0 ? listaOtrosEquiposGlobal : listaEquiposGlobal;
                     
                     if (rol === 'casa') {
-                        const objRival = todosLosOtros.find(e => (e.EQUIPO || '').trim().toUpperCase() === eqRivalTxt.toUpperCase());
+                        const objRival = todosLosOtros.find(e => normalizarClave(e.EQUIPO) === normalizarClave(eqRivalTxt));
                         if (objRival && imgLogoDer) {
-                            imgLogoDer.src = obtenerRutaLogo(objRival.LOGO);
+                            configurarLogo(imgLogoDer, objRival.LOGO, 'LOGOs/noescudo.png');
                         }
                     } else {
-                        const objRival = todosLosOtros.find(e => (e.EQUIPO || '').trim().toUpperCase() === eqCasaTxt.toUpperCase());
+                        const objRival = todosLosOtros.find(e => normalizarClave(e.EQUIPO) === normalizarClave(eqCasaTxt));
                         if (objRival && imgLogoIzq) {
-                            imgLogoIzq.src = obtenerRutaLogo(objRival.LOGO);
+                            configurarLogo(imgLogoIzq, objRival.LOGO, 'LOGOs/noescudo.png');
                         }
                     }
 
