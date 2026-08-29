@@ -1306,7 +1306,8 @@
         }
 
         // Convierte nombres de logo procedentes del Excel a una ruta válida.
-        // Admite: "Equipo", "Equipo.png", "LOGOs/Equipo.png" y\\Equipo.png.
+        // Si el Excel no incluye extensión, se usa .png como extensión principal.
+        // Admite: "Equipo", "Equipo.png", "LOGOs/Equipo.png" y LOGOs\\Equipo.png.
         function obtenerRutaLogo(nombreLogo) {
             const valorOriginal = normalizarTexto(nombreLogo);
             if (!valorOriginal) return 'LOGOs/NVA.png';
@@ -1320,8 +1321,12 @@
             nombre = nombre.replace(/^LOGOs\//i, '');
             nombre = nombre.split('/').pop() || '';
 
-            // encodeURI evita que espacios y caracteres especiales rompan la ruta
-            // sin modificar los separadores de directorio.
+            // Los datos de DATOS.xls pueden guardar solo el nombre base.
+            // En ese caso la ruta principal debe apuntar al PNG real.
+            if (!/\.(png|jpg|jpeg|webp|svg)$/i.test(nombre)) {
+                nombre += '.png';
+            }
+
             return `LOGOs/${encodeURI(nombre)}`;
         }
 
