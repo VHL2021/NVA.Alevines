@@ -1140,24 +1140,40 @@
             transform: translateY(0);
         }
 
-        .foto-selector-color select {
-            appearance: none;
-            -webkit-appearance: none;
-            min-width: 118px;
-            max-width: 170px;
-            padding: 7px 28px 7px 10px;
+        .foto-paleta-colores {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-width: 190px;
+            padding: 6px;
             border: 2px solid rgba(255,255,255,.8);
             border-radius: 6px;
-            background-color: rgba(0,0,0,.88);
-            color: #fff;
-            font: 700 .78rem Arial, sans-serif;
-            cursor: pointer;
-            outline: none;
+            background: rgba(0,0,0,.88);
             box-shadow: 0 3px 10px rgba(0,0,0,.5);
         }
 
-        .foto-selector-color select:focus {
-            border-color: var(--foto-color, #c28b06);
+        .foto-color-muestra {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            padding: 0;
+            border: 2px solid rgba(255,255,255,.75);
+            border-radius: 3px;
+            cursor: pointer;
+            outline: none;
+            box-sizing: border-box;
+            transition: transform .12s ease, border-color .12s ease;
+        }
+
+        .foto-color-muestra:hover,
+        .foto-color-muestra:focus-visible {
+            transform: scale(1.15);
+            border-color: #fff;
+        }
+
+        .foto-color-muestra[aria-checked="true"] {
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 2px var(--foto-color, #c28b06);
         }
 
         .foto-boton-cambiar {
@@ -1248,10 +1264,8 @@
                  onclick="activarCargaFoto(event, 1)"
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();activarCargaFoto(event,1);}">
                 <div class="foto-selector-color no-captura" onclick="event.stopPropagation()">
-                    <label for="selectorColorFoto1" class="sr-only">Color del marco de la primera fotografía</label>
-                    <select id="selectorColorFoto1" aria-label="Color del marco de la primera fotografía"
-                            onchange="cambiarColorMarcoFoto(1, this.value)">
-                    </select>
+                    <span class="foto-colores-label sr-only">Color del marco de la primera fotografía</span>
+                    <div id="selectorColorFoto1" class="foto-paleta-colores" role="radiogroup" aria-label="Color del marco de la primera fotografía"></div>
                 </div>
                 <img id="imagenResultado1" alt="Primera fotografía del resultado">
                 <div class="foto-resultado-placeholder">
@@ -1273,10 +1287,8 @@
                  onclick="activarCargaFoto(event, 2)"
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();activarCargaFoto(event,2);}">
                 <div class="foto-selector-color no-captura" onclick="event.stopPropagation()">
-                    <label for="selectorColorFoto2" class="sr-only">Color del marco de la segunda fotografía</label>
-                    <select id="selectorColorFoto2" aria-label="Color del marco de la segunda fotografía"
-                            onchange="cambiarColorMarcoFoto(2, this.value)">
-                    </select>
+                    <span class="foto-colores-label sr-only">Color del marco de la segunda fotografía</span>
+                    <div id="selectorColorFoto2" class="foto-paleta-colores" role="radiogroup" aria-label="Color del marco de la segunda fotografía"></div>
                 </div>
                 <img id="imagenResultado2" alt="Segunda fotografía del resultado">
                 <div class="foto-resultado-placeholder">
@@ -2832,34 +2844,40 @@
             const colores = obtenerColoresNVAParaFotos();
 
             [1, 2].forEach(indice => {
-                const select = document.getElementById(`selectorColorFoto${indice}`);
+                const paleta = document.getElementById(`selectorColorFoto${indice}`);
                 const recuadro = document.getElementById(`fotoResultado${indice}`);
-                if (!select || !recuadro) return;
+                if (!paleta || !recuadro) return;
 
                 const valorActual =
                     recuadro.style.getPropertyValue('--foto-color').trim() ||
                     colores[indice - 1] ||
                     colores[0];
 
-                select.innerHTML = '';
+                paleta.innerHTML = '';
 
                 colores.forEach((color, i) => {
-                    const option = document.createElement('option');
-                    option.value = color;
-                    option.textContent = nombreColorFoto(color, i + 1);
-                    option.selected = color.toLowerCase() === valorActual.toLowerCase();
-                    select.appendChild(option);
+                    const boton = document.createElement('button');
+                    boton.type = 'button';
+                    boton.className = 'foto-color-muestra';
+                    boton.style.backgroundColor = color;
+                    boton.setAttribute('role', 'radio');
+                    boton.setAttribute('aria-label', nombreColorFoto(color, i + 1));
+                    boton.setAttribute('title', nombreColorFoto(color, i + 1));
+                    boton.setAttribute('aria-checked', color.toLowerCase() === valorActual.toLowerCase() ? 'true' : 'false');
+                    boton.tabIndex = color.toLowerCase() === valorActual.toLowerCase() ? 0 : -1;
+                    boton.onclick = (event) => {
+                        event.stopPropagation();
+                        cambiarColorMarcoFoto(indice, color);
+                    };
+                    boton.onkeydown = (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            cambiarColorMarcoFoto(indice, color);
+                        }
+                    };
+                    paleta.appendChild(boton);
                 });
-
-                if (!Array.from(select.options).some(
-                    o => o.value.toLowerCase() === valorActual.toLowerCase()
-                )) {
-                    const option = document.createElement('option');
-                    option.value = valorActual;
-                    option.textContent = 'COLOR ACTUAL';
-                    option.selected = true;
-                    select.appendChild(option);
-                }
             });
         }
 
