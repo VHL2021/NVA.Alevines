@@ -1141,14 +1141,14 @@
             <div class="modal-body">
                 <div class="selector-hora-wrap">
                     <div class="col-select">
-                        <label>Hora</label>
+                        <label for="selectHoras">HORA</label>
                         <select id="selectHoras" class="select-custom"></select>
                     </div>
-                    <div style="font-size: 2em; font-weight: bold; margin-top: 15px;">:</div>
+                    <span style="font-size: 2em; font-weight: bold; margin-top: 20px;">:</span>
                     <div class="col-select">
-                        <label>Minutos</label>
+                        <label for="selectMinutos">MINUTOS</label>
                         <select id="selectMinutos" class="select-custom">
-                            <option value="00">00</option>
+                            <option value="00" selected>00</option>
                             <option value="15">15</option>
                             <option value="30">30</option>
                             <option value="45">45</option>
@@ -1187,40 +1187,33 @@
 
     <button type="button" id="btnCapturarPagina" class="btn-captura-pagina no-captura" onclick="capturarPaginaComoJPG()" aria-label="Descargar imagen de los partidos">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
-            <path d="M9 3l-1.83 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/>
+            <path d="M9 3l-1.83 2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
         </svg>
-        <span id="btnCapturarTexto">DESCARGAR IMAGEN</span>
+        <span id="btnCapturarTexto">Descargar imagen</span>
     </button>
 
-    <button type="button" id="btnGuardarHistorico" class="btn-guardar-historico no-captura" onclick="guardarHistorico()" aria-label="Guardar histórico en archivo de texto">
+    <button type="button" id="btnGuardarHistorico" class="btn-guardar-historico no-captura" onclick="guardarHistorico()" aria-label="Guardar datos en el histórico">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
             <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
         </svg>
-        <span>GUARDAR HISTÓRICO</span>
+        <span id="btnGuardarHistoricoTexto">Guardar DATOS</span>
     </button>
 
-    <button type="button" id="btnCargarDatos" class="btn-cargar-datos no-captura" onclick="abrirSelectorCargarDatos()" aria-label="Cargar datos de partidos desde archivo de texto">
+    <button type="button" id="btnCargarDatos" class="btn-cargar-datos no-captura" onclick="abrirExploradorCargarDatos()" aria-label="Cargar DATOS desde archivo TXT">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
-            <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/>
+            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
         </svg>
-        <span>CARGAR DATOS</span>
+        <span id="btnCargarDatosTexto">Cargar DATOS</span>
     </button>
 
     <script>
-        const RUTA_EXCEL = 'Equipos NVA.xlsx';
-        const HORAS_OPCIONES = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00'];
-        let mapaDatosPartidos = {};
-        
-        const EQUIPOS_LOCALES_DEFECTO = [
-            {"LOGO": "Nou Volei Alzira Alevin", "EQUIPO": "NOU VOLEI ALZIRA", "CATEGORIA": "ALEVÍN MASCULINO", "COLOR": "#00b0f0", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
-            {"LOGO": "Finques Alzira Alevin", "EQUIPO": "FINQUES ALZIRA NVA", "CATEGORIA": "ALEVÍN FEMENINO ZONAL", "COLOR": "#ffff00", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
-            {"LOGO": "NVA Infantil Masc", "EQUIPO": "NOU VOLEI ALZIRA", "CATEGORIA": "INFANTIL MASCULINO", "COLOR": "#00b0f0", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
-            {"LOGO": "Family Cash Infantil", "EQUIPO": "FAMILY CASH NVA", "CATEGORIA": "INFANTIL FEMENINO REVOLUT", "COLOR": "#ff0000", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
-            {"LOGO": "Grup Bellesa Infantil", "EQUIPO": "GRUP BELLESA NVA", "CATEGORIA": "INFANTIL FEMENINO PREFERENTE", "COLOR": "#ff6600", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
-            {"LOGO": "Tuawa Cadete Masc", "EQUIPO": "TUAWA NVA", "CATEGORIA": "CADETE MASCULINO PREFERENTE", "COLOR": "#00ffff", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
-            {"LOGO": "Xiringuito Cadete", "EQUIPO": "XIRINGUITO L'ALCUDIA NVA", "CATEGORIA": "CADETE FEMENINO PREFERENTE", "COLOR": "#ffff00", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
-            {"LOGO": "Trencapins Cadete", "EQUIPO": "TRENCAPINS NVA", "CATEGORIA": "CADETE FEMENINO ZONAL", "COLOR": "#339933", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
-            {"LOGO": "NVA Juvenil Masc", "EQUIPO": "NOU VOLEI ALZIRA", "CATEGORIA": "JUVENIL MASCULINO ZONAL", "COLOR": "#da71d9", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
+        const equiposRespaldo = [
+            {"LOGO": "Enova NVA - Infantil", "EQUIPO": "ENOVA NVA", "CATEGORIA": "INFANTIL 2ª DIVISION", "COLOR": "#c28b06", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
+            {"LOGO": "Up School NVA - Infantil", "EQUIPO": "UP! SCHOOL NVA", "CATEGORIA": "INFANTIL ZONAL", "COLOR": "#ccca20", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
+            {"LOGO": "Jessi Esparza NVA - Infantil", "EQUIPO": "JESSI ESPARZA NVA", "CATEGORIA": "INFANTIL ZONAL", "COLOR": "#e8cb73", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
+            {"LOGO": "Enova NVA - Cadet", "EQUIPO": "ENOVA NVA", "CATEGORIA": "CADETE 2ª DIVISION", "COLOR": "#b2267f", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
+            {"LOGO": "Up School NVA - Cadet", "EQUIPO": "UP! SCHOOL NVA", "CATEGORIA": "CADETE ZONAL", "COLOR": "#b033af", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
+            {"LOGO": "Jessi Esparza NVA - Cadet", "EQUIPO": "JESSI ESPARZA NVA", "CATEGORIA": "CADETE ZONAL", "COLOR": "#da71d9", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
             {"LOGO": "Espai Laboral - Juvenil", "EQUIPO": "ESPAI LABORAL NVA", "CATEGORIA": "JUVENIL ZONAL", "COLOR": "#7f1dbd", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
             {"LOGO": "Enova NVA - Senior", "EQUIPO": "ENOVA NVA", "CATEGORIA": "SENIOR 2ª DIVISION", "COLOR": "#a01525", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
         ];
@@ -1228,13 +1221,14 @@
         let listaEquiposGlobal = [];
         let listaOtrosEquiposGlobal = [];
         let workbookGlobal = null;
-        
+
         const modal = document.getElementById('modalEquipos');
         const modalRivales = document.getElementById('modalRivales');
         const modalEditarRival = document.getElementById('modalEditarRival');
         const modalHora = document.getElementById('modalHora');
         const modalDateRange = document.getElementById('modalDateRange');
         const modalTanteo = document.getElementById('modalTanteo');
+
         let elementoHoraActual = null;
         let elementoTanteoActual = null;
         let modoResultados = false;
@@ -1243,6 +1237,7 @@
         let elementoLogoRivalActual = null;
         let recuadroPadreRivalActual = null;
         let filaRivalPendienteEdicion = null;
+
         let contadorModalesAbiertos = 0;
         let scrollYAntesDelModal = 0;
 
@@ -1286,8 +1281,10 @@
             if (contadorModalesAbiertos === 1) {
                 scrollYAntesDelModal = window.scrollY || window.pageYOffset || 0;
                 document.body.classList.add('modal-abierto');
-                document.body.style.top = `-${scrollYAntesDelModal}px`;
                 document.body.style.position = 'fixed';
+                document.body.style.top = `-${scrollYAntesDelModal}px`;
+                document.body.style.left = '0';
+                document.body.style.right = '0';
                 document.body.style.width = '100%';
             }
         }
@@ -1298,62 +1295,46 @@
                 document.body.classList.remove('modal-abierto');
                 document.body.style.position = '';
                 document.body.style.top = '';
+                document.body.style.left = '';
+                document.body.style.right = '';
                 document.body.style.width = '';
                 window.scrollTo(0, scrollYAntesDelModal);
             }
         }
 
-        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-
-        function escribirTextoFechaEnCabecera(fInicio, fFin) {
-            const elHeaderFecha = document.getElementById('headerTextoFecha');
-            if (!elHeaderFecha) return;
-            elHeaderFecha.innerHTML = '';
-            if (!fInicio) return;
-
-            const spanTexto = document.createElement('span');
-            const dInicio = fInicio.getDate();
-            const mInicio = meses[fInicio.getMonth()];
-
-            if (!fFin || fInicio.getTime() === fFin.getTime()) {
-                spanTexto.textContent = `${dInicio} DE ${mInicio}`;
+        function toggleModoPartidosResultados() {
+            modoResultados = !modoResultados;
+            const btnTexto = document.getElementById('btnToggleModoTexto');
+            if (modoResultados) {
+                document.body.classList.add('modo-resultados');
+                if (btnTexto) btnTexto.textContent = 'RESULTADOS';
             } else {
-                const dFin = fFin.getDate();
-                const mFin = meses[fFin.getMonth()];
-                if (fInicio.getMonth() === fFin.getMonth()) {
-                    spanTexto.textContent = `DEL ${dInicio} AL ${dFin} DE ${mInicio}`;
-                } else {
-                    spanTexto.textContent = `DEL ${dInicio} DE ${mInicio} AL ${dFin} DE ${mFin}`;
-                }
-            }
-
-            elHeaderFecha.appendChild(spanTexto);
-
-            requestAnimationFrame(() => {
-                autoAjustarTextoCabecera();
-            });
-        }
-
-        function autoAjustarTextoCabecera() {
-            const elHeaderFecha = document.getElementById('headerTextoFecha');
-            if (!elHeaderFecha) return;
-            const elSpan = elHeaderFecha.querySelector('span');
-            if (!elSpan) return;
-
-            elSpan.style.transform = 'none';
-
-            const elContenedor = elHeaderFecha;
-            const padding = parseFloat(window.getComputedStyle(elContenedor).paddingLeft) + parseFloat(window.getComputedStyle(elContenedor).paddingRight);
-            const anchoDisponible = elContenedor.clientWidth - padding;
-            const anchoTexto = elSpan.scrollWidth;
-
-            if (anchoTexto > anchoDisponible && anchoDisponible > 0) {
-                const factorEscalaX = anchoDisponible / anchoTexto;
-                elSpan.style.transform = `scaleX(${factorEscalaX})`;
+                document.body.classList.remove('modo-resultados');
+                if (btnTexto) btnTexto.textContent = 'PARTIDOS';
             }
         }
 
-        window.addEventListener('resize', autoAjustarTextoCabecera);
+        function abrirModalTanteo(elBox) {
+            elementoTanteoActual = elBox;
+            modalTanteo.style.display = 'flex';
+            alAbrirModal();
+        }
+
+        function cerrarModalTanteo() {
+            modalTanteo.style.display = 'none';
+            alCerrarModal();
+        }
+
+        function seleccionarTanteoValor(val) {
+            if (elementoTanteoActual) {
+                elementoTanteoActual.textContent = val;
+            }
+            cerrarModalTanteo();
+        }
+
+        let mapaDatosPartidos = {};
+
+        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
         let calFechaVista = new Date();
         let calFechaInicio = null;
@@ -1377,7 +1358,6 @@
                 calFechaInicio = null;
                 calFechaFin = null;
             }
-
             renderizarCalendarioRango();
         }
 
@@ -1395,6 +1375,7 @@
 
         function seleccionarFechaRango(fecha) {
             if (temporizadorCierreRango) clearTimeout(temporizadorCierreRango);
+
             const f = new Date(fecha.getTime());
             f.setHours(0, 0, 0, 0);
 
@@ -1435,39 +1416,63 @@
 
             const primerDia = new Date(anio, mes, 1).getDay();
             const offsetLunes = (primerDia === 0) ? 6 : primerDia - 1;
-
-            const diasEnMes = new Date(anio, mes + 1, 0).getDate();
+            const totalDias = new Date(anio, mes + 1, 0).getDate();
 
             for (let i = 0; i < offsetLunes; i++) {
-                const emptyCell = document.createElement('div');
-                emptyCell.className = 'cal-cell empty';
-                grid.appendChild(emptyCell);
+                const celdaVacia = document.createElement('div');
+                celdaVacia.className = 'cal-cell empty';
+                grid.appendChild(celdaVacia);
             }
 
-            for (let d = 1; d <= diasEnMes; d++) {
-                const cell = document.createElement('div');
-                cell.className = 'cal-cell';
-                cell.textContent = d;
+            const tInicio = calFechaInicio ? new Date(calFechaInicio.getFullYear(), calFechaInicio.getMonth(), calFechaInicio.getDate()).getTime() : null;
 
-                const fechaCell = new Date(anio, mes, d);
-                fechaCell.setHours(0, 0, 0, 0);
+            for (let d = 1; d <= totalDias; d++) {
+                const celda = document.createElement('div');
+                celda.className = 'cal-cell';
+                celda.textContent = d;
 
-                if (calFechaInicio) {
-                    const tCell = fechaCell.getTime();
-                    const tIni = calFechaInicio.getTime();
-                    const tFin = calFechaFin ? calFechaFin.getTime() : tIni;
+                const fechaCelda = new Date(anio, mes, d);
+                fechaCelda.setHours(0, 0, 0, 0);
+                const tCelda = fechaCelda.getTime();
 
-                    if (tCell === tIni || tCell === tFin) {
-                        cell.classList.add('selected-endpoint');
-                    } else if (tCell > tIni && tCell < tFin) {
-                        cell.classList.add('in-range');
-                    }
-                }
+                if (tInicio !== null && tCelda === tInicio) celda.classList.add('selected-endpoint');
 
-                cell.onclick = () => seleccionarFechaRango(fechaCell);
-                grid.appendChild(cell);
+                celda.onclick = () => seleccionarFechaRango(fechaCelda);
+                grid.appendChild(celda);
             }
         }
+
+        function escribirTextoFechaEnCabecera(fInicio, fFin) {
+            const dIni = fInicio.getDate();
+            const mesIni = meses[fInicio.getMonth()];
+            const anioIni = fInicio.getFullYear();
+
+            let textoFinal = `${dIni} de ${mesIni} del ${anioIni}`;
+
+            const elContenedor = document.getElementById('headerTextoFecha');
+            elContenedor.innerHTML = `<span>${textoFinal}</span>`;
+            autoAjustarTextoCabecera();
+        }
+
+        function autoAjustarTextoCabecera() {
+            const elContenedor = document.getElementById('headerTextoFecha');
+            const elSpan = elContenedor ? elContenedor.querySelector('span') : null;
+            if (!elSpan || !elContenedor) return;
+
+            elSpan.style.transform = 'scaleX(1)';
+            elSpan.style.lineHeight = '1.2';
+
+            const padding = parseFloat(window.getComputedStyle(elContenedor).paddingLeft) + parseFloat(window.getComputedStyle(elContenedor).paddingRight);
+            const anchoDisponible = elContenedor.clientWidth - padding;
+            const anchoTexto = elSpan.scrollWidth;
+
+            if (anchoTexto > anchoDisponible && anchoDisponible > 0) {
+                const factorEscalaX = anchoDisponible / anchoTexto;
+                elSpan.style.transform = `scaleX(${factorEscalaX})`;
+            }
+        }
+
+        window.addEventListener('resize', autoAjustarTextoCabecera);
 
         function poblarSelectHorasModal() {
             const sHoras = document.getElementById('selectHoras');
@@ -1532,8 +1537,6 @@
                             const selHora = row.querySelector('.select-hora-tabla');
                             if (selHora) selHora.value = horaFinal;
                         }
-                        mapaDatosPartidos[idEquipo] = mapaDatosPartidos[idEquipo] || {};
-                        mapaDatosPartidos[idEquipo].hora = horaFinal;
                     }
                 }
 
@@ -1541,59 +1544,47 @@
             }
             modalHora.style.display = 'none';
             alCerrarModal();
-            elementoHoraActual = null;
         }
 
-        function abrirModalTanteo(elBoxTanteo) {
-            elementoTanteoActual = elBoxTanteo;
-            modalTanteo.style.display = 'flex';
-            alAbrirModal();
-        }
+        async function cargarExcel() {
+            try {
+                const response = await fetch('DATOS.xls');
+                if (!response.ok) throw new Error("No se encontró DATOS.xls");
+                const arrayBuffer = await response.arrayBuffer();
+                
+                workbookGlobal = XLSX.read(arrayBuffer, { type: 'array' });
+                
+                const sheetEquipos = workbookGlobal.Sheets["Equipos NVA"];
+                if (sheetEquipos) {
+                    listaEquiposGlobal = XLSX.utils.sheet_to_json(sheetEquipos);
+                } else {
+                    listaEquiposGlobal = equiposRespaldo;
+                }
 
-        function cerrarModalTanteo() {
-            modalTanteo.style.display = 'none';
-            alCerrarModal();
-            elementoTanteoActual = null;
-        }
+                const sheetOtros = workbookGlobal.Sheets["OTROS Equipos"];
+                if (sheetOtros) {
+                    listaOtrosEquiposGlobal = XLSX.utils.sheet_to_json(sheetOtros);
+                }
 
-        function seleccionarTanteoValor(val) {
-            if (elementoTanteoActual) {
-                elementoTanteoActual.textContent = val;
+                renderizarTabla(listaEquiposGlobal);
+                datosCargados = true;
+            } catch (error) {
+                console.warn("Cargando datos de respaldo local:", error.message);
+                listaEquiposGlobal = equiposRespaldo;
+                renderizarTabla(listaEquiposGlobal);
+                datosCargados = true;
             }
-            cerrarModalTanteo();
-        }
-
-        function toggleModoPartidosResultados() {
-            modoResultados = !modoResultados;
-            const btnTexto = document.getElementById('btnToggleModoTexto');
-
-            if (modoResultados) {
-                document.body.classList.add('modo-resultados');
-                if (btnTexto) btnTexto.textContent = 'RESULTADOS';
-            } else {
-                document.body.classList.remove('modo-resultados');
-                if (btnTexto) btnTexto.textContent = 'PARTIDOS';
-            }
-        }
-
-        function abrirModal() {
-            modal.style.display = 'flex';
-            alAbrirModal();
-        }
-
-        function cerrarModal() {
-            modal.style.display = 'none';
-            alCerrarModal();
         }
 
         function generarOpcionesHoraSelect(horaSeleccionada = '') {
             let html = `<option value="">HORA</option>`;
-            HORAS_OPCIONES.forEach(hora => {
-                const selected = (hora === horaSeleccionada) ? 'selected' : '';
-                html += `<option value="${hora}" ${selected}>${hora}</option>`;
-            });
-            if (horaSeleccionada && !HORAS_OPCIONES.includes(horaSeleccionada)) {
-                html += `<option value="${horaSeleccionada}" selected>${horaSeleccionada}</option>`;
+            for (let h = 8; h <= 23; h++) {
+                const hStr = h.toString().padStart(2, '0');
+                ['00', '15', '30', '45'].forEach(m => {
+                    const horaFormat = `${hStr}:${m}`;
+                    const selected = (horaFormat === horaSeleccionada) ? 'selected' : '';
+                    html += `<option value="${horaFormat}" ${selected}>${horaFormat}</option>`;
+                });
             }
             return html;
         }
@@ -1605,10 +1596,17 @@
             equipos.forEach((eq, index) => {
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-id', index);
-
+                
                 const rutaLogo = obtenerRutaLogo(eq.LOGO);
                 const nombreEquipo = eq.EQUIPO || 'S/N';
                 const categoria = eq.CATEGORIA || 'S/C';
+
+                const configActual = mapaDatosPartidos[index] || {};
+                const rolActual = configActual.rol || '';
+                const horaActual = configActual.hora || '';
+
+                if (rolActual === 'casa') tr.classList.add('selected-casa');
+                if (rolActual === 'fuera') tr.classList.add('selected-fuera');
 
                 tr.innerHTML = `
                     <td style="text-align: center;">
@@ -1624,7 +1622,7 @@
                     </td>
                     <td style="text-align: center;">
                         <select class="select-hora-tabla" onchange="actualizarHoraModal(${index}, this.value)">
-                            ${generarOpcionesHoraSelect()}
+                            ${generarOpcionesHoraSelect(horaActual)}
                         </select>
                     </td>
                 `;
@@ -1639,15 +1637,18 @@
 
         function seleccionarRol(index, rol) {
             const fila = document.querySelector(`tr[data-id="${index}"]`);
+            
             mapaDatosPartidos[index] = mapaDatosPartidos[index] || {};
 
             if (mapaDatosPartidos[index].rol === rol) {
                 delete mapaDatosPartidos[index].rol;
-                fila.classList.remove('selected-casa', 'selected-fuera');
+                if (fila) fila.classList.remove('selected-casa', 'selected-fuera');
             } else {
                 mapaDatosPartidos[index].rol = rol;
-                fila.classList.remove('selected-casa', 'selected-fuera');
-                fila.classList.add(rol === 'casa' ? 'selected-casa' : 'selected-fuera');
+                if (fila) {
+                    fila.classList.remove('selected-casa', 'selected-fuera');
+                    fila.classList.add(rol === 'casa' ? 'selected-casa' : 'selected-fuera');
+                }
             }
         }
 
@@ -1663,20 +1664,66 @@
             const inputCampoHeader = document.getElementById('headerInputCampoJuego');
             if (inputCampoModal) inputCampoModal.value = "PALAU D'ESPORTS (ALZIRA)";
             if (inputCampoHeader) inputCampoHeader.value = "PALAU D'ESPORTS (ALZIRA)";
+
+            const contenedor = document.getElementById('contenedorRecuadros');
+            if (contenedor) contenedor.innerHTML = '';
         }
 
-        function abrirModalRivales(elSpanNombre, elImgLogo, recuadroPadre) {
-            elementoNombreRivalActual = elSpanNombre;
-            elementoLogoRivalActual = elImgLogo;
+        function abrirModal() {
+            if (!datosCargados) {
+                cargarExcel().then(() => {
+                    renderizarTabla(listaEquiposGlobal);
+                    modal.style.display = 'flex';
+                    alAbrirModal();
+                });
+            } else {
+                renderizarTabla(listaEquiposGlobal);
+                modal.style.display = 'flex';
+                alAbrirModal();
+            }
+        }
+
+        function cerrarModal() {
+            modal.style.display = 'none';
+            alCerrarModal();
+        }
+
+        function abrirModalRivales(elNombreRival, elLogoRival, recuadroPadre) {
+            elementoNombreRivalActual = elNombreRival;
+            elementoLogoRivalActual = elLogoRival;
             recuadroPadreRivalActual = recuadroPadre;
 
             const categoriaRecuadro = recuadroPadre.getAttribute('data-categoria') || '';
+
             const tbody = document.getElementById('tablaRivalesBody');
             tbody.innerHTML = '';
 
-            let todosLosEquipos = listaOtrosEquiposGlobal.length > 0 ? listaOtrosEquiposGlobal : listaEquiposGlobal;
+            let todosLosRivales = [];
+            
+            if (listaOtrosEquiposGlobal.length > 0) {
+                todosLosRivales = listaOtrosEquiposGlobal;
+            } else {
+                todosLosRivales = listaEquiposGlobal;
+            }
 
-            todosLosEquipos.forEach((eq) => {
+            let rivalesOrdenados = [...todosLosRivales];
+            
+            if (categoriaRecuadro) {
+                rivalesOrdenados.sort((a, b) => {
+                    const catA = (a.CATEGORIA || '').trim().toUpperCase();
+                    const catB = (b.CATEGORIA || '').trim().toUpperCase();
+                    const catTarget = categoriaRecuadro.trim().toUpperCase();
+
+                    const coincideA = (catA === catTarget);
+                    const coincideB = (catB === catTarget);
+
+                    if (coincideA && !coincideB) return -1;
+                    if (!coincideA && coincideB) return 1;
+                    return 0;
+                });
+            }
+
+            rivalesOrdenados.forEach((eq, idx) => {
                 const tr = document.createElement('tr');
                 tr.className = 'item-rival';
 
@@ -1730,7 +1777,7 @@
                 filaRivalPendienteEdicion = { nombreRival, rutaLogo, objetoRival };
                 const inputEdit = document.getElementById('inputEditarNombreRival');
                 if (inputEdit) inputEdit.value = nombreRival;
-
+                
                 modalEditarRival.style.display = 'flex';
                 alAbrirModal();
             }
@@ -1768,39 +1815,46 @@
 
         function autoAjustarTextoSegunSuperficie(elementoSpan) {
             if (!elementoSpan) return;
-            elementoSpan.style.transform = 'none';
+
+            elementoSpan.style.transform = 'scaleX(1)';
+
+            const contenedorPadre = elementoSpan.parentElement;
+            if (!contenedorPadre) return;
+
+            const estiloPadre = window.getComputedStyle(contenedorPadre);
+            const paddingIzquierdo = parseFloat(estiloPadre.paddingLeft) || 0;
+            const paddingDerecho = parseFloat(estiloPadre.paddingRight) || 0;
+            const paddingSuperior = parseFloat(estiloPadre.paddingTop) || 0;
+            const paddingInferior = parseFloat(estiloPadre.paddingBottom) || 0;
+
+            const anchoDisponible = contenedorPadre.clientWidth - (paddingIzquierdo + paddingDerecho);
+            const altoDisponible = contenedorPadre.clientHeight - (paddingSuperior + paddingInferior);
 
             const esNombreEquipo = elementoSpan.classList.contains('nombre-equipo');
-            const elContenedor = elementoSpan.parentElement;
-            if (!elContenedor) return;
 
-            if (esNombreEquipo) {
-                let fs = 2.1;
-                elementoSpan.style.fontSize = `${fs}cqw`;
-                
-                let contHeight = elContenedor.clientHeight;
-                let textHeight = elementoSpan.scrollHeight;
+            if (!esNombreEquipo) {
+                elementoSpan.style.display = 'inline-block';
+                elementoSpan.style.whiteSpace = 'nowrap';
+                elementoSpan.style.lineHeight = '1';
 
-                while (textHeight > contHeight && fs > 0.8) {
-                    fs -= 0.1;
-                    elementoSpan.style.fontSize = `${fs}cqw`;
-                    textHeight = elementoSpan.scrollHeight;
+                const anchoTexto = elementoSpan.scrollWidth;
+
+                if (anchoTexto > anchoDisponible && anchoDisponible > 0) {
+                    const factorEscalaX = anchoDisponible / anchoTexto;
+                    elementoSpan.style.transform = `scaleX(${factorEscalaX})`;
                 }
             } else {
-                const anchoDisponible = elContenedor.clientWidth;
-                const altoDisponible = elContenedor.clientHeight;
-
                 const anchoTexto = elementoSpan.scrollWidth;
                 const altoTexto = elementoSpan.scrollHeight;
 
-                if (anchoTexto > 0 && altoTexto > 0 && anchoDisponible > 0 && altoDisponible > 0) {
-                    const excedeAncho = anchoTexto > anchoDisponible;
-                    const excedeAlto = altoTexto > altoDisponible;
+                const excedeAncho = anchoTexto > anchoDisponible && anchoDisponible > 0;
+                const excedeAlto = altoTexto > altoDisponible && altoDisponible > 0;
 
+                if (excedeAncho || excedeAlto) {
                     const factorEscalaX = excedeAncho ? (anchoDisponible / anchoTexto) : 1;
                     const factorEscalaY = excedeAlto ? (altoDisponible / altoTexto) : 1;
-
                     const factorEscala = Math.min(factorEscalaX, factorEscalaY);
+
                     elementoSpan.style.transform = `scale(${factorEscala})`;
                 }
             }
@@ -1813,6 +1867,7 @@
             Object.keys(mapaDatosPartidos).forEach(indexStr => {
                 const index = parseInt(indexStr);
                 const config = mapaDatosPartidos[index];
+
                 if (config && config.rol) {
                     const equipoData = listaEquiposGlobal[index];
                     const recuadroHTML = crearRecuadroPartido(equipoData, config.rol, config.hora || '', index);
@@ -1872,24 +1927,14 @@
             recuadro.innerHTML = `
                 <img src="Imagenes/Recuadro (fondo).png" class="capa-fondo" alt="Fondo" onerror="this.onerror=null; this.src='';">
                 <div class="capa-borde"></div>
-
                 <div class="texto-categoria-vertical">${categoria}</div>
 
                 <div class="contenido-recuadro">
                     <div class="area-logo-izq">
-                        <img src="${esRivalIzq ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-izq" alt="Logo Izquierda" onerror="this.onerror=null; this.src='LOGOs/noescudo.png';">
+                        <img src="${esRivalIzq ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-izq" alt="Logo Izq" onerror="this.onerror=null; this.src='LOGOs/noescudo.png';">
                     </div>
-
                     <div class="area-equipo-izq">
-                        <span class="nombre-equipo ${esRivalIzq ? 'campo-editable' : ''}">${esRivalIzq ? equipoRivalNombre : equipoCasaNombre}</span>
-                    </div>
-
-                    <div class="area-logo-der">
-                        <img src="${esRivalDer ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-der" alt="Logo Derecha" onerror="this.onerror=null; this.src='LOGOs/noescudo.png';">
-                    </div>
-
-                    <div class="area-equipo-der">
-                        <span class="nombre-equipo ${esRivalDer ? 'campo-editable' : ''}">${esRivalDer ? equipoRivalNombre : equipoCasaNombre}</span>
+                        <span class="nombre-equipo ${esRivalIzq ? 'campo-editable vacio rival-izq' : ''}">${esRivalIzq ? equipoRivalNombre : equipoCasaNombre}</span>
                     </div>
 
                     <div class="area-tanteo-container">
@@ -1897,53 +1942,39 @@
                         <div class="tanteo-box tanteo-der" onclick="abrirModalTanteo(this)">${tanteoDerVal}</div>
                     </div>
 
+                    <div class="area-logo-der">
+                        <img src="${esRivalDer ? equipoRivalLogo : equipoCasaLogo}" class="logo-img logo-der" alt="Logo Der" onerror="this.onerror=null; this.src='LOGOs/noescudo.png';">
+                    </div>
+                    <div class="area-equipo-der">
+                        <span class="nombre-equipo ${esRivalDer ? 'campo-editable vacio rival-der' : ''}">${esRivalDer ? equipoRivalNombre : equipoCasaNombre}</span>
+                    </div>
+
                     <div class="area-info">
                         <div class="contenedor-item-info">
-                            <span class="campo-editable-info ${horaClaseVacio}" onclick="abrirModalHora(this)">${textoHora}</span>
+                            <span class="campo-editable-info hora-partido ${horaClaseVacio}">${textoHora}</span>
                         </div>
                     </div>
                 </div>
             `;
 
-            const spanRival = recuadro.querySelector('.nombre-equipo.campo-editable');
-            if (spanRival) {
-                const imgRival = esRivalIzq ? recuadro.querySelector('.logo-izq') : recuadro.querySelector('.logo-der');
-                spanRival.onclick = () => abrirModalRivales(spanRival, imgRival, recuadro);
+            const spanRivalIzq = recuadro.querySelector('.rival-izq');
+            const logoIzq = recuadro.querySelector('.logo-izq');
+            if (spanRivalIzq) {
+                spanRivalIzq.onclick = () => abrirModalRivales(spanRivalIzq, logoIzq, recuadro);
+            }
+
+            const spanRivalDer = recuadro.querySelector('.rival-der');
+            const logoDer = recuadro.querySelector('.logo-der');
+            if (spanRivalDer) {
+                spanRivalDer.onclick = () => abrirModalRivales(spanRivalDer, logoDer, recuadro);
+            }
+
+            const spanHora = recuadro.querySelector('.hora-partido');
+            if (spanHora) {
+                spanHora.onclick = () => abrirModalHora(spanHora);
             }
 
             return recuadro;
-        }
-
-        async function cargarExcelEquipos() {
-            try {
-                const response = await fetch(RUTA_EXCEL);
-                if (!response.ok) throw new Error("No se pudo cargar el Excel");
-
-                const arrayBuffer = await response.arrayBuffer();
-                workbookGlobal = XLSX.read(arrayBuffer, { type: 'array' });
-
-                const primeraHojaNombre = workbookGlobal.SheetNames[0];
-                const hoja1 = workbookGlobal.Sheets[primeraHojaNombre];
-                listaEquiposGlobal = XLSX.utils.sheet_to_json(hoja1);
-
-                if (workbookGlobal.SheetNames.length > 1) {
-                    const segundaHojaNombre = workbookGlobal.SheetNames[1];
-                    const hoja2 = workbookGlobal.Sheets[segundaHojaNombre];
-                    listaOtrosEquiposGlobal = XLSX.utils.sheet_to_json(hoja2);
-                } else {
-                    listaOtrosEquiposGlobal = [];
-                }
-
-                renderizarTabla(listaEquiposGlobal);
-                datosCargados = true;
-
-            } catch (error) {
-                console.warn("Fallo al leer Excel local. Usando array por defecto:", error);
-                listaEquiposGlobal = EQUIPOS_LOCALES_DEFECTO;
-                listaOtrosEquiposGlobal = [];
-                renderizarTabla(listaEquiposGlobal);
-                datosCargados = true;
-            }
         }
 
         async function capturarPaginaComoJPG() {
@@ -1959,6 +1990,7 @@
 
                 await document.fonts.ready;
 
+                // Cargar la imagen de la máscara original una sola vez para reutilizarla
                 const imgMask = new Image();
                 imgMask.crossOrigin = 'anonymous';
                 await new Promise((resolve, reject) => {
@@ -1982,6 +2014,7 @@
                         backgroundImage: borde.style.backgroundImage
                     });
 
+                    // Crear un canvas auxiliar para tintar la máscara con el color del equipo
                     const canvasTemp = document.createElement('canvas');
                     canvasTemp.width = imgMask.naturalWidth || 800;
                     canvasTemp.height = imgMask.naturalHeight || 130;
@@ -1994,6 +2027,7 @@
 
                     const dataUrlTintada = canvasTemp.toDataURL('image/png');
 
+                    // Aplicar la imagen tintada directamente como fondo para que html2canvas la renderice sin problemas
                     borde.style.webkitMaskImage = 'none';
                     borde.style.maskImage = 'none';
                     borde.style.backgroundImage = `url('${dataUrlTintada}')`;
@@ -2011,89 +2045,49 @@
                     onclone: (clonedDoc) => {
                         const clonedInput = clonedDoc.getElementById('headerInputCampoJuego');
                         if (clonedInput) {
-                            const val = clonedInput.value || '';
                             const parent = clonedInput.parentElement;
-                            if (parent) {
-                                const divFalso = clonedDoc.createElement('div');
-                                divFalso.style.width = '100%';
-                                divFalso.style.color = '#ffffff';
-                                divFalso.style.fontSize = window.getComputedStyle(clonedInput).fontSize;
-                                divFalso.style.fontWeight = '600';
-                                divFalso.style.fontFamily = 'Arial, Helvetica, sans-serif';
-                                divFalso.style.textTransform = 'uppercase';
-                                divFalso.style.textAlign = 'center';
-                                divFalso.style.textShadow = '2px 2px 6px rgba(0,0,0,0.9)';
-                                divFalso.style.padding = '8px 0';
-                                divFalso.textContent = val;
-                                parent.replaceChild(divFalso, clonedInput);
-                            }
+                            const textVal = clonedInput.value || '';
+                            const tempDiv = clonedDoc.createElement('div');
+                            tempDiv.className = clonedInput.className;
+                            tempDiv.textContent = textVal;
+                            tempDiv.style.lineHeight = 'normal';
+                            tempDiv.style.padding = '8px 0';
+                            tempDiv.style.margin = '0';
+                            tempDiv.style.boxSizing = 'border-box';
+                            tempDiv.style.display = 'block';
+                            tempDiv.style.overflow = 'visible';
+                            tempDiv.style.height = 'auto';
+                            parent.replaceChild(tempDiv, clonedInput);
                         }
-
-                        const clonedRecuadros = clonedDoc.querySelectorAll('.recuadro-partido');
-                        clonedRecuadros.forEach(rec => {
-                            const spans = rec.querySelectorAll('.nombre-equipo, .campo-editable-info');
-                            spans.forEach(span => {
-                                const esNombreEquipo = span.classList.contains('nombre-equipo');
-                                const parent = span.parentElement;
-                                if (!parent) return;
-
-                                span.style.transform = 'none';
-
-                                if (esNombreEquipo) {
-                                    let fs = 2.1;
-                                    span.style.fontSize = `${fs}cqw`;
-                                    let contH = parent.clientHeight;
-                                    let textH = span.scrollHeight;
-                                    while (textH > contH && fs > 0.8) {
-                                        fs -= 0.1;
-                                        span.style.fontSize = `${fs}cqw`;
-                                        textH = span.scrollHeight;
-                                    }
-                                } else {
-                                    const anchoDisp = parent.clientWidth;
-                                    const altoDisp = parent.clientHeight;
-                                    const anchoTxt = span.scrollWidth;
-                                    const altoTxt = span.scrollHeight;
-
-                                    if (anchoTxt > 0 && altoTxt > 0 && anchoDisp > 0 && altoDisp > 0) {
-                                        const factorX = anchoTxt > anchoDisp ? (anchoDisp / anchoTxt) : 1;
-                                        const factorY = altoTxt > altoDisp ? (altoDisp / altoTxt) : 1;
-                                        const factor = Math.min(factorX, factorY);
-                                        span.style.transform = `scale(${factor})`;
-                                    }
-                                }
-                            });
-                        });
                     }
                 });
 
+                // Restaurar los estilos originales de las capas
                 respaldosMask.forEach(item => {
+                    item.element.style.backgroundImage = item.backgroundImage;
                     item.element.style.maskImage = item.maskImage;
                     item.element.style.webkitMaskImage = item.webkitMaskImage;
                     item.element.style.backgroundColor = item.backgroundColor;
-                    item.element.style.backgroundImage = item.backgroundImage;
+                    item.element.style.backgroundSize = '';
+                    item.element.style.backgroundRepeat = '';
                 });
 
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-                const enlace = document.createElement('a');
-                enlace.download = modoResultados ? 'Resultados_Partidos_NVA.jpg' : 'Horarios_Partidos_NVA.jpg';
-                enlace.href = dataUrl;
-                document.body.appendChild(enlace);
-                enlace.click();
-                document.body.removeChild(enlace);
-
+                const link = document.createElement('a');
+                link.download = `Partidos_NVA_${new Date().toISOString().slice(0, 10)}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.92);
+                link.click();
             } catch (err) {
-                console.error('Error al generar la imagen:', err);
-                alert('Ocurrió un error al generar la imagen. Inténtalo de nuevo.');
+                console.error('Error al generar la captura JPG:', err);
+                alert('No se pudo generar la imagen. Inténtalo de nuevo.');
             } finally {
                 if (btnCaptura) btnCaptura.disabled = false;
-                if (btnTexto) btnTexto.textContent = 'DESCARGAR IMAGEN';
+                if (btnTexto) btnTexto.textContent = 'Descargar imagen';
             }
         }
 
         function obtenerTextoLimpio(el) {
             if (!el) return '';
-            const txt = el.textContent || '';
+            let txt = el.textContent || '';
             return txt.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
         }
 
@@ -2127,6 +2121,7 @@
             recuadros.forEach((rec) => {
                 const spanIzq = rec.querySelector('.area-equipo-izq .nombre-equipo');
                 const spanDer = rec.querySelector('.area-equipo-der .nombre-equipo');
+                
                 const equipoCasa = obtenerTextoLimpio(spanIzq);
                 const equipoRival = obtenerTextoLimpio(spanDer);
 
@@ -2137,7 +2132,7 @@
                 const tanteoIzqEl = rec.querySelector('.tanteo-izq');
                 const tanteoDerEl = rec.querySelector('.tanteo-der');
                 const tIzq = tanteoIzqEl ? obtenerTextoLimpio(tanteoIzqEl) : '0';
-                const tDer = tanteoDerEl ? obtenerTextoLimpio(tDer) : '0';
+                const tDer = tanteoDerEl ? obtenerTextoLimpio(tanteoDerEl) : '0';
 
                 const categoria = rec.getAttribute('data-categoria') || '';
 
@@ -2145,219 +2140,162 @@
             });
 
             const blob = new Blob([bloqueTexto], { type: 'text/plain;charset=utf-8' });
-            descargarBlobComoArchivo(blob, 'historico_partidos.txt');
+            descargarBlobComoArchivo(blob, 'Historico.txt');
         }
 
-        function abrirSelectorCargarDatos() {
-            const fileInput = document.getElementById('inputCargarDatos');
-            if (fileInput) {
-                fileInput.value = '';
-                fileInput.click();
-            }
-        }
-
-        function parsearFechaTextoACalendario(strFecha) {
-            if (!strFecha) return;
-            const strUpper = strFecha.toUpperCase().trim();
-
-            const matchSingle = strUpper.match(/^(\d{1,2})\s+DE\s+([A-Z]+)$/);
-            if (matchSingle) {
-                const dia = parseInt(matchSingle[1]);
-                const nombreMes = matchSingle[2];
-                const idxMes = meses.findIndex(m => m.toUpperCase() === nombreMes);
-                if (idxMes !== -1) {
-                    const anio = new Date().getFullYear();
-                    calFechaInicioEfectiva = new Date(anio, idxMes, dia);
-                    calFechaInicioEfectiva.setHours(0, 0, 0, 0);
-                    calFechaFinEfectiva = new Date(anio, idxMes, dia);
-                    calFechaFinEfectiva.setHours(0, 0, 0, 0);
-                    escribirTextoFechaEnCabecera(calFechaInicioEfectiva, calFechaFinEfectiva);
-                    return;
-                }
-            }
-
-            const matchRangeMismoMes = strUpper.match(/^DEL\s+(\d{1,2})\s+AL\s+(\d{1,2})\s+DE\s+([A-Z]+)$/);
-            if (matchRangeMismoMes) {
-                const d1 = parseInt(matchRangeMismoMes[1]);
-                const d2 = parseInt(matchRangeMismoMes[2]);
-                const nombreMes = matchRangeMismoMes[3];
-                const idxMes = meses.findIndex(m => m.toUpperCase() === nombreMes);
-                if (idxMes !== -1) {
-                    const anio = new Date().getFullYear();
-                    calFechaInicioEfectiva = new Date(anio, idxMes, d1);
-                    calFechaInicioEfectiva.setHours(0, 0, 0, 0);
-                    calFechaFinEfectiva = new Date(anio, idxMes, d2);
-                    calFechaFinEfectiva.setHours(0, 0, 0, 0);
-                    escribirTextoFechaEnCabecera(calFechaInicioEfectiva, calFechaFinEfectiva);
-                    return;
-                }
-            }
-
-            const matchRangeDistintoMes = strUpper.match(/^DEL\s+(\d{1,2})\s+DE\s+([A-Z]+)\s+AL\s+(\d{1,2})\s+DE\s+([A-Z]+)$/);
-            if (matchRangeDistintoMes) {
-                const d1 = parseInt(matchRangeDistintoMes[1]);
-                const nombreMes1 = matchRangeDistintoMes[2];
-                const d2 = parseInt(matchRangeDistintoMes[3]);
-                const nombreMes2 = matchRangeDistintoMes[4];
-
-                const idxMes1 = meses.findIndex(m => m.toUpperCase() === nombreMes1);
-                const idxMes2 = meses.findIndex(m => m.toUpperCase() === nombreMes2);
-
-                if (idxMes1 !== -1 && idxMes2 !== -1) {
-                    const anio = new Date().getFullYear();
-                    calFechaInicioEfectiva = new Date(anio, idxMes1, d1);
-                    calFechaInicioEfectiva.setHours(0, 0, 0, 0);
-                    calFechaFinEfectiva = new Date(anio, idxMes2, d2);
-                    calFechaFinEfectiva.setHours(0, 0, 0, 0);
-                    escribirTextoFechaEnCabecera(calFechaInicioEfectiva, calFechaFinEfectiva);
-                    return;
-                }
+        function abrirExploradorCargarDatos() {
+            const input = document.getElementById('inputCargarDatos');
+            if (input) {
+                input.value = '';
+                input.click();
             }
         }
 
         function procesarArchivoDatos(files) {
             if (!files || files.length === 0) return;
             const file = files[0];
-
             const reader = new FileReader();
+
             reader.onload = function(e) {
                 const contenido = e.target.result;
-                const lineas = contenido.split(/\r?\n/).filter(l => l.trim().length > 0);
-
-                if (lineas.length === 0) return;
-
-                // Resetear estado previo
-                mapaDatosPartidos = {};
-                document.querySelectorAll('#tablaBody tr').forEach(tr => {
-                    tr.classList.remove('selected-casa', 'selected-fuera');
-                    const selHora = tr.querySelector('.select-hora-tabla');
-                    if (selHora) selHora.value = '';
-                });
-
-                const contenedor = document.getElementById('contenedorRecuadros');
-                contenedor.innerHTML = '';
-
-                // Primera línea: Fecha | Campo
-                const primeraLinea = lineas[0];
-                const partesEncabezado = primeraLinea.split('|').map(s => s.trim());
-                const fechaTxt = partesEncabezado[0] || '';
-                const campoTxt = partesEncabezado[1] || '';
-
-                if (fechaTxt) {
-                    parsearFechaTextoACalendario(fechaTxt);
-                }
-
-                if (campoTxt) {
-                    sincronizarCampoJuegoDesdeHeader(campoTxt);
-                    sincronizarCampoJuegoDesdeModal(campoTxt);
-                }
-
-                // Líneas siguientes: Partidos
-                const lineasPartidos = lineas.slice(1);
-
-                lineasPartidos.forEach(linea => {
-                    const partes = linea.split('|').map(s => s.trim());
-                    if (partes.length < 2) return;
-
-                    const eqCasaTxt = partes[0] || '';
-                    const eqRivalTxt = partes[1] || '';
-                    const horaTxt = partes[2] || '';
-                    const catTxt = partes[3] || '';
-                    const tIzqTxt = partes[4] || '0';
-                    const tDerTxt = partes[5] || '0';
-
-                    let matchIdx = -1;
-                    let rol = 'casa';
-
-                    // Prioridad 1: Buscar por categoría exacta en el listado NVA
-                    if (catTxt) {
-                        matchIdx = listaEquiposGlobal.findIndex(e =>
-                            (e.CATEGORIA || '').trim().toUpperCase() === catTxt.toUpperCase()
-                        );
-                    }
-
-                    // Prioridad 2: Buscar equipo casa en listado NVA
-                    if (matchIdx === -1 && eqCasaTxt) {
-                        matchIdx = listaEquiposGlobal.findIndex(e =>
-                            (e.EQUIPO || '').trim().toUpperCase() === eqCasaTxt.toUpperCase()
-                        );
-                        if (matchIdx !== -1) rol = 'casa';
-                    }
-
-                    // Prioridad 3: Buscar equipo rival en listado NVA (juega fuera)
-                    if (matchIdx === -1 && eqRivalTxt) {
-                        matchIdx = listaEquiposGlobal.findIndex(e =>
-                            (e.EQUIPO || '').trim().toUpperCase() === eqRivalTxt.toUpperCase()
-                        );
-                        if (matchIdx !== -1) rol = 'fuera';
-                    }
-
-                    if (matchIdx !== -1) {
-                        const equipoObj = listaEquiposGlobal[matchIdx];
-
-                        // Registrar datos en mapaDatosPartidos como si se hiciera a mano
-                        mapaDatosPartidos[matchIdx] = {
-                            rol: rol,
-                            hora: horaTxt
-                        };
-
-                        // Actualizar la fila en el modal si existe
-                        const filaTabla = document.querySelector(`tr[data-id="${matchIdx}"]`);
-                        if (filaTabla) {
-                            filaTabla.classList.add(rol === 'casa' ? 'selected-casa' : 'selected-fuera');
-                            const selHora = filaTabla.querySelector('.select-hora-tabla');
-                            if (selHora) selHora.value = horaTxt;
-                        }
-
-                        // Crear recuadro utilizando la función oficial para mantener logos y colores
-                        const recuadro = crearRecuadroPartido(equipoObj, rol, horaTxt, matchIdx, tIzqTxt, tDerTxt);
-
-                        const spanIzq = recuadro.querySelector('.area-equipo-izq .nombre-equipo');
-                        const spanDer = recuadro.querySelector('.area-equipo-der .nombre-equipo');
-                        const imgLogoIzq = recuadro.querySelector('.area-logo-izq .logo-img');
-                        const imgLogoDer = recuadro.querySelector('.area-logo-der .logo-img');
-
-                        if (spanIzq && eqCasaTxt) {
-                            spanIzq.textContent = eqCasaTxt;
-                            spanIzq.classList.remove('vacio');
-                        }
-                        if (spanDer && eqRivalTxt) {
-                            spanDer.textContent = eqRivalTxt;
-                            spanDer.classList.remove('vacio');
-                        }
-
-                        let todosLosOtros = listaOtrosEquiposGlobal.length > 0 ? listaOtrosEquiposGlobal : listaEquiposGlobal;
-
-                        if (rol === 'casa') {
-                            const objRival = todosLosOtros.find(e => (e.EQUIPO || '').trim().toUpperCase() === eqRivalTxt.toUpperCase());
-                            if (objRival && imgLogoDer) {
-                                imgLogoDer.src = obtenerRutaLogo(objRival.LOGO);
-                            }
-                        } else {
-                            const objRival = todosLosOtros.find(e => (e.EQUIPO || '').trim().toUpperCase() === eqCasaTxt.toUpperCase());
-                            if (objRival && imgLogoIzq) {
-                                imgLogoIzq.src = obtenerRutaLogo(objRival.LOGO);
-                            }
-                        }
-
-                        contenedor.appendChild(recuadro);
-                    }
-                });
-
-                setTimeout(() => {
-                    document.querySelectorAll('.nombre-equipo, .campo-editable-info').forEach(span => {
-                        autoAjustarTextoSegunSuperficie(span);
-                    });
-                }, 100);
+                cargarDatosDesdeTexto(contenido);
             };
 
             reader.readAsText(file, 'UTF-8');
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            await cargarExcelEquipos();
-            /*abrirCalendarioRango();*/
-        });
+        async function cargarDatosDesdeTexto(contenido) {
+            if (!datosCargados) {
+                await cargarExcel();
+            }
+
+            const lineas = contenido.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+            if (lineas.length === 0) return;
+
+            const primeraLinea = lineas[0].split('|').map(s => s.trim());
+            const fechaStr = primeraLinea[0] || '';
+            const campoStr = primeraLinea[1] || '';
+
+            if (campoStr) {
+                const inputModal = document.getElementById('inputCampoJuego');
+                const inputHeader = document.getElementById('headerInputCampoJuego');
+                if (inputModal) inputModal.value = campoStr;
+                if (inputHeader) inputHeader.value = campoStr;
+            }
+
+            if (fechaStr) {
+                const elContenedor = document.getElementById('headerTextoFecha');
+                if (elContenedor) {
+                    elContenedor.innerHTML = `<span>${fechaStr}</span>`;
+                    autoAjustarTextoCabecera();
+                }
+            }
+
+            // Limpiamos selección previa
+            mapaDatosPartidos = {};
+
+            const lineasPartidos = lineas.slice(1);
+            const contenedor = document.getElementById('contenedorRecuadros');
+            if (contenedor) contenedor.innerHTML = '';
+
+            lineasPartidos.forEach((linea) => {
+                const partes = linea.split('|').map(s => s.trim());
+                if (partes.length < 2) return;
+
+                const eqCasaTxt = partes[0] || '';
+                const eqRivalTxt = partes[1] || '';
+                const horaTxt = partes[2] || '';
+                const catTxt = partes[3] || '';
+                const tIzqTxt = partes[4] || '0';
+                const tDerTxt = partes[5] || '0';
+
+                let matchIdx = -1;
+                let rol = 'casa';
+
+                // Prioridad 1: Buscar por categoría exacta en el listado NVA
+                if (catTxt) {
+                    matchIdx = listaEquiposGlobal.findIndex(e => 
+                        (e.CATEGORIA || '').trim().toUpperCase() === catTxt.toUpperCase()
+                    );
+                }
+
+                // Prioridad 2: Buscar equipo casa en listado NVA
+                if (matchIdx === -1 && eqCasaTxt) {
+                    matchIdx = listaEquiposGlobal.findIndex(e => 
+                        (e.EQUIPO || '').trim().toUpperCase() === eqCasaTxt.toUpperCase()
+                    );
+                    if (matchIdx !== -1) rol = 'casa';
+                }
+
+                // Prioridad 3: Buscar equipo rival en listado NVA (juega fuera)
+                if (matchIdx === -1 && eqRivalTxt) {
+                    matchIdx = listaEquiposGlobal.findIndex(e => 
+                        (e.EQUIPO || '').trim().toUpperCase() === eqRivalTxt.toUpperCase()
+                    );
+                    if (matchIdx !== -1) rol = 'fuera';
+                }
+
+                // Determinar rol con base en cuál de los dos equipos es de NVA
+                if (matchIdx !== -1) {
+                    const eqNvaNombre = (listaEquiposGlobal[matchIdx].EQUIPO || '').trim().toUpperCase();
+                    if (eqCasaTxt.toUpperCase() === eqNvaNombre) {
+                        rol = 'casa';
+                    } else if (eqRivalTxt.toUpperCase() === eqNvaNombre) {
+                        rol = 'fuera';
+                    }
+                }
+
+                if (matchIdx !== -1) {
+                    // Guardar los valores como si se hubieran seleccionado manualmente en el modal
+                    mapaDatosPartidos[matchIdx] = {
+                        rol: rol,
+                        hora: horaTxt
+                    };
+
+                    const equipoBase = listaEquiposGlobal[matchIdx];
+                    const recuadro = crearRecuadroPartido(equipoBase, rol, horaTxt, matchIdx, tIzqTxt, tDerTxt);
+
+                    const spanIzq = recuadro.querySelector('.area-equipo-izq .nombre-equipo');
+                    const spanDer = recuadro.querySelector('.area-equipo-der .nombre-equipo');
+                    const imgLogoIzq = recuadro.querySelector('.logo-izq');
+                    const imgLogoDer = recuadro.querySelector('.logo-der');
+
+                    if (spanIzq && eqCasaTxt) {
+                        spanIzq.textContent = eqCasaTxt;
+                        spanIzq.classList.remove('vacio');
+                    }
+                    if (spanDer && eqRivalTxt) {
+                        spanDer.textContent = eqRivalTxt;
+                        spanDer.classList.remove('vacio');
+                    }
+
+                    let todosLosOtros = listaOtrosEquiposGlobal.length > 0 ? listaOtrosEquiposGlobal : listaEquiposGlobal;
+                    
+                    if (rol === 'casa') {
+                        const objRival = todosLosOtros.find(e => (e.EQUIPO || '').trim().toUpperCase() === eqRivalTxt.toUpperCase());
+                        if (objRival && imgLogoDer) {
+                            imgLogoDer.src = obtenerRutaLogo(objRival.LOGO);
+                        }
+                    } else {
+                        const objRival = todosLosOtros.find(e => (e.EQUIPO || '').trim().toUpperCase() === eqCasaTxt.toUpperCase());
+                        if (objRival && imgLogoIzq) {
+                            imgLogoIzq.src = obtenerRutaLogo(objRival.LOGO);
+                        }
+                    }
+
+                    contenedor.appendChild(recuadro);
+                }
+            });
+
+            // Re-renderizamos la tabla interna del modal para reflejar las selecciones realizadas al cargar
+            renderizarTabla(listaEquiposGlobal);
+
+            setTimeout(() => {
+                document.querySelectorAll('.nombre-equipo, .campo-editable-info').forEach(span => {
+                    autoAjustarTextoSegunSuperficie(span);
+                });
+            }, 100);
+        }
     </script>
 </body>
 </html>
