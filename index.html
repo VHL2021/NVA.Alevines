@@ -2504,42 +2504,83 @@
             return recuadro;
         }
 
+        async function crearSnapshotFotoParaCaptura(recuadro) {
+            const img = recuadro ? recuadro.querySelector('.foto-resultado img') : null;
+            if (!img || !img.src || !img.naturalWidth || !img.naturalHeight) return null;
+
+            const ancho = recuadro.clientWidth;
+            const alto = recuadro.clientHeight;
+            if (ancho <= 0 || alto <= 0) return null;
+
+            // La foto se muestra con object-fit: contain dentro del área interior del marco.
+            const escalaContain = Math.min(ancho / img.naturalWidth, alto / img.naturalHeight);
+            const anchoImagen = img.naturalWidth * escalaContain;
+            const altoImagen = img.naturalHeight * escalaContain;
+            const xImagen = (ancho - anchoImagen) / 2;
+            const yImagen = (alto - altoImagen) / 2;
+
+            // Estos valores son exactamente los que utiliza la interfaz para pintar
+            // el zoom y el desplazamiento de la fotografía.
+            const escala = Number.parseFloat(img.dataset.scale);
+            const desplazamientoX = Number.parseFloat(img.dataset.translateX);
+            const desplazamientoY = Number.parseFloat(img.dataset.translateY);
+
+            const s = Number.isFinite(escala) ? escala : 1;
+            const tx = Number.isFinite(desplazamientoX) ? desplazamientoX : 0;
+            const ty = Number.isFinite(desplazamientoY) ? desplazamientoY : 0;
+
+            // Se renderiza a 2x para conservar calidad cuando html2canvas vuelva
+            // a escalar la captura general a scale: 2.
+            const factor = 2;
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(ancho * factor));
+            canvas.height = Math.max(1, Math.round(alto * factor));
+
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return null;
+
+            ctx.setTransform(factor, 0, 0, factor, 0, 0);
+            ctx.translate(ancho / 2 + tx, alto / 2 + ty);
+            ctx.scale(s, s);
+            ctx.translate(-ancho / 2, -alto / 2);
+            ctx.drawImage(img, xImagen, yImagen, anchoImagen, altoImagen);
+
+            return {
+                id: img.id,
+                dataUrl: canvas.toDataURL('image/png')
+            };
+        }
+
         async function capturarPaginaComoJPG() {
             const btnCaptura = document.getElementById('btnCapturarPagina');
             const btnTexto = document.getElementById('btnCapturarTexto');
             const areaCaptura = document.getElementById('areaCaptura');
-            if (!areaCaptura) return;
 
-            let respaldosMask = [];
+            if (!areaCaptura) return;
 
             try {
                 if (btnCaptura) btnCaptura.disabled = true;
                 if (btnTexto) btnTexto.textContent = 'Generando imagen...';
+
                 await document.fonts.ready;
 
-                // Guardamos el estado REAL que se ve en pantalla antes de clonar.
-                // html2canvas puede perder la combinación object-fit + transform de <img>.
-                const fotosParaCaptura = Array.from(
-                    areaCaptura.querySelectorAll('.foto-resultado.has-image img')
-                ).map(img => ({
-                    img,
-                    contenedor: img.closest('.foto-resultado'),
-                    scale: parseFloat(img.dataset.scale) || 1,
-                    translateX: parseFloat(img.dataset.translateX) || 0,
-                    translateY: parseFloat(img.dataset.translateY) || 0
+                /*
+                 * IMPORTANTE:
+                 * html2canvas puede interpretar de forma distinta una transformación
+                 * CSS aplicada a un <img> (object-fit + transform) al clonar el DOM.
+                 * Por eso, antes de crear el JPG, "congelamos" cada fotografía tal y
+                 * como está visible en pantalla: mismo object-fit, zoom y desplazamiento.
+                 * En el DOM real no se modifica nada.
+                 */
+                const snapshotsFotos = {};
+                const fotos = areaCaptura.querySelectorAll('.foto-resultado.has-image');
+
+                await Promise.all(Array.from(fotos).map(async (recuadro) => {
+                    const snapshot = await crearSnapshotFotoParaCaptura(recuadro);
+                    if (snapshot) snapshotsFotos[snapshot.id] = snapshot.dataUrl;
                 }));
 
-                // Aseguramos que las fotografías estén decodificadas antes de capturar.
-                await Promise.all(fotosParaCaptura.map(({ img }) => {
-                    if (img.complete && img.naturalWidth > 0) {
-                        return img.decode ? img.decode().catch(() => {}) : Promise.resolve();
-                    }
-                    return new Promise(resolve => {
-                        img.addEventListener('load', resolve, { once: true });
-                        img.addEventListener('error', resolve, { once: true });
-                    });
-                }));
-
+                // Cargar la imagen de la máscara original una sola vez para reutilizarla
                 const imgMask = new Image();
                 imgMask.crossOrigin = 'anonymous';
                 await new Promise((resolve, reject) => {
@@ -2549,12 +2590,11 @@
                 });
 
                 const capasBorde = areaCaptura.querySelectorAll('.capa-borde');
+                const respaldosMask = [];
 
                 for (const borde of capasBorde) {
                     const recuadro = borde.closest('.recuadro-partido');
-                    const colorEquipo = recuadro
-                        ? recuadro.style.getPropertyValue('--color-equipo') || '#00b0f0'
-                        : '#00b0f0';
+                    const colorEquipo = recuadro ? recuadro.style.getPropertyValue('--color-equipo') || '#00b0f0' : '#00b0f0';
 
                     respaldosMask.push({
                         element: borde,
@@ -2564,6 +2604,7 @@
                         backgroundImage: borde.style.backgroundImage
                     });
 
+                    // Crear un canvas auxiliar para tintar la máscara con el color del equipo
                     const canvasTemp = document.createElement('canvas');
                     canvasTemp.width = imgMask.naturalWidth || 800;
                     canvasTemp.height = imgMask.naturalHeight || 130;
@@ -2576,6 +2617,7 @@
 
                     const dataUrlTintada = canvasTemp.toDataURL('image/png');
 
+                    // Aplicar la imagen tintada directamente como fondo para que html2canvas la renderice sin problemas
                     borde.style.webkitMaskImage = 'none';
                     borde.style.maskImage = 'none';
                     borde.style.backgroundImage = `url('${dataUrlTintada}')`;
@@ -2584,8 +2626,6 @@
                     borde.style.backgroundColor = 'transparent';
                 }
 
-                const areaRect = areaCaptura.getBoundingClientRect();
-
                 const canvas = await html2canvas(areaCaptura, {
                     scale: 2,
                     useCORS: true,
@@ -2593,13 +2633,26 @@
                     backgroundColor: '#000000',
                     logging: false,
                     onclone: (clonedDoc) => {
+                        // Los controles de edición no deben aparecer en el JPG.
                         clonedDoc.querySelectorAll('.no-captura').forEach(el => {
                             el.style.display = 'none';
                         });
 
-                        // Las fotos se incorporan manualmente después de html2canvas.
-                        clonedDoc.querySelectorAll('.foto-resultado.has-image img').forEach(img => {
-                            img.style.visibility = 'hidden';
+                        /*
+                         * Sustituimos únicamente la fotografía en el clon por la
+                         * instantánea ya renderizada. Así html2canvas no vuelve a
+                         * interpretar transform/object-fit y el JPG recibe exactamente
+                         * el zoom y la posición que el usuario ve en pantalla.
+                         */
+                        Object.keys(snapshotsFotos).forEach(id => {
+                            const clonedImg = clonedDoc.getElementById(id);
+                            if (!clonedImg) return;
+
+                            clonedImg.src = snapshotsFotos[id];
+                            clonedImg.style.transform = 'none';
+                            clonedImg.style.objectFit = 'fill';
+                            clonedImg.style.width = '100%';
+                            clonedImg.style.height = '100%';
                         });
 
                         const clonedInput = clonedDoc.getElementById('headerInputCampoJuego');
@@ -2621,69 +2674,7 @@
                     }
                 });
 
-                /*
-                 * Dibujo manual de las fotos:
-                 * reproduce exactamente object-fit: contain + transform-origin:center
-                 * + translate + scale, convirtiendo las coordenadas CSS al tamaño
-                 * real del canvas generado por html2canvas.
-                 */
-                const factorX = canvas.width / areaRect.width;
-                const factorY = canvas.height / areaRect.height;
-                const ctx = canvas.getContext('2d');
-
-                for (const estado of fotosParaCaptura) {
-                    const { img, contenedor, scale, translateX, translateY } = estado;
-                    if (!ctx || !contenedor || !img.complete || !img.naturalWidth || !img.naturalHeight) continue;
-
-                    const estilo = window.getComputedStyle(contenedor);
-                    const rect = contenedor.getBoundingClientRect();
-
-                    const bordeIzq = parseFloat(estilo.borderLeftWidth) || 0;
-                    const bordeDer = parseFloat(estilo.borderRightWidth) || 0;
-                    const bordeSup = parseFloat(estilo.borderTopWidth) || 0;
-                    const bordeInf = parseFloat(estilo.borderBottomWidth) || 0;
-
-                    const innerLeft = rect.left + bordeIzq;
-                    const innerTop = rect.top + bordeSup;
-                    const innerWidth = Math.max(1, rect.width - bordeIzq - bordeDer);
-                    const innerHeight = Math.max(1, rect.height - bordeSup - bordeInf);
-
-                    // object-fit: contain
-                    const ratioImagen = img.naturalWidth / img.naturalHeight;
-                    const ratioCaja = innerWidth / innerHeight;
-                    let baseW, baseH;
-
-                    if (ratioImagen > ratioCaja) {
-                        baseW = innerWidth;
-                        baseH = innerWidth / ratioImagen;
-                    } else {
-                        baseH = innerHeight;
-                        baseW = innerHeight * ratioImagen;
-                    }
-
-                    const fotoW = baseW * scale;
-                    const fotoH = baseH * scale;
-                    const centroX = innerLeft + innerWidth / 2 + translateX;
-                    const centroY = innerTop + innerHeight / 2 + translateY;
-
-                    const dx = (centroX - fotoW / 2 - areaRect.left) * factorX;
-                    const dy = (centroY - fotoH / 2 - areaRect.top) * factorY;
-                    const dw = fotoW * factorX;
-                    const dh = fotoH * factorY;
-
-                    const clipX = (innerLeft - areaRect.left) * factorX;
-                    const clipY = (innerTop - areaRect.top) * factorY;
-                    const clipW = innerWidth * factorX;
-                    const clipH = innerHeight * factorY;
-
-                    ctx.save();
-                    ctx.beginPath();
-                    ctx.rect(clipX, clipY, clipW, clipH);
-                    ctx.clip();
-                    ctx.drawImage(img, dx, dy, dw, dh);
-                    ctx.restore();
-                }
-
+                // Restaurar los estilos originales de las capas
                 respaldosMask.forEach(item => {
                     item.element.style.backgroundImage = item.backgroundImage;
                     item.element.style.maskImage = item.maskImage;
@@ -2692,25 +2683,13 @@
                     item.element.style.backgroundSize = '';
                     item.element.style.backgroundRepeat = '';
                 });
-                respaldosMask = [];
 
                 const link = document.createElement('a');
                 link.download = `Partidos_NVA_${new Date().toISOString().slice(0, 10)}.jpg`;
                 link.href = canvas.toDataURL('image/jpeg', 0.92);
                 link.click();
-
             } catch (err) {
                 console.error('Error al generar la captura JPG:', err);
-
-                respaldosMask.forEach(item => {
-                    item.element.style.backgroundImage = item.backgroundImage;
-                    item.element.style.maskImage = item.maskImage;
-                    item.element.style.webkitMaskImage = item.webkitMaskImage;
-                    item.element.style.backgroundColor = item.backgroundColor;
-                    item.element.style.backgroundSize = '';
-                    item.element.style.backgroundRepeat = '';
-                });
-
                 alert('No se pudo generar la imagen. Inténtalo de nuevo.');
             } finally {
                 if (btnCaptura) btnCaptura.disabled = false;
@@ -3097,9 +3076,8 @@
         document.querySelectorAll('.foto-resultado img').forEach(img => {
             let isDragging = false;
             let startX, startY;
-            let currentX = parseFloat(img.dataset.translateX) || 0;
-            let currentY = parseFloat(img.dataset.translateY) || 0;
-            let scale = parseFloat(img.dataset.scale) || 1;
+            let currentX = 0, currentY = 0;
+            let scale = 1;
             
             img.dataset.scale = 1;
             img.dataset.translateX = 0;
@@ -3107,9 +3085,9 @@
 
             const updateTransform = () => {
                 img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${scale})`;
-                img.dataset.translateX = String(currentX);
-                img.dataset.translateY = String(currentY);
-                img.dataset.scale = String(scale);
+                img.dataset.translateX = currentX;
+                img.dataset.translateY = currentY;
+                img.dataset.scale = scale;
             };
 
             img.addEventListener('mousedown', e => {
