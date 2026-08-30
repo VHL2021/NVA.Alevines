@@ -3101,17 +3101,16 @@
                 return;
             }
 
-            /* En táctil, pulsar directamente el marco abre/cierra la paleta de colores
-               en lugar de abrir inmediatamente el selector de archivos. */
-            if (event && (event.pointerType === 'touch' || event.pointerType === 'pen') && recuadro) {
-                event.preventDefault();
-                event.stopPropagation();
-                recuadro.classList.toggle('mostrar-selector-color');
-                return;
-            }
-
+            /* En dispositivos táctiles, tocar el recuadro debe abrir el selector
+               de archivos. La paleta de colores se mantiene como control independiente. */
             const input = document.getElementById(`inputFotoResultado${indice}`);
-            if (input) input.click();
+            if (input) {
+                if (event && (event.pointerType === 'touch' || event.pointerType === 'pen')) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                input.click();
+            }
         }
 
         function procesarFotoResultado(indice, archivos) {
