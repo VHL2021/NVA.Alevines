@@ -430,7 +430,6 @@
             aspect-ratio: 100 / 16.23;
             container-type: inline-size;
             overflow: hidden;
-            background-color: #111; /* Fondo por defecto */
         }
 
         .recuadro-partido .capa-fondo {
@@ -449,8 +448,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* Si var(--mask-img) no está, mostramos un fallback de color usando bordes. */
-            border: 3px solid var(--color-equipo, #00b0f0);
+            -webkit-mask-image: var(--mask-img);
+            mask-image: var(--mask-img);
+            -webkit-mask-size: 100% 100%;
+            mask-size: 100% 100%;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            background-color: var(--color-equipo, #00b0f0);
             pointer-events: none;
             z-index: 20;
         }
@@ -461,21 +465,21 @@
             left: 0.2%;
             width: 6.5%;
             height: 100%;
-            display: flex;
+            display: none; /*flex;*/
             align-items: center;
             justify-content: center;
-            color: #ffffff;
+            color: #000000;
             font-weight: 800;
             font-style: italic;
             text-transform: uppercase;
-            font-size: 1.8vw;
+            font-size: 2.2cqw;
             transform: rotate(270deg);
             transform-origin: center center;
             white-space: nowrap;
             z-index: 5;
             pointer-events: none;
             user-select: none;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 0.05em 0.05em 0.2em rgba(255,255,255,0.9);
         }
 
         .contenido-recuadro {
@@ -706,7 +710,6 @@
             color: #888;
         }
 
-        /* BOTONES FLOTANTES */
         .btn-captura-pagina {
             position: fixed;
             right: calc(16px + env(safe-area-inset-right));
@@ -728,10 +731,28 @@
             touch-action: manipulation;
             transition: background-color 0.2s, transform 0.15s, opacity 0.2s;
         }
-        .btn-captura-pagina svg { flex-shrink: 0; }
-        .btn-captura-pagina:active { transform: scale(0.96); }
-        @media (hover: hover) and (pointer: fine) { .btn-captura-pagina:hover { background-color: #33c2ff; } }
-        @media (max-width: 480px) { .btn-captura-pagina { padding: 10px 14px; font-size: 0.8em; } }
+        .btn-captura-pagina svg {
+            flex-shrink: 0;
+        }
+        .btn-captura-pagina:active {
+            transform: scale(0.96);
+        }
+        .btn-captura-pagina:disabled {
+            opacity: 0.6;
+            cursor: default;
+            transform: none;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .btn-captura-pagina:hover {
+                background-color: #33c2ff;
+            }
+        }
+        @media (max-width: 480px) {
+            .btn-captura-pagina {
+                padding: 10px 14px;
+                font-size: 0.8em;
+            }
+        }
 
         .btn-guardar-historico {
             position: fixed;
@@ -754,10 +775,29 @@
             touch-action: manipulation;
             transition: background-color 0.2s, transform 0.15s, opacity 0.2s;
         }
-        .btn-guardar-historico svg { flex-shrink: 0; }
-        .btn-guardar-historico:active { transform: scale(0.96); }
-        @media (hover: hover) and (pointer: fine) { .btn-guardar-historico:hover { background-color: #34c759; } }
-        @media (max-width: 480px) { .btn-guardar-historico { padding: 10px 14px; font-size: 0.8em; bottom: calc(16px + env(safe-area-inset-bottom) + 54px); } }
+        .btn-guardar-historico svg {
+            flex-shrink: 0;
+        }
+        .btn-guardar-historico:active {
+            transform: scale(0.96);
+        }
+        .btn-guardar-historico:disabled {
+            opacity: 0.6;
+            cursor: default;
+            transform: none;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .btn-guardar-historico:hover {
+                background-color: #34c759;
+            }
+        }
+        @media (max-width: 480px) {
+            .btn-guardar-historico {
+                padding: 10px 14px;
+                font-size: 0.8em;
+                bottom: calc(16px + env(safe-area-inset-bottom) + 54px);
+            }
+        }
 
         .btn-cargar-datos {
             position: fixed;
@@ -780,11 +820,31 @@
             touch-action: manipulation;
             transition: background-color 0.2s, transform 0.15s, opacity 0.2s;
         }
-        .btn-cargar-datos svg { flex-shrink: 0; }
-        .btn-cargar-datos:active { transform: scale(0.96); }
-        @media (hover: hover) and (pointer: fine) { .btn-cargar-datos:hover { background-color: #ffa726; } }
-        @media (max-width: 480px) { .btn-cargar-datos { padding: 10px 14px; font-size: 0.8em; bottom: calc(16px + env(safe-area-inset-bottom) + 108px); } }
+        .btn-cargar-datos svg {
+            flex-shrink: 0;
+        }
+        .btn-cargar-datos:active {
+            transform: scale(0.96);
+        }
+        .btn-cargar-datos:disabled {
+            opacity: 0.6;
+            cursor: default;
+            transform: none;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .btn-cargar-datos:hover {
+                background-color: #ffa726;
+            }
+        }
+        @media (max-width: 480px) {
+            .btn-cargar-datos {
+                padding: 10px 14px;
+                font-size: 0.8em;
+                bottom: calc(16px + env(safe-area-inset-bottom) + 108px);
+            }
+        }
 
+        /* BOTÓN TOGGLE MODO (PARTIDOS / RESULTADOS) */
         .btn-toggle-modo {
             position: fixed;
             right: calc(16px + env(safe-area-inset-right));
@@ -806,11 +866,30 @@
             touch-action: manipulation;
             transition: background-color 0.2s, transform 0.15s, opacity 0.2s;
         }
-        .btn-toggle-modo svg { flex-shrink: 0; }
-        .btn-toggle-modo:active { transform: scale(0.96); }
-        @media (hover: hover) and (pointer: fine) { .btn-toggle-modo:hover { background-color: #f48fb1; } }
-        @media (max-width: 480px) { .btn-toggle-modo { padding: 10px 14px; font-size: 0.8em; bottom: calc(16px + env(safe-area-inset-bottom) + 162px); } }
+        .btn-toggle-modo svg {
+            flex-shrink: 0;
+        }
+        .btn-toggle-modo:active {
+            transform: scale(0.96);
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .btn-toggle-modo:hover {
+                background-color: #f48fb1;
+            }
+        }
+        @media (max-width: 480px) {
+            .btn-toggle-modo {
+                padding: 10px 14px;
+                font-size: 0.8em;
+                bottom: calc(16px + env(safe-area-inset-bottom) + 162px);
+            }
+        }
 
+        /* ================================================================
+           MENÚ FLOTANTE DE ACCIONES
+           - Las acciones permanecen ocultas hasta pulsar <.
+           - El botón < se desplaza a la izquierda y pasa a ser >.
+           ================================================================ */
         .btn-menu-flotante-toggle {
             position: fixed;
             right: calc(16px + env(safe-area-inset-right));
@@ -852,8 +931,13 @@
             transform: translateX(24px);
         }
         @media (max-width: 480px) {
-            .btn-menu-flotante-toggle { width: 42px; height: 42px; }
-            .menu-flotantes-abierto .btn-menu-flotante-toggle { right: calc(16px + env(safe-area-inset-right) + 205px); }
+            .btn-menu-flotante-toggle {
+                width: 42px;
+                height: 42px;
+            }
+            .menu-flotantes-abierto .btn-menu-flotante-toggle {
+                right: calc(16px + env(safe-area-inset-right) + 205px);
+            }
         }
 
         .selector-hora-wrap {
@@ -863,95 +947,361 @@
             align-items: center;
             padding: 20px 0;
         }
-        .col-select { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        .col-select label { font-size: 0.9em; color: #aaa; font-weight: bold; }
-        .select-custom {
-            background-color: #242424; color: #fff; border: 2px solid #00b0f0; border-radius: 6px;
-            padding: 10px 16px; font-size: 1.5em; font-weight: bold; outline: none; cursor: pointer;
+        .col-select {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
         }
-        .select-custom option { background-color: #1a1a1a; color: #fff; }
+        .col-select label {
+            font-size: 0.9em;
+            color: #aaa;
+            font-weight: bold;
+        }
+        .select-custom {
+            background-color: #242424;
+            color: #fff;
+            border: 2px solid #00b0f0;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-size: 1.5em;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+        }
+        .select-custom option {
+            background-color: #1a1a1a;
+            color: #fff;
+        }
 
-        .item-rival { cursor: pointer; transition: all 0.2s ease-in-out; border-left: 4px solid transparent; }
-        @media (hover: hover) and (pointer: fine) { .item-rival:hover { background-color: rgba(255, 255, 255, 0.08); } }
-        .fila-misma-categoria { background: linear-gradient(90deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.02) 100%) !important; border-left: 4px solid #28a745 !important; }
-        @media (hover: hover) and (pointer: fine) { .fila-misma-categoria:hover { background: linear-gradient(90deg, rgba(40, 167, 69, 0.3) 0%, rgba(40, 167, 69, 0.08) 100%) !important; } }
-        .badge-cat-misma { display: inline-block; background-color: rgba(40, 167, 69, 0.2); color: #51e879; border: 1px solid rgba(40, 167, 69, 0.5); padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.85em; }
-        .badge-cat-sin { color: #777; font-style: italic; font-size: 0.85em; }
+        .item-rival {
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border-left: 4px solid transparent;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .item-rival:hover {
+                background-color: rgba(255, 255, 255, 0.08);
+            }
+        }
+        .fila-misma-categoria {
+            background: linear-gradient(90deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.02) 100%) !important;
+            border-left: 4px solid #28a745 !important;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .fila-misma-categoria:hover {
+                background: linear-gradient(90deg, rgba(40, 167, 69, 0.3) 0%, rgba(40, 167, 69, 0.08) 100%) !important;
+            }
+        }
+        .badge-cat-misma {
+            display: inline-block;
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #51e879;
+            border: 1px solid rgba(40, 167, 69, 0.5);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+        .badge-cat-sin {
+            color: #777;
+            font-style: italic;
+            font-size: 0.85em;
+        }
 
         .input-modal-texto {
-            width: 100%; background: #242424; color: #fff; border: 2px solid #00b0f0; border-radius: 6px;
-            padding: 12px 14px; font-size: 1.1em; font-weight: bold; outline: none; box-sizing: border-box; text-transform: uppercase;
+            width: 100%;
+            background: #242424;
+            color: #fff;
+            border: 2px solid #00b0f0;
+            border-radius: 6px;
+            padding: 12px 14px;
+            font-size: 1.1em;
+            font-weight: bold;
+            outline: none;
+            box-sizing: border-box;
+            text-transform: uppercase;
         }
 
         @media (max-width: 600px) {
-            .modal-content { width: 96% !important; margin: auto; }
-            .modal-header { padding: 10px 12px; }
-            .modal-header h2 { font-size: 1.1em; }
-            .modal-body { padding: 8px 4px; }
-            table { width: 100%; table-layout: auto; }
-            th, td { padding: 6px 3px !important; font-size: 0.8em; }
-            .team-icon { width: 28px !important; height: 28px !important; }
-            .btn-casa, .btn-fuera { padding: 4px 5px !important; margin: 0 1px !important; font-size: 0.72em !important; border-width: 1.5px; }
-            .acciones-td { white-space: nowrap; padding-left: 2px !important; padding-right: 2px !important; }
+            .modal-content {
+                width: 96% !important;
+                margin: auto;
+            }
+
+            .modal-header {
+                padding: 10px 12px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.1em;
+            }
+
+            .modal-body {
+                padding: 8px 4px;
+            }
+
+            table {
+                width: 100%;
+                table-layout: auto;
+            }
+
+            th, td {
+                padding: 6px 3px !important;
+                font-size: 0.8em;
+            }
+
+            .team-icon {
+                width: 28px !important;
+                height: 28px !important;
+            }
+
+            .btn-casa, .btn-fuera {
+                padding: 4px 5px !important;
+                margin: 0 1px !important;
+                font-size: 0.72em !important;
+                border-width: 1.5px;
+            }
+
+            .acciones-td {
+                white-space: nowrap;
+                padding-left: 2px !important;
+                padding-right: 2px !important;
+            }
         }
     
-        /* FOTOGRAFÍAS PARA EL MODO RESULTADOS */
-        #contenedorFotosResultados { display: none; width: 100%; padding: 1vh 1.2vw 4vh; gap: 1.5vw; justify-content: center; align-items: stretch; }
-        body.modo-resultados #contenedorFotosResultados { display: flex; }
+        /* ================================================================
+           FOTOGRAFÍAS PARA EL MODO RESULTADOS
+           - Solo se muestran cuando body tiene .modo-resultados.
+           - Cada recuadro permite cargar una fotografía.
+           - El selector de color aparece al pasar el ratón por la esquina
+             superior izquierda del recuadro y también funciona con teclado/táctil.
+           ================================================================ */
+        #contenedorFotosResultados {
+            display: none;
+            width: 100%;
+            padding: 1vh 1.2vw 4vh;
+            gap: 1.5vw;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        body.modo-resultados #contenedorFotosResultados {
+            display: flex;
+        }
 
         .foto-resultado {
-            position: relative; flex: 1 1 0; min-width: 0; aspect-ratio: 16 / 9;
-            border: 8px solid var(--foto-color, #c28b06); border-radius: 10px; background: #111;
-            overflow: hidden; cursor: pointer; box-shadow: 0 5px 18px rgba(0,0,0,.45);
+            position: relative;
+            flex: 1 1 0;
+            min-width: 0;
+            aspect-ratio: 16 / 9;
+            border: 8px solid var(--foto-color, #c28b06);
+            border-radius: 10px;
+            background: #111;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 5px 18px rgba(0,0,0,.45);
             transition: border-color .2s ease, box-shadow .2s ease;
         }
-        .foto-resultado:focus-within, .foto-resultado:hover { box-shadow: 0 7px 24px rgba(0,0,0,.6); }
 
-        .foto-resultado img {
-            position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
-            display: none; transform-origin: center center; will-change: transform;
-            user-select: none; -webkit-user-select: none; -webkit-user-drag: none; touch-action: none; cursor: grab;
+        .foto-resultado:focus-within,
+        .foto-resultado:hover {
+            box-shadow: 0 7px 24px rgba(0,0,0,.6);
         }
-        .foto-resultado.has-image img:active { cursor: grabbing; }
-        .foto-resultado.has-image img { display: block; }
+
+        /* La fotografía se transforma mediante JavaScript para permitir zoom y desplazamiento. */
+        .foto-resultado img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+            transform-origin: center center;
+            will-change: transform;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-user-drag: none;
+            touch-action: none;
+            cursor: grab;
+        }
+
+        .foto-resultado.has-image img:active {
+            cursor: grabbing;
+        }
+
+        .foto-resultado.has-image img {
+            display: block;
+        }
 
         .foto-resultado-placeholder {
-            position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 8px; padding: 20px; color: #aaa; text-align: center; font-size: clamp(.75rem, 1.5vw, 1.1rem); font-weight: 700; letter-spacing: .04em; user-select: none;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 20px;
+            color: #aaa;
+            text-align: center;
+            font-size: clamp(.75rem, 1.5vw, 1.1rem);
+            font-weight: 700;
+            letter-spacing: .04em;
+            user-select: none;
         }
-        .foto-resultado.has-image .foto-resultado-placeholder { display: none; }
-        .foto-resultado-placeholder svg { width: clamp(30px, 4vw, 52px); height: clamp(30px, 4vw, 52px); opacity: .8; }
 
-        .foto-selector-color { position: absolute; top: 0; left: 0; z-index: 30; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 7px; }
-        .foto-boton-color {
-            width: 34px; height: 34px; padding: 0; border: 1px solid rgba(255,255,255,.65); border-radius: 6px;
-            background: rgba(0,0,0,.78); color: #fff; cursor: pointer; font-size: 18px; line-height: 1; touch-action: manipulation;
+        .foto-resultado.has-image .foto-resultado-placeholder {
+            display: none;
         }
-        .foto-boton-color:active { transform: scale(.94); }
+
+        .foto-resultado-placeholder svg {
+            width: clamp(30px, 4vw, 52px);
+            height: clamp(30px, 4vw, 52px);
+            opacity: .8;
+        }
+
+        .foto-selector-color {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 30;
+            display: flex;
+            align-items: flex-start;
+            padding: 7px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-4px);
+            transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+        }
+
+        /* La paleta permanece SIEMPRE cerrada hasta pulsar el botón PALETA. */
+        .foto-resultado .foto-selector-color {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-4px);
+            pointer-events: none;
+        }
+
+        .foto-resultado.mostrar-selector-color .foto-selector-color {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
         .foto-paleta-colores {
-            display: none; flex-wrap: wrap; gap: 5px; max-width: 190px; padding: 6px; border: 2px solid rgba(255,255,255,.8);
-            border-radius: 6px; background: rgba(0,0,0,.88); box-shadow: 0 3px 10px rgba(0,0,0,.5);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-width: 190px;
+            padding: 6px;
+            border: 2px solid rgba(255,255,255,.8);
+            border-radius: 6px;
+            background: rgba(0,0,0,.88);
+            box-shadow: 0 3px 10px rgba(0,0,0,.5);
         }
-        .foto-resultado.mostrar-selector-color .foto-paleta-colores { display: flex; }
+
         .foto-color-muestra {
-            width: 24px; height: 24px; min-width: 24px; padding: 0; border: 2px solid rgba(255,255,255,.75);
-            border-radius: 3px; cursor: pointer; outline: none; box-sizing: border-box; transition: transform .12s ease, border-color .12s ease; touch-action: manipulation;
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            padding: 0;
+            border: 2px solid rgba(255,255,255,.75);
+            border-radius: 3px;
+            cursor: pointer;
+            outline: none;
+            box-sizing: border-box;
+            transition: transform .12s ease, border-color .12s ease;
         }
-        @media (hover: hover) and (pointer: fine) { .foto-color-muestra:hover, .foto-color-muestra:focus-visible { transform: scale(1.15); border-color: #fff; } }
-        .foto-color-muestra[aria-checked="true"] { border: 3px solid #fff; box-shadow: 0 0 0 2px var(--foto-color, #c28b06); }
+
+        .foto-color-muestra:hover,
+        .foto-color-muestra:focus-visible {
+            transform: scale(1.15);
+            border-color: #fff;
+        }
+
+        .foto-color-muestra[aria-checked="true"] {
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 2px var(--foto-color, #c28b06);
+        }
+
+        /* Botón PALETA: único elemento que abre/cierra el selector de colores. */
+        .foto-boton-color {
+            position: absolute;
+            left: 8px;
+            bottom: 8px;
+            z-index: 31;
+            display: block;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 1px solid rgba(255,255,255,.65);
+            border-radius: 50%;
+            background: rgba(0,0,0,.72);
+            color: #fff;
+            font-size: 18px;
+            line-height: 32px;
+            text-align: center;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
 
         .foto-boton-cambiar {
-            position: absolute; right: 8px; bottom: 8px; z-index: 25; display: none; padding: 7px 10px; border: 1px solid rgba(255,255,255,.5);
-            border-radius: 6px; background: rgba(0,0,0,.72); color: #fff; font: 700 .75rem Arial, sans-serif; cursor: pointer; touch-action: manipulation;
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            z-index: 25;
+            display: none;
+            padding: 7px 10px;
+            border: 1px solid rgba(255,255,255,.5);
+            border-radius: 6px;
+            background: rgba(0,0,0,.72);
+            color: #fff;
+            font: 700 .75rem Arial, sans-serif;
+            cursor: pointer;
         }
-        .foto-resultado.has-image:hover .foto-boton-cambiar, .foto-resultado.has-image:focus-within .foto-boton-cambiar { display: block; }
+
+        .foto-resultado.has-image:hover .foto-boton-cambiar,
+        .foto-resultado.has-image:focus-within .foto-boton-cambiar {
+            display: block;
+        }
+
         @media (max-width: 600px) {
-            #contenedorFotosResultados { flex-direction: column; gap: 12px; padding-left: 10px; padding-right: 10px; }
-            .foto-resultado { width: 100%; flex: none; aspect-ratio: 16 / 9; border-width: 6px; }
-            .foto-boton-cambiar { display: block; }
+            #contenedorFotosResultados {
+                flex-direction: column;
+                gap: 12px;
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .foto-resultado {
+                width: 100%;
+                flex: none;
+                aspect-ratio: 16 / 9;
+                border-width: 6px;
+            }
+
+            .foto-boton-cambiar {
+                display: block;
+            }
         }
-        .sr-only { position:absolute !important; width:1px !important; height:1px !important; padding:0 !important; margin:-1px !important; overflow:hidden !important; clip:rect(0,0,0,0) !important; white-space:nowrap !important; border:0 !important; }
-    </style>
+
+
+        .sr-only {
+            position:absolute !important;
+            width:1px !important;
+            height:1px !important;
+            padding:0 !important;
+            margin:-1px !important;
+            overflow:hidden !important;
+            clip:rect(0,0,0,0) !important;
+            white-space:nowrap !important;
+            border:0 !important;
+        }
+
+</style>
 </head>
 <body>
     <div id="errorCargaDatos" role="alert" aria-live="assertive" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; width:min(720px,calc(100% - 40px)); box-sizing:border-box; padding:18px 22px; background:#7f1d1d; color:#fff; border:2px solid #ef4444; border-radius:10px; box-shadow:0 8px 30px rgba(0,0,0,.45); font-family:Arial,sans-serif;">
@@ -960,10 +1310,10 @@
         <div style="font-size:13px;line-height:1.5;margin-top:8px;">Comprueba que <strong>DATOS.xls</strong> está en la misma carpeta que este archivo HTML y que la aplicación se está ejecutando mediante un servidor local (por ejemplo, Live Server).</div>
     </div>
 
-    <div id="areaCaptura" style="background-color: #000000; width: 100%; overflow: hidden; position: relative;">
+
+    <div id="areaCaptura" style="background-color: #000000; width: 100%; overflow: hidden;">
         <div class="header-container" id="cabeceraContainer">
-            <!-- Imagen base o de cabecera -->
-            <img src="Imagenes/Titulo Base.png" class="header-img" alt="Nou Volei Alzira Calendario" onerror="this.onerror=null; this.src=''; this.style.backgroundColor='#111'; this.style.height='150px';">
+            <img src="Imagenes/Titulo Base.png" class="header-img" alt="Nou Volei Alzira Calendario" onerror="this.onerror=null; this.src='';">
             <div class="header-hotspot-calendario" onclick="abrirCalendarioRango()" title="Haz clic para seleccionar la fecha"></div>
             <div class="header-texto-fecha" id="headerTextoFecha"></div>
         </div>
@@ -981,9 +1331,9 @@
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();activarCargaFoto(event,1);}">
                 <div class="foto-selector-color no-captura" onclick="event.stopPropagation()">
                     <span class="foto-colores-label sr-only">Color del marco de la primera fotografía</span>
-                    <button type="button" class="foto-boton-color" aria-label="Elegir color del marco de la primera fotografía" title="Elegir color" onclick="event.preventDefault(); event.stopPropagation(); alternarSelectorColorFoto(1)">🎨</button>
                     <div id="selectorColorFoto1" class="foto-paleta-colores" role="radiogroup" aria-label="Color del marco de la primera fotografía"></div>
                 </div>
+                <button type="button" class="foto-boton-color no-captura" aria-label="Elegir color del marco de la primera fotografía" title="Elegir color" onclick="event.preventDefault(); event.stopPropagation(); alternarSelectorColorFoto(1)">🎨</button>
                 <img id="imagenResultado1" alt="Primera fotografía del resultado">
                 <div class="foto-resultado-placeholder">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
@@ -1005,9 +1355,9 @@
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();activarCargaFoto(event,2);}">
                 <div class="foto-selector-color no-captura" onclick="event.stopPropagation()">
                     <span class="foto-colores-label sr-only">Color del marco de la segunda fotografía</span>
-                    <button type="button" class="foto-boton-color" aria-label="Elegir color del marco de la segunda fotografía" title="Elegir color" onclick="event.preventDefault(); event.stopPropagation(); alternarSelectorColorFoto(2)">🎨</button>
                     <div id="selectorColorFoto2" class="foto-paleta-colores" role="radiogroup" aria-label="Color del marco de la segunda fotografía"></div>
                 </div>
+                <button type="button" class="foto-boton-color no-captura" aria-label="Elegir color del marco de la segunda fotografía" title="Elegir color" onclick="event.preventDefault(); event.stopPropagation(); alternarSelectorColorFoto(2)">🎨</button>
                 <img id="imagenResultado2" alt="Segunda fotografía del resultado">
                 <div class="foto-resultado-placeholder">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
@@ -1023,9 +1373,9 @@
                        onchange="procesarFotoResultado(2, this.files)">
             </div>
         </div>
+
     </div>
 
-    <!-- Modals -->
     <div class="modal-overlay" id="modalDateRange">
         <div class="date-range-modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #333; padding-bottom: 10px;">
@@ -1038,8 +1388,13 @@
                 <button type="button" onclick="cambiarMesRango(1)">&gt;</button>
             </div>
             <div class="cal-grid">
-                <div class="cal-day-name">Lu</div><div class="cal-day-name">Ma</div><div class="cal-day-name">Mi</div>
-                <div class="cal-day-name">Ju</div><div class="cal-day-name">Vi</div><div class="cal-day-name">Sá</div><div class="cal-day-name">Do</div>
+                <div class="cal-day-name">Lu</div>
+                <div class="cal-day-name">Ma</div>
+                <div class="cal-day-name">Mi</div>
+                <div class="cal-day-name">Ju</div>
+                <div class="cal-day-name">Vi</div>
+                <div class="cal-day-name">Sá</div>
+                <div class="cal-day-name">Do</div>
             </div>
             <div class="cal-grid" id="calDiasGrid"></div>
         </div>
@@ -1059,9 +1414,23 @@
                     <label for="inputCampoJuego">CAMPO DE JUEGO:</label>
                     <input type="text" id="inputCampoJuego" class="campo-juego-input" value="PALAU D'ESPORTS (ALZIRA)" placeholder="Nombre del campo..." oninput="sincronizarCampoJuegoDesdeModal(this.value)" />
                 </div>
+
                 <table id="tablaEquipos">
-                    <thead><tr><th style="width: 40px;">Logo</th><th>Nombre</th><th style="text-align: center;">Juega</th><th style="text-align: center;">Hora</th></tr></thead>                            
-                    <tbody id="tablaBody"><tr><td colspan="4" style="text-align:center; padding: 25px; color: #888;">Cargando equipos...</td></tr></tbody>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">Logo</th>
+                            <th>Nombre</th>
+                            <th style="text-align: center;">Juega</th>
+                            <th style="text-align: center;">Hora</th>
+                        </tr>
+                    </thead>                            
+                    <tbody id="tablaBody">
+                        <tr>
+                            <td colspan="4" style="text-align:center; padding: 25px; color: #888;">
+                                Cargando equipos...
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -1075,8 +1444,15 @@
             </div>
             <div class="modal-body">
                 <table id="tablaRivales">
-                    <thead><tr><th style="width: 70px;">Logo</th><th>Nombre</th><th>Categoría</th></tr></thead>
-                    <tbody id="tablaRivalesBody"></tbody>
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">Logo</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaRivalesBody">
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -1084,10 +1460,14 @@
 
     <div class="modal-overlay" id="modalEditarRival">
         <div class="modal-content" style="max-width: 480px;">
-            <div class="modal-header"><h2>Modificar Nombre de Rival</h2></div>
+            <div class="modal-header">
+                <h2>Modificar Nombre de Rival</h2>
+            </div>
             <div class="modal-body">
                 <p style="color: #bbb; font-size: 0.9em; margin-top: 0;">El equipo seleccionado no pertenece exactamente a la misma categoría. Puedes modificar su nombre antes de agregarlo:</p>
-                <div style="margin: 15px 0;"><input type="text" id="inputEditarNombreRival" class="input-modal-texto" autocomplete="off" /></div>
+                <div style="margin: 15px 0;">
+                    <input type="text" id="inputEditarNombreRival" class="input-modal-texto" autocomplete="off" />
+                </div>
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
                     <button class="btn-reset" style="background-color: #555;" onclick="cerrarModalEditarRival()">CANCELAR</button>
                     <button class="btn-aceptar" onclick="confirmarEdicionRival()">APLICAR</button>
@@ -1104,9 +1484,20 @@
             </div>
             <div class="modal-body">
                 <div class="selector-hora-wrap">
-                    <div class="col-select"><label for="selectHoras">HORA</label><select id="selectHoras" class="select-custom"></select></div>
+                    <div class="col-select">
+                        <label for="selectHoras">HORA</label>
+                        <select id="selectHoras" class="select-custom"></select>
+                    </div>
                     <span style="font-size: 2em; font-weight: bold; margin-top: 20px;">:</span>
-                    <div class="col-select"><label for="selectMinutos">MINUTOS</label><select id="selectMinutos" class="select-custom"><option value="00" selected>00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option></select></div>
+                    <div class="col-select">
+                        <label for="selectMinutos">MINUTOS</label>
+                        <select id="selectMinutos" class="select-custom">
+                            <option value="00" selected>00</option>
+                            <option value="15">15</option>
+                            <option value="30">30</option>
+                            <option value="45">45</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1129,32 +1520,38 @@
         </div>
     </div>
 
-    <!-- Acciones Flotantes -->
     <input type="file" id="inputCargarDatos" accept=".txt,text/plain" style="display: none;" onchange="procesarArchivoDatos(this.files)" />
 
     <button type="button" id="btnMenuFlotanteToggle" class="btn-menu-flotante-toggle no-captura" onclick="toggleMenuFlotante()" aria-label="Mostrar acciones flotantes" aria-expanded="false">&lt;</button>
 
     <button type="button" id="btnToggleModo" class="btn-toggle-modo no-captura" onclick="toggleModoPartidosResultados()" aria-label="Cambiar entre partidos y resultados">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
         <span id="btnToggleModoTexto">PARTIDOS</span>
     </button>
 
     <button type="button" id="btnCapturarPagina" class="btn-captura-pagina no-captura" onclick="capturarPaginaComoJPG()" aria-label="Descargar imagen de los partidos">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M9 3l-1.83 2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+            <path d="M9 3l-1.83 2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2h-3.17L15 3H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+        </svg>
         <span id="btnCapturarTexto">Descargar imagen</span>
     </button>
 
     <button type="button" id="btnGuardarHistorico" class="btn-guardar-historico no-captura" onclick="guardarHistorico()" aria-label="Guardar datos en el histórico">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+        </svg>
         <span id="btnGuardarHistoricoTexto">Guardar DATOS</span>
     </button>
 
     <button type="button" id="btnCargarDatos" class="btn-cargar-datos no-captura" onclick="abrirExploradorCargarDatos()" aria-label="Cargar DATOS desde archivo TXT">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+        </svg>
         <span id="btnCargarDatosTexto">Cargar DATOS</span>
     </button>
 
-    <!-- Funciones Script -->
     <script>
         const equiposRespaldo = [
             {"LOGO": "Enova NVA - Infantil", "EQUIPO": "ENOVA NVA", "CATEGORIA": "INFANTIL 2ª DIVISION", "COLOR": "#c28b06", "CAMPO": "PALAU D'ESPORTS (ALZIRA)"},
@@ -1189,39 +1586,36 @@
 
         let contadorModalesAbiertos = 0;
         let scrollYAntesDelModal = 0;
-        let mapaDatosPartidos = {};
-        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
-        let calFechaVista = new Date();
-        let calFechaInicio = null;
-        let calFechaFin = null;
-        let temporizadorCierreRango = null;
-        let calFechaInicioEfectiva = null;
-        let calFechaFinEfectiva = null;
-
-        // INICIALIZACIÓN
-        window.onload = () => {
-            if (listaEquiposGlobal.length === 0) {
-                listaEquiposGlobal = equiposRespaldo;
-                listaOtrosEquiposGlobal = equiposRespaldo;
-            }
-            poblarSelectoresColorFotos();
-            abrirModal();
-        };
-
-        // NORMALIZACIÓN
         function normalizarTexto(valor) {
-            return String(valor ?? '').replace(/^\uFEFF/, '').replace(/[\u00A0]/g, ' ').replace(/\s+/g, ' ').trim();
+            return String(valor ?? '')
+                .replace(/^\uFEFF/, '')
+                .replace(/[\u00A0]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
         }
+
         function normalizarClave(valor) {
-            return normalizarTexto(valor).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+            return normalizarTexto(valor)
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toUpperCase();
         }
+
         function escaparHTML(valor) {
-            return normalizarTexto(valor).replace(/[&<>'"]/g, caracter => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[caracter]);
+            return normalizarTexto(valor).replace(/[&<>'"]/g, caracter => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            })[caracter]);
         }
+
         function normalizarRegistroEquipo(registro) {
             const resultado = { LOGO: '', EQUIPO: '', CATEGORIA: '', COLOR: '', CAMPO: '' };
             if (!registro || typeof registro !== 'object') return resultado;
+
             const alias = {
                 LOGO: ['LOGO', 'LOGOS', 'ESCUDO', 'IMAGEN'],
                 EQUIPO: ['EQUIPO', 'NOMBRE', 'NOMBRE EQUIPO', 'TEAM'],
@@ -1229,6 +1623,7 @@
                 COLOR: ['COLOR', 'COLOUR', 'COLOR EQUIPO'],
                 CAMPO: ['CAMPO', 'CAMPO DE JUEGO', 'PISTA', 'PABELLON', 'PABELLÓN']
             };
+
             Object.entries(registro).forEach(([clave, valor]) => {
                 const claveNormalizada = normalizarClave(clave);
                 for (const campo of Object.keys(alias)) {
@@ -1238,46 +1633,86 @@
                     }
                 }
             });
+
             return resultado;
         }
+
         function normalizarListaEquipos(lista) {
             if (!Array.isArray(lista)) return [];
-            return lista.map(normalizarRegistroEquipo).filter(eq => eq.EQUIPO || eq.CATEGORIA || eq.LOGO);
+            return lista
+                .map(normalizarRegistroEquipo)
+                .filter(eq => eq.EQUIPO || eq.CATEGORIA || eq.LOGO);
         }
+
         function obtenerRutaLogo(nombreLogo) {
             let nombre = normalizarTexto(nombreLogo);
             if (!nombre) return 'LOGOs/noescudo.png';
-            nombre = nombre.replace(/\\/g, '/').split('/').pop().trim();
-            try { nombre = decodeURIComponent(nombre); } catch (e) {}
+
+            nombre = nombre.replace(/\\/g, '/');
+            nombre = nombre.split('/').pop().trim();
+
+            try {
+                nombre = decodeURIComponent(nombre);
+            } catch (e) {}
+
             nombre = nombre.replace(/\.png$/i, '');
             return `LOGOs/${encodeURIComponent(nombre)}.png`;
         }
+
+        function obtenerCandidatosLogo(nombreLogo) {
+            return [obtenerRutaLogo(nombreLogo)];
+        }
+
         function configurarLogo(img, nombreLogo, fallback = 'LOGOs/noescudo.png') {
             if (!img) return;
-            const candidatos = [obtenerRutaLogo(nombreLogo)];
+
+            const candidatos = obtenerCandidatosLogo(nombreLogo);
             let indice = 0;
             const rutaInicial = candidatos[0];
+
             img.dataset.logoNombre = normalizarTexto(nombreLogo);
+            img.dataset.logoRutaIntentada = rutaInicial;
+            img.dataset.logoFallback = fallback;
             img.title = `Logo: ${rutaInicial}`;
+
             img.onerror = function() {
                 const rutaFallida = candidatos[indice] || rutaInicial;
                 indice++;
-                if (indice < candidatos.length) { this.src = candidatos[indice]; } else { this.onerror = null; this.src = fallback; }
+                if (indice < candidatos.length) {
+                    this.src = candidatos[indice];
+                } else {
+                    this.onerror = null;
+                    this.src = fallback;
+                }
             };
+
             img.src = rutaInicial;
         }
+
         function obtenerColorEquipo(equipo) {
             if (!equipo) return '#00b0f0';
-            let color = normalizarTexto(equipo.COLOR) || '#00b0f0';
+            const valor = normalizarTexto(equipo.COLOR);
+            if (!valor) return '#00b0f0';
+
+            let color = valor;
             if (/^[0-9A-Fa-f]{6}$/.test(color)) color = '#' + color;
             if (/^[0-9A-Fa-f]{3}$/.test(color)) color = '#' + color;
-            return color;
+            if (/^#[0-9A-Fa-f]{6}$/.test(color) || /^#[0-9A-Fa-f]{3}$/.test(color) || /^(rgb|rgba|hsl|hsla)\(/i.test(color)) {
+                return color;
+            }
+            return '#00b0f0';
         }
 
-        // FUNCIONES UI BÁSICAS
-        function sincronizarCampoJuegoDesdeHeader(val) { const inM = document.getElementById('inputCampoJuego'); if (inM) inM.value = val; }
-        function sincronizarCampoJuegoDesdeModal(val) { const inH = document.getElementById('headerInputCampoJuego'); if (inH) inH.value = val; }
-        
+        function sincronizarCampoJuegoDesdeHeader(val) {
+            const inputModal = document.getElementById('inputCampoJuego');
+            if (inputModal) inputModal.value = val;
+        }
+
+        function sincronizarCampoJuegoDesdeModal(val) {
+            const inputHeader = document.getElementById('headerInputCampoJuego');
+            if (inputHeader) inputHeader.value = val;
+        }
+
         function alAbrirModal() {
             contadorModalesAbiertos++;
             if (contadorModalesAbiertos === 1) {
@@ -1285,24 +1720,35 @@
                 document.body.classList.add('modal-abierto');
                 document.body.style.position = 'fixed';
                 document.body.style.top = `-${scrollYAntesDelModal}px`;
+                document.body.style.left = '0';
+                document.body.style.right = '0';
                 document.body.style.width = '100%';
             }
         }
+
         function alCerrarModal() {
             contadorModalesAbiertos = Math.max(0, contadorModalesAbiertos - 1);
             if (contadorModalesAbiertos === 0) {
                 document.body.classList.remove('modal-abierto');
                 document.body.style.position = '';
                 document.body.style.top = '';
+                document.body.style.left = '';
+                document.body.style.right = '';
                 document.body.style.width = '';
                 window.scrollTo(0, scrollYAntesDelModal);
             }
         }
+
         function toggleMenuFlotante() {
             const abierto = document.body.classList.toggle('menu-flotantes-abierto');
             const boton = document.getElementById('btnMenuFlotanteToggle');
-            if (boton) { boton.textContent = abierto ? '>' : '<'; boton.setAttribute('aria-expanded', abierto); }
+            if (boton) {
+                boton.textContent = abierto ? '>' : '<';
+                boton.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+                boton.setAttribute('aria-label', abierto ? 'Ocultar acciones flotantes' : 'Mostrar acciones flotantes');
+            }
         }
+
         function toggleModoPartidosResultados() {
             modoResultados = !modoResultados;
             const btnTexto = document.getElementById('btnToggleModoTexto');
@@ -1316,19 +1762,52 @@
             }
         }
 
-        // FECHA Y CALENDARIO
+        function abrirModalTanteo(elBox) {
+            elementoTanteoActual = elBox;
+            modalTanteo.style.display = 'flex';
+            alAbrirModal();
+        }
+
+        function cerrarModalTanteo() {
+            modalTanteo.style.display = 'none';
+            alCerrarModal();
+        }
+
+        function seleccionarTanteoValor(val) {
+            if (elementoTanteoActual) {
+                elementoTanteoActual.textContent = val;
+            }
+            cerrarModalTanteo();
+        }
+
+        let mapaDatosPartidos = {};
+        const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        let calFechaVista = new Date();
+        let calFechaInicio = null;
+        let calFechaFin = null;
+        let temporizadorCierreRango = null;
+        let calFechaInicioEfectiva = null;
+        let calFechaFinEfectiva = null;
+
         function abrirCalendarioRango() {
             modalDateRange.style.display = 'flex';
             alAbrirModal();
+
             if (calFechaInicioEfectiva) {
                 calFechaInicio = new Date(calFechaInicioEfectiva.getTime());
+                calFechaInicio.setHours(0, 0, 0, 0);
                 calFechaFin = new Date(calFechaInicioEfectiva.getTime());
+                calFechaFin.setHours(0, 0, 0, 0);
                 calFechaVista = new Date(calFechaInicio.getFullYear(), calFechaInicio.getMonth(), 1);
             } else {
-                calFechaVista = new Date(); calFechaInicio = null; calFechaFin = null;
+                calFechaVista = new Date();
+                calFechaInicio = null;
+                calFechaFin = null;
             }
             renderizarCalendarioRango();
         }
+
         function confirmarRangoActual() {
             if (calFechaInicio) {
                 calFechaFin = new Date(calFechaInicio.getTime());
@@ -1336,460 +1815,1197 @@
                 calFechaFinEfectiva = new Date(calFechaInicio.getTime());
                 escribirTextoFechaEnCabecera(calFechaInicioEfectiva, calFechaFinEfectiva);
             }
-            modalDateRange.style.display = 'none'; alCerrarModal(); abrirModal();
+            modalDateRange.style.display = 'none';
+            alCerrarModal();
+            abrirModal();
         }
+
         function seleccionarFechaRango(fecha) {
             if (temporizadorCierreRango) clearTimeout(temporizadorCierreRango);
-            const f = new Date(fecha.getTime()); f.setHours(0, 0, 0, 0);
-            calFechaInicio = f; calFechaFin = f;
+
+            const f = new Date(fecha.getTime());
+            f.setHours(0, 0, 0, 0);
+
+            calFechaInicio = f;
+            calFechaFin = f;
+
             renderizarCalendarioRango();
+
             calFechaInicioEfectiva = new Date(calFechaInicio.getTime());
             calFechaFinEfectiva = new Date(calFechaFin.getTime());
+
             temporizadorCierreRango = setTimeout(() => {
-                modalDateRange.style.display = 'none'; alCerrarModal();
-                escribirTextoFechaEnCabecera(calFechaInicioEfectiva, calFechaFinEfectiva); abrirModal();
+                modalDateRange.style.display = 'none';
+                alCerrarModal();
+                escribirTextoFechaEnCabecera(calFechaInicioEfectiva, calFechaFinEfectiva);
+                abrirModal();
             }, 300);
         }
-        function cambiarMesRango(delta) { calFechaVista.setMonth(calFechaVista.getMonth() + delta); renderizarCalendarioRango(); }
+
+        function cambiarMesRango(delta) {
+            calFechaVista.setMonth(calFechaVista.getMonth() + delta);
+            renderizarCalendarioRango();
+        }
+
         function renderizarCalendarioRango() {
             if (!calFechaVista) calFechaVista = new Date();
-            const anio = calFechaVista.getFullYear(), mes = calFechaVista.getMonth();
+            const anio = calFechaVista.getFullYear();
+            const mes = calFechaVista.getMonth();
+
             const labelMesAnio = document.getElementById('calMesAnioLabel');
-            if (labelMesAnio) labelMesAnio.textContent = `${meses[mes]} ${anio}`;
+            if (labelMesAnio) {
+                labelMesAnio.textContent = `${meses[mes]} ${anio}`;
+            }
+
             const grid = document.getElementById('calDiasGrid');
-            if (!grid) return; grid.innerHTML = '';
+            if (!grid) return;
+            grid.innerHTML = '';
+
             const primerDia = new Date(anio, mes, 1).getDay();
             const offsetLunes = (primerDia === 0) ? 6 : primerDia - 1;
             const totalDias = new Date(anio, mes + 1, 0).getDate();
+
             for (let i = 0; i < offsetLunes; i++) {
-                const celdaVacia = document.createElement('div'); celdaVacia.className = 'cal-cell empty'; grid.appendChild(celdaVacia);
+                const celdaVacia = document.createElement('div');
+                celdaVacia.className = 'cal-cell empty';
+                grid.appendChild(celdaVacia);
             }
+
             const tInicio = calFechaInicio ? new Date(calFechaInicio.getFullYear(), calFechaInicio.getMonth(), calFechaInicio.getDate()).getTime() : null;
+
             for (let d = 1; d <= totalDias; d++) {
-                const celda = document.createElement('div'); celda.className = 'cal-cell'; celda.textContent = d;
-                const fechaCelda = new Date(anio, mes, d); fechaCelda.setHours(0, 0, 0, 0);
-                if (tInicio !== null && fechaCelda.getTime() === tInicio) celda.classList.add('selected-endpoint');
-                celda.onclick = () => seleccionarFechaRango(fechaCelda); grid.appendChild(celda);
+                const celda = document.createElement('div');
+                celda.className = 'cal-cell';
+                celda.textContent = d;
+
+                const fechaCelda = new Date(anio, mes, d);
+                fechaCelda.setHours(0, 0, 0, 0);
+                const tCelda = fechaCelda.getTime();
+
+                if (tInicio !== null && tCelda === tInicio) celda.classList.add('selected-endpoint');
+
+                celda.onclick = () => seleccionarFechaRango(fechaCelda);
+                grid.appendChild(celda);
             }
         }
+
         function escribirTextoFechaEnCabecera(fInicio, fFin) {
-            const textoFinal = `${fInicio.getDate()} de ${meses[fInicio.getMonth()]} del ${fInicio.getFullYear()}`;
+            const dIni = fInicio.getDate();
+            const mesIni = meses[fInicio.getMonth()];
+            const anioIni = fInicio.getFullYear();
+
+            let textoFinal = `${dIni} de ${mesIni} del ${anioIni}`;
+
             const elContenedor = document.getElementById('headerTextoFecha');
             elContenedor.innerHTML = `<span>${textoFinal}</span>`;
             autoAjustarTextoCabecera();
         }
+
         function autoAjustarTextoCabecera() {
             const elContenedor = document.getElementById('headerTextoFecha');
             const elSpan = elContenedor ? elContenedor.querySelector('span') : null;
             if (!elSpan || !elContenedor) return;
-            elSpan.style.transform = 'scaleX(1)'; elSpan.style.lineHeight = '1.2';
+
+            elSpan.style.transform = 'scaleX(1)';
+            elSpan.style.lineHeight = '1.2';
+
             const padding = parseFloat(window.getComputedStyle(elContenedor).paddingLeft) + parseFloat(window.getComputedStyle(elContenedor).paddingRight);
             const anchoDisponible = elContenedor.clientWidth - padding;
             const anchoTexto = elSpan.scrollWidth;
-            if (anchoTexto > anchoDisponible && anchoDisponible > 0) { elSpan.style.transform = `scaleX(${anchoDisponible / anchoTexto})`; }
-        }
-        window.addEventListener('resize', autoAjustarTextoCabecera);
 
-        // HORA
-        function poblarSelectHorasModal() {
-            const sHoras = document.getElementById('selectHoras');
-            if (!sHoras) return; sHoras.innerHTML = '';
-            for (let i = 8; i <= 23; i++) {
-                const hStr = i.toString().padStart(2, '0');
-                const opt = document.createElement('option'); opt.value = hStr; opt.textContent = hStr; sHoras.appendChild(opt);
+            if (anchoTexto > anchoDisponible && anchoDisponible > 0) {
+                const factorEscalaX = anchoDisponible / anchoTexto;
+                elSpan.style.transform = `scaleX(${factorEscalaX})`;
             }
         }
+
+        window.addEventListener('resize', autoAjustarTextoCabecera);
+
+        function poblarSelectHorasModal() {
+            const sHoras = document.getElementById('selectHoras');
+            if (!sHoras) return;
+            sHoras.innerHTML = '';
+            for (let i = 8; i <= 23; i++) {
+                const hStr = i.toString().padStart(2, '0');
+                const opt = document.createElement('option');
+                opt.value = hStr;
+                opt.textContent = hStr;
+                sHoras.appendChild(opt);
+            }
+        }
+
         function abrirModalHora(elTextoEditable) {
-            elementoHoraActual = elTextoEditable; poblarSelectHorasModal();
+            elementoHoraActual = elTextoEditable;
+            poblarSelectHorasModal();
+
             let valActual = (elTextoEditable.textContent || '').trim();
             if (valActual.toUpperCase() === 'HORA') valActual = '09:00';
+
             const partes = valActual.split(':');
-            let hVal = partes[0] || '09'; let mVal = partes[1] || '00';
+            let hVal = partes[0] || '09';
+            let mVal = partes[1] || '00';
+
             if (hVal.length === 1) hVal = '0' + hVal;
-            const sHoras = document.getElementById('selectHoras'), sMins = document.getElementById('selectMinutos');
+
+            const sHoras = document.getElementById('selectHoras');
+            const sMins = document.getElementById('selectMinutos');
+
             if (sHoras) sHoras.value = hVal;
             if (sMins) {
-                if (!Array.from(sMins.options).some(o => o.value === mVal)) {
-                    const oCustom = document.createElement('option'); oCustom.value = mVal; oCustom.textContent = mVal; sMins.appendChild(oCustom);
+                let existe = Array.from(sMins.options).some(o => o.value === mVal);
+                if (!existe) {
+                    const oCustom = document.createElement('option');
+                    oCustom.value = mVal;
+                    oCustom.textContent = mVal;
+                    sMins.appendChild(oCustom);
                 }
                 sMins.value = mVal;
             }
-            modalHora.style.display = 'flex'; alAbrirModal();
+
+            modalHora.style.display = 'flex';
+            alAbrirModal();
         }
+
         function confirmarHoraModal() {
             if (elementoHoraActual) {
-                const hVal = document.getElementById('selectHoras').value, mVal = document.getElementById('selectMinutos').value;
+                const hVal = document.getElementById('selectHoras').value;
+                const mVal = document.getElementById('selectMinutos').value;
                 const horaFinal = `${hVal}:${mVal}`;
-                elementoHoraActual.textContent = horaFinal; elementoHoraActual.classList.remove('vacio');
+
+                elementoHoraActual.textContent = horaFinal;
+                elementoHoraActual.classList.remove('vacio');
+
                 const recuadro = elementoHoraActual.closest('.recuadro-partido');
                 if (recuadro) {
                     const idEquipo = recuadro.getAttribute('data-id-equipo');
                     if (idEquipo) {
                         const row = document.querySelector(`tr[data-id="${idEquipo}"]`);
-                        if (row) { const selHora = row.querySelector('.select-hora-tabla'); if (selHora) selHora.value = horaFinal; }
+                        if (row) {
+                            const selHora = row.querySelector('.select-hora-tabla');
+                            if (selHora) selHora.value = horaFinal;
+                        }
                     }
                 }
+
                 autoAjustarTextoSegunSuperficie(elementoHoraActual);
             }
-            modalHora.style.display = 'none'; alCerrarModal();
+            modalHora.style.display = 'none';
+            alCerrarModal();
         }
 
-        // CARGA EXCEL / TABLA PRINCIPAL
+        function mostrarErrorCargaDatos(mensaje) {
+            const panel = document.getElementById('errorCargaDatos');
+            const texto = document.getElementById('textoErrorCargaDatos');
+            if (texto) texto.textContent = mensaje || 'No se pudo leer el archivo DATOS.xls.';
+            if (panel) panel.style.display = 'block';
+            console.error('ERROR DE CARGA DE DATOS:', mensaje);
+        }
+
+        function ocultarErrorCargaDatos() {
+            const panel = document.getElementById('errorCargaDatos');
+            if (panel) panel.style.display = 'none';
+        }
+
         async function cargarExcel() {
             try {
                 ocultarErrorCargaDatos();
-                if (typeof XLSX === 'undefined') throw new Error('La librería XLSX no está disponible.');
+
+                if (typeof XLSX === 'undefined') {
+                    throw new Error('La librería XLSX no está disponible.');
+                }
+
                 const rutasExcel = ['DATOS.xls', './DATOS.xls'];
-                let arrayBuffer = null; let ultimoError = null;
+                let arrayBuffer = null;
+                let ultimoError = null;
+
                 for (const ruta of rutasExcel) {
                     try {
                         const response = await fetch(ruta, { cache: 'no-store' });
                         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                        arrayBuffer = await response.arrayBuffer(); break;
-                    } catch (err) { ultimoError = err; }
+                        arrayBuffer = await response.arrayBuffer();
+                        break;
+                    } catch (err) {
+                        ultimoError = err;
+                    }
                 }
-                if (!arrayBuffer) throw new Error(`No se pudo cargar DATOS.xls${ultimoError ? ` (${ultimoError.message})` : ''}.`);
+
+                if (!arrayBuffer) {
+                    throw new Error(
+                        `No se pudo cargar DATOS.xls${ultimoError ? ` (${ultimoError.message})` : ''}.`
+                    );
+                }
+
                 workbookGlobal = XLSX.read(arrayBuffer, { type: 'array' });
-                const sheetEquipos = workbookGlobal.Sheets[(workbookGlobal.SheetNames || []).find(n => normalizarClave(n) === normalizarClave('Equipos NVA'))];
-                const sheetOtros = workbookGlobal.Sheets[(workbookGlobal.SheetNames || []).find(n => normalizarClave(n) === normalizarClave('OTROS Equipos'))];
-                if (!sheetEquipos) throw new Error('No existe la hoja "Equipos NVA".');
+
+                const buscarHoja = (nombre) => {
+                    const objetivo = normalizarClave(nombre);
+                    const nombreReal = (workbookGlobal.SheetNames || []).find(n => normalizarClave(n) === objetivo);
+                    return nombreReal ? workbookGlobal.Sheets[nombreReal] : null;
+                };
+
+                const sheetEquipos = buscarHoja('Equipos NVA');
+                const sheetOtros = buscarHoja('OTROS Equipos');
+
+                if (!sheetEquipos) {
+                    throw new Error(`No existe la hoja "Equipos NVA".`);
+                }
+
                 listaEquiposGlobal = normalizarListaEquipos(XLSX.utils.sheet_to_json(sheetEquipos, { defval: '' }));
-                listaOtrosEquiposGlobal = sheetOtros ? normalizarListaEquipos(XLSX.utils.sheet_to_json(sheetOtros, { defval: '' })) : [];
-                if (listaEquiposGlobal.length === 0) throw new Error('La hoja "Equipos NVA" no contiene equipos válidos.');
-                renderizarTabla(listaEquiposGlobal); poblarSelectoresColorFotos(); datosCargados = true;
-            } catch (error) {
-                listaEquiposGlobal = equiposRespaldo; listaOtrosEquiposGlobal = equiposRespaldo; // Fallback asegurado
-                datosCargados = false;
-                mostrarErrorCargaDatos(error.message || 'Error desconocido.');
+                listaOtrosEquiposGlobal = sheetOtros
+                    ? normalizarListaEquipos(XLSX.utils.sheet_to_json(sheetOtros, { defval: '' }))
+                    : [];
+
+                if (listaEquiposGlobal.length === 0) {
+                    throw new Error('La hoja "Equipos NVA" no contiene equipos válidos.');
+                }
+
                 renderizarTabla(listaEquiposGlobal);
+                poblarSelectoresColorFotos();
+                datosCargados = true;
+                ocultarErrorCargaDatos();
+                console.info(`DATOS.xls cargado correctamente.`);
+            } catch (error) {
+                listaEquiposGlobal = [];
+                listaOtrosEquiposGlobal = [];
+                workbookGlobal = null;
+                datosCargados = false;
+
+                const mensaje = error && error.message ? error.message : 'Error desconocido al cargar DATOS.xls.';
+                mostrarErrorCargaDatos(mensaje);
+
+                const tbody = document.getElementById('tablaBody');
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:25px;color:#ff6b6b;font-weight:700;">No se han podido cargar los equipos porque DATOS.xls no está disponible.</td></tr>';
+                }
             }
         }
-        function mostrarErrorCargaDatos(mensaje) {
-            const panel = document.getElementById('errorCargaDatos'), texto = document.getElementById('textoErrorCargaDatos');
-            if (texto) texto.textContent = mensaje || 'No se pudo leer el archivo DATOS.xls.';
-            if (panel) panel.style.display = 'block';
-        }
-        function ocultarErrorCargaDatos() { const panel = document.getElementById('errorCargaDatos'); if (panel) panel.style.display = 'none'; }
-        
+
         function generarOpcionesHoraSelect(horaSeleccionada = '') {
             let html = `<option value="">HORA</option>`;
             for (let h = 8; h <= 23; h++) {
                 const hStr = h.toString().padStart(2, '0');
                 ['00', '15', '30', '45'].forEach(m => {
-                    const hf = `${hStr}:${m}`;
-                    html += `<option value="${hf}" ${hf === horaSeleccionada ? 'selected' : ''}>${hf}</option>`;
+                    const horaFormat = `${hStr}:${m}`;
+                    const selected = (horaFormat === horaSeleccionada) ? 'selected' : '';
+                    html += `<option value="${horaFormat}" ${selected}>${horaFormat}</option>`;
                 });
             }
             return html;
         }
 
         function renderizarTabla(equipos) {
-            const tbody = document.getElementById('tablaBody'); tbody.innerHTML = '';
+            const tbody = document.getElementById('tablaBody');
+            tbody.innerHTML = '';
+
             equipos.forEach((eq, index) => {
-                const tr = document.createElement('tr'); tr.setAttribute('data-id', index);
-                const nombreEquipo = eq.EQUIPO || 'S/N', categoria = eq.CATEGORIA || 'S/C';
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-id', index);
+                
+                const rutaLogo = obtenerRutaLogo(eq.LOGO);
+                const nombreEquipo = eq.EQUIPO || 'S/N';
+                const categoria = eq.CATEGORIA || 'S/C';
+
                 const configActual = mapaDatosPartidos[index] || {};
-                const rolActual = configActual.rol || '', horaActual = configActual.hora || '';
+                const rolActual = configActual.rol || '';
+                const horaActual = configActual.hora || '';
+
                 if (rolActual === 'casa') tr.classList.add('selected-casa');
                 if (rolActual === 'fuera') tr.classList.add('selected-fuera');
+
                 tr.innerHTML = `
-                    <td style="text-align: center;"><img src="" class="team-icon" alt="Logo"></td>
-                    <td><strong style="color: #fff; font-size: 1.05em;">${escaparHTML(nombreEquipo)}</strong><div style="color: #aaa; font-size: 0.85em;">${escaparHTML(categoria)}</div></td>
+                    <td style="text-align: center;">
+                        <img src="" class="team-icon" alt="Logo">
+                    </td>
+                    <td>
+                        <strong style="color: #fff; font-size: 1.05em;">${escaparHTML(nombreEquipo)}</strong>
+                        <div style="color: #aaa; font-size: 0.85em; margin-top: 2px;">${escaparHTML(categoria)}</div>
+                    </td>
                     <td class="acciones-td" style="text-align: center;">
                         <button type="button" class="btn-casa" onclick="seleccionarRol(${index}, 'casa')">CASA</button>
                         <button type="button" class="btn-fuera" onclick="seleccionarRol(${index}, 'fuera')">FUERA</button>
                     </td>
-                    <td style="text-align: center;"><select class="select-hora-tabla" onchange="actualizarHoraModal(${index}, this.value)">${generarOpcionesHoraSelect(horaActual)}</select></td>
+                    <td style="text-align: center;">
+                        <select class="select-hora-tabla" onchange="actualizarHoraModal(${index}, this.value)">
+                            ${generarOpcionesHoraSelect(horaActual)}
+                        </select>
+                    </td>
                 `;
-                tbody.appendChild(tr); configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/noescudo.png');
+                tbody.appendChild(tr);
+                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/noescudo.png');
             });
         }
-        function actualizarHoraModal(indexEquipo, hora) { mapaDatosPartidos[indexEquipo] = mapaDatosPartidos[indexEquipo] || {}; mapaDatosPartidos[indexEquipo].hora = hora; }
+
+        function actualizarHoraModal(indexEquipo, hora) {
+            mapaDatosPartidos[indexEquipo] = mapaDatosPartidos[indexEquipo] || {};
+            mapaDatosPartidos[indexEquipo].hora = hora;
+        }
+
         function seleccionarRol(index, rol) {
             const fila = document.querySelector(`tr[data-id="${index}"]`);
+            
             mapaDatosPartidos[index] = mapaDatosPartidos[index] || {};
+
             if (mapaDatosPartidos[index].rol === rol) {
-                delete mapaDatosPartidos[index].rol; if (fila) fila.classList.remove('selected-casa', 'selected-fuera');
+                delete mapaDatosPartidos[index].rol;
+                if (fila) fila.classList.remove('selected-casa', 'selected-fuera');
             } else {
                 mapaDatosPartidos[index].rol = rol;
-                if (fila) { fila.classList.remove('selected-casa', 'selected-fuera'); fila.classList.add(rol === 'casa' ? 'selected-casa' : 'selected-fuera'); }
+                if (fila) {
+                    fila.classList.remove('selected-casa', 'selected-fuera');
+                    fila.classList.add(rol === 'casa' ? 'selected-casa' : 'selected-fuera');
+                }
             }
         }
+
         function resetearSeleccion() {
             mapaDatosPartidos = {};
             document.querySelectorAll('#tablaBody tr').forEach(tr => {
                 tr.classList.remove('selected-casa', 'selected-fuera');
-                const selHora = tr.querySelector('.select-hora-tabla'); if (selHora) selHora.value = '';
+                const selHora = tr.querySelector('.select-hora-tabla');
+                if (selHora) selHora.value = '';
             });
-            const inputCampoModal = document.getElementById('inputCampoJuego'), inputCampoHeader = document.getElementById('headerInputCampoJuego');
+
+            const inputCampoModal = document.getElementById('inputCampoJuego');
+            const inputCampoHeader = document.getElementById('headerInputCampoJuego');
             if (inputCampoModal) inputCampoModal.value = "PALAU D'ESPORTS (ALZIRA)";
             if (inputCampoHeader) inputCampoHeader.value = "PALAU D'ESPORTS (ALZIRA)";
-            document.getElementById('contenedorRecuadros').innerHTML = '';
-        }
 
-        // CONTROL DE MODALES PRINCIPALES
-        function abrirModal() {
-            if (!datosCargados) { cargarExcel().then(() => { renderizarTabla(listaEquiposGlobal); modal.style.display = 'flex'; alAbrirModal(); }); } 
-            else { renderizarTabla(listaEquiposGlobal); modal.style.display = 'flex'; alAbrirModal(); }
-        }
-        function cerrarModal() { modal.style.display = 'none'; alCerrarModal(); }
-
-        // AQUÍ SE IMPLEMENTA EL CONFIRMAR SELECCIÓN PARA GENERAR LOS RECUADROS
-        function confirmarSeleccion() {
             const contenedor = document.getElementById('contenedorRecuadros');
-            contenedor.innerHTML = '';
-
-            Object.keys(mapaDatosPartidos).forEach(idx => {
-                const config = mapaDatosPartidos[idx];
-                if (!config.rol) return;
-                
-                const equipo = listaEquiposGlobal[idx];
-                const esCasa = config.rol === 'casa';
-                const nombreRival = config.nombreRival || 'RIVAL';
-                const logoRival = config.logoRival || 'LOGOs/noescudo.png';
-
-                const recuadro = document.createElement('div');
-                recuadro.className = 'recuadro-partido';
-                recuadro.setAttribute('data-id-equipo', idx);
-                recuadro.setAttribute('data-categoria', equipo.CATEGORIA || '');
-                recuadro.style.setProperty('--color-equipo', obtenerColorEquipo(equipo));
-                
-                recuadro.innerHTML = `
-                    <div class="capa-borde"></div>
-                    <div class="texto-categoria-vertical">${equipo.CATEGORIA || ''}</div>
-                    <div class="contenido-recuadro">
-                        <div class="area-equipo-izq">
-                            <span class="nombre-equipo ${esCasa ? '' : 'campo-editable'}" ${!esCasa ? 'onclick="abrirModalRivales(this, this.parentElement.nextElementSibling.querySelector(\'img\'), this.closest(\'.recuadro-partido\'))"' : ''}>${esCasa ? equipo.EQUIPO : nombreRival}</span>
-                        </div>
-                        <div class="area-logo-izq">
-                            <img class="logo-img" src="${esCasa ? obtenerRutaLogo(equipo.LOGO) : logoRival}" />
-                        </div>
-                        <div class="area-tanteo-container">
-                            <div class="tanteo-box" onclick="abrirModalTanteo(this)">0</div>
-                            <div style="color:white;font-size:4vw;">-</div>
-                            <div class="tanteo-box" onclick="abrirModalTanteo(this)">0</div>
-                        </div>
-                        <div class="area-logo-der">
-                            <img class="logo-img" src="${!esCasa ? obtenerRutaLogo(equipo.LOGO) : logoRival}" />
-                        </div>
-                        <div class="area-equipo-der">
-                            <span class="nombre-equipo ${!esCasa ? '' : 'campo-editable'}" ${esCasa ? 'onclick="abrirModalRivales(this, this.parentElement.previousElementSibling.querySelector(\'img\'), this.closest(\'.recuadro-partido\'))"' : ''}>${!esCasa ? equipo.EQUIPO : nombreRival}</span>
-                        </div>
-                        <div class="area-info">
-                            <div class="contenedor-item-info">
-                                <span class="campo-editable-info ${!config.hora ? 'vacio' : ''}" onclick="abrirModalHora(this)">${config.hora || 'HORA'}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                contenedor.appendChild(recuadro);
-
-                // Autoajustar los textos que acabamos de meter
-                setTimeout(() => {
-                    recuadro.querySelectorAll('.nombre-equipo, .campo-editable-info').forEach(el => autoAjustarTextoSegunSuperficie(el));
-                }, 50);
-            });
-            cerrarModal();
+            if (contenedor) contenedor.innerHTML = '';
         }
 
-        // RIVALES
+        function abrirModal() {
+            if (!datosCargados) {
+                cargarExcel().then(() => {
+                    renderizarTabla(listaEquiposGlobal);
+                    modal.style.display = 'flex';
+                    alAbrirModal();
+                });
+            } else {
+                renderizarTabla(listaEquiposGlobal);
+                modal.style.display = 'flex';
+                alAbrirModal();
+            }
+        }
+
+        function cerrarModal() {
+            modal.style.display = 'none';
+            alCerrarModal();
+        }
+
         function abrirModalRivales(elNombreRival, elLogoRival, recuadroPadre) {
-            elementoNombreRivalActual = elNombreRival; elementoLogoRivalActual = elLogoRival; recuadroPadreRivalActual = recuadroPadre;
+            elementoNombreRivalActual = elNombreRival;
+            elementoLogoRivalActual = elLogoRival;
+            recuadroPadreRivalActual = recuadroPadre;
+
             const categoriaRecuadro = recuadroPadre.getAttribute('data-categoria') || '';
-            const tbody = document.getElementById('tablaRivalesBody'); tbody.innerHTML = '';
-            let todosLosRivales = listaOtrosEquiposGlobal.length > 0 ? listaOtrosEquiposGlobal : listaEquiposGlobal;
+
+            const tbody = document.getElementById('tablaRivalesBody');
+            tbody.innerHTML = '';
+
+            let todosLosRivales = [];
+            
+            if (listaOtrosEquiposGlobal.length > 0) {
+                todosLosRivales = listaOtrosEquiposGlobal;
+            } else {
+                todosLosRivales = listaEquiposGlobal;
+            }
+
             let rivalesOrdenados = [...todosLosRivales];
+            
             if (categoriaRecuadro) {
                 rivalesOrdenados.sort((a, b) => {
-                    const catA = normalizarClave(a.CATEGORIA), catB = normalizarClave(b.CATEGORIA), catTarget = normalizarClave(categoriaRecuadro);
-                    const coincideA = (catA === catTarget), coincideB = (catB === catTarget);
-                    if (coincideA && !coincideB) return -1; if (!coincideA && coincideB) return 1; return 0;
+                    const catA = normalizarClave(a.CATEGORIA);
+                    const catB = normalizarClave(b.CATEGORIA);
+                    const catTarget = normalizarClave(categoriaRecuadro);
+
+                    const coincideA = (catA === catTarget);
+                    const coincideB = (catB === catTarget);
+
+                    if (coincideA && !coincideB) return -1;
+                    if (!coincideA && coincideB) return 1;
+                    return 0;
                 });
             }
+
             rivalesOrdenados.forEach((eq, idx) => {
-                const tr = document.createElement('tr'); tr.className = 'item-rival';
-                const catEq = normalizarClave(eq.CATEGORIA), catTarget = normalizarClave(categoriaRecuadro);
+                const tr = document.createElement('tr');
+                tr.className = 'item-rival';
+
+                const catEq = normalizarClave(eq.CATEGORIA);
+                const catTarget = normalizarClave(categoriaRecuadro);
                 const esMismaCategoria = (catEq && catTarget && catEq === catTarget);
-                if (esMismaCategoria) tr.classList.add('fila-misma-categoria');
-                const rutaLogo = obtenerRutaLogo(eq.LOGO), nombreRival = eq.EQUIPO || 'RIVAL', catRival = eq.CATEGORIA || '';
-                let badgeHtml = esMismaCategoria ? `<span class="badge-cat-misma">MISMA CATEGORÍA</span>` : (catRival ? `<span style="color: #aaa; font-size: 0.85em;">${escaparHTML(catRival)}</span>` : `<span class="badge-cat-sin">Sin Categ.</span>`);
-                tr.innerHTML = `<td style="text-align: center;"><img src="" class="team-icon" alt="Logo"></td><td><strong style="color: #fff; font-size: 1.05em;">${escaparHTML(nombreRival)}</strong></td><td>${badgeHtml}</td>`;
+
+                if (esMismaCategoria) {
+                    tr.classList.add('fila-misma-categoria');
+                }
+
+                const rutaLogo = obtenerRutaLogo(eq.LOGO);
+                const nombreRival = eq.EQUIPO || 'RIVAL';
+                const catRival = eq.CATEGORIA || '';
+
+                let badgeHtml = '';
+                if (esMismaCategoria) {
+                    badgeHtml = `<span class="badge-cat-misma">MISMA CATEGORÍA</span>`;
+                } else if (catRival) {
+                    badgeHtml = `<span style="color: #aaa; font-size: 0.85em;">${escaparHTML(catRival)}</span>`;
+                } else {
+                    badgeHtml = `<span class="badge-cat-sin">Sin Categ.</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td style="text-align: center;">
+                        <img src="" class="team-icon" alt="Logo">
+                    </td>
+                    <td><strong style="color: #fff; font-size: 1.05em;">${escaparHTML(nombreRival)}</strong></td>
+                    <td>${badgeHtml}</td>
+                `;
+
                 tr.onclick = () => seleccionarRivalDirecto(nombreRival, rutaLogo, esMismaCategoria, eq);
-                tbody.appendChild(tr); configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/noescudo.png');
+                tbody.appendChild(tr);
+                configurarLogo(tr.querySelector('.team-icon'), eq.LOGO, 'LOGOs/noescudo.png');
             });
-            modalRivales.style.display = 'flex'; alAbrirModal();
+
+            modalRivales.style.display = 'flex';
+            alAbrirModal();
         }
-        function cerrarModalRivales() { modalRivales.style.display = 'none'; alCerrarModal(); }
+
+        function cerrarModalRivales() {
+            modalRivales.style.display = 'none';
+            alCerrarModal();
+        }
+
         function seleccionarRivalDirecto(nombreRival, rutaLogo, esMismaCategoria, objetoRival) {
-            if (esMismaCategoria) { aplicarRivalAEnvoltorio(nombreRival, rutaLogo); cerrarModalRivales(); } 
-            else {
+            if (esMismaCategoria) {
+                aplicarRivalAEnvoltorio(nombreRival, rutaLogo);
+                cerrarModalRivales();
+            } else {
                 filaRivalPendienteEdicion = { nombreRival, rutaLogo, objetoRival };
                 const inputEdit = document.getElementById('inputEditarNombreRival');
                 if (inputEdit) inputEdit.value = nombreRival;
-                modalEditarRival.style.display = 'flex'; alAbrirModal();
+                
+                modalEditarRival.style.display = 'flex';
+                alAbrirModal();
             }
         }
-        function cerrarModalEditarRival() { modalEditarRival.style.display = 'none'; alCerrarModal(); }
+
+        function cerrarModalEditarRival() {
+            modalEditarRival.style.display = 'none';
+            alCerrarModal();
+        }
+
         function confirmarEdicionRival() {
             const inputEdit = document.getElementById('inputEditarNombreRival');
             if (inputEdit && filaRivalPendienteEdicion) {
                 const nuevoNombre = inputEdit.value.trim() || filaRivalPendienteEdicion.nombreRival;
                 aplicarRivalAEnvoltorio(nuevoNombre, filaRivalPendienteEdicion.rutaLogo);
             }
-            cerrarModalEditarRival(); cerrarModalRivales();
+            cerrarModalEditarRival();
+            cerrarModalRivales();
         }
+
         function aplicarRivalAEnvoltorio(nombre, rutaLogo) {
             if (elementoNombreRivalActual) {
-                elementoNombreRivalActual.textContent = nombre; elementoNombreRivalActual.classList.remove('vacio');
+                elementoNombreRivalActual.textContent = nombre;
+                elementoNombreRivalActual.classList.remove('vacio');
                 autoAjustarTextoSegunSuperficie(elementoNombreRivalActual);
-                
-                // Guardar el rival en el estado general
-                if (recuadroPadreRivalActual) {
-                    const idx = recuadroPadreRivalActual.getAttribute('data-id-equipo');
-                    if (idx) {
-                        mapaDatosPartidos[idx] = mapaDatosPartidos[idx] || {};
-                        mapaDatosPartidos[idx].nombreRival = nombre;
-                        mapaDatosPartidos[idx].logoRival = rutaLogo;
-                    }
-                }
             }
-            if (elementoLogoRivalActual) { configurarLogo(elementoLogoRivalActual, rutaLogo, 'LOGOs/noescudo.png'); }
+            if (elementoLogoRivalActual) {
+                configurarLogo(elementoLogoRivalActual, rutaLogo, 'LOGOs/noescudo.png');
+            }
         }
 
-        // TANTEOS
-        function abrirModalTanteo(elBox) { elementoTanteoActual = elBox; modalTanteo.style.display = 'flex'; alAbrirModal(); }
-        function cerrarModalTanteo() { modalTanteo.style.display = 'none'; alCerrarModal(); }
-        function seleccionarTanteoValor(val) { if (elementoTanteoActual) { elementoTanteoActual.textContent = val; } cerrarModalTanteo(); }
-
-        // AJUSTE DINÁMICO DE TEXTOS 
         function autoAjustarTextoSegunSuperficie(elementoSpan) {
             if (!elementoSpan) return;
+
             elementoSpan.style.transform = 'scaleX(1)';
+
             const contenedorPadre = elementoSpan.parentElement;
             if (!contenedorPadre) return;
+
             const estiloPadre = window.getComputedStyle(contenedorPadre);
-            const paddingIzquierdo = parseFloat(estiloPadre.paddingLeft) || 0, paddingDerecho = parseFloat(estiloPadre.paddingRight) || 0;
+            const paddingIzquierdo = parseFloat(estiloPadre.paddingLeft) || 0;
+            const paddingDerecho = parseFloat(estiloPadre.paddingRight) || 0;
+            const paddingSuperior = parseFloat(estiloPadre.paddingTop) || 0;
+            const paddingInferior = parseFloat(estiloPadre.paddingBottom) || 0;
+
             const anchoDisponible = contenedorPadre.clientWidth - (paddingIzquierdo + paddingDerecho);
+            const altoDisponible = contenedorPadre.clientHeight - (paddingSuperior + paddingInferior);
+
             const esNombreEquipo = elementoSpan.classList.contains('nombre-equipo');
 
             if (!esNombreEquipo) {
                 elementoSpan.style.display = 'inline-block';
-                const anchoElemento = elementoSpan.scrollWidth;
-                if (anchoElemento > anchoDisponible && anchoDisponible > 0) {
-                    const factor = anchoDisponible / anchoElemento;
-                    elementoSpan.style.transform = `scaleX(${factor})`;
+                elementoSpan.style.whiteSpace = 'nowrap';
+                elementoSpan.style.lineHeight = '1';
+
+                const anchoTexto = elementoSpan.scrollWidth;
+
+                if (anchoTexto > anchoDisponible && anchoDisponible > 0) {
+                    const factorEscalaX = anchoDisponible / anchoTexto;
+                    elementoSpan.style.transform = `scaleX(${factorEscalaX})`;
                 }
             } else {
-                const anchoElemento = elementoSpan.scrollWidth;
-                if (anchoElemento > anchoDisponible && anchoDisponible > 0) {
-                    const factor = anchoDisponible / anchoElemento;
-                    elementoSpan.style.transform = `scaleX(${factor})`;
+                const anchoTexto = elementoSpan.scrollWidth;
+                const altoTexto = elementoSpan.scrollHeight;
+
+                const excedeAncho = anchoTexto > anchoDisponible && anchoDisponible > 0;
+                const excedeAlto = altoTexto > altoDisponible && altoDisponible > 0;
+
+                if (excedeAncho || excedeAlto) {
+                    const factorEscalaX = excedeAncho ? (anchoDisponible / anchoTexto) : 1;
+                    const factorEscalaY = excedeAlto ? (altoDisponible / altoTexto) : 1;
+                    const factorEscala = Math.min(factorEscalaX, factorEscalaY);
+
+                    elementoSpan.style.transform = `scale(${factorEscala})`;
                 }
             }
         }
 
-        // FUNCIONES DE FOTOGRAFÍAS (Para el modo resultados)
-        function activarCargaFoto(e, id) { document.getElementById('inputFotoResultado' + id).click(); }
-        function procesarFotoResultado(id, files) {
-            if(!files || files.length === 0) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = document.getElementById('imagenResultado' + id);
-                img.src = e.target.result;
-                document.getElementById('fotoResultado' + id).classList.add('has-image');
-            };
-            reader.readAsDataURL(files[0]);
+        function confirmarSeleccion() {
+            const contenedor = document.getElementById('contenedorRecuadros');
+            contenedor.innerHTML = '';
+
+            Object.keys(mapaDatosPartidos).forEach(indexStr => {
+                const index = parseInt(indexStr);
+                const config = mapaDatosPartidos[index];
+
+                if (config && config.rol) {
+                    const equipoData = listaEquiposGlobal[index];
+                    const recuadroHTML = crearRecuadroPartido(equipoData, config.rol, config.hora || '', index);
+                    contenedor.appendChild(recuadroHTML);
+                }
+            });
+
+            cerrarModal();
+
+            setTimeout(() => {
+                document.querySelectorAll('.nombre-equipo, .campo-editable-info').forEach(span => {
+                    autoAjustarTextoSegunSuperficie(span);
+                });
+            }, 100);
         }
-        function alternarSelectorColorFoto(id) {
-            document.getElementById('fotoResultado' + id).classList.toggle('mostrar-selector-color');
+
+        const RUTA_MASCARA_IMG = 'Imagenes/Recuadro (mascara).png';
+        const RUTA_MASCARA = `url('${RUTA_MASCARA_IMG}')`;
+
+        function crearRecuadroPartido(equipo, rol, horaSeleccionada, indexEquipo, tanteoIzqVal = '0', tanteoDerVal = '0') {
+            const recuadro = document.createElement('div');
+            recuadro.className = 'recuadro-partido';
+            recuadro.setAttribute('data-id-equipo', indexEquipo);
+            recuadro.setAttribute('data-categoria', equipo.CATEGORIA || '');
+
+            const colorHex = obtenerColorEquipo(equipo);
+            recuadro.style.setProperty('--color-equipo', colorHex);
+            recuadro.style.setProperty('--mask-img', RUTA_MASCARA);
+
+            const rutaLogoLocal = obtenerRutaLogo(equipo.LOGO);
+            const nombreLocal = equipo.EQUIPO || 'LOCAL';
+            const categoria = equipo.CATEGORIA || 'CATEGORIA';
+
+            let equipoCasaNombre = '';
+            let equipoCasaLogo = '';
+            let equipoRivalNombre = '';
+            let equipoRivalLogo = 'LOGOs/noescudo.png';
+
+            let esRivalIzq = false;
+            let esRivalDer = false;
+
+            if (rol === 'casa') {
+                equipoCasaNombre = nombreLocal;
+                equipoCasaLogo = rutaLogoLocal;
+                equipoRivalNombre = 'EQUIPO RIVAL';
+                esRivalDer = true;
+            } else {
+                equipoRivalNombre = 'EQUIPO RIVAL';
+                equipoCasaNombre = nombreLocal;
+                equipoCasaLogo = rutaLogoLocal;
+                esRivalIzq = true;
+            }
+
+            const textoHora = horaSeleccionada ? horaSeleccionada : 'HORA';
+            const horaClaseVacio = horaSeleccionada ? '' : 'vacio';
+
+            recuadro.innerHTML = `
+                <img src="Imagenes/Recuadro (fondo).png" class="capa-fondo" alt="Fondo" onerror="this.onerror=null; this.src='';">
+                <div class="capa-borde"></div>
+                <div class="texto-categoria-vertical">${escaparHTML(categoria)}</div>
+
+                <div class="contenido-recuadro">
+                    <div class="area-logo-izq">
+                        <img src="" class="logo-img logo-izq" alt="Logo Izq">
+                    </div>
+                    <div class="area-equipo-izq">
+                        <span class="nombre-equipo ${esRivalIzq ? 'campo-editable vacio rival-izq' : ''}">${escaparHTML(esRivalIzq ? equipoRivalNombre : equipoCasaNombre)}</span>
+                    </div>
+
+                    <div class="area-tanteo-container">
+                        <div class="tanteo-box tanteo-izq" onclick="abrirModalTanteo(this)">${tanteoIzqVal}</div>
+                        <div class="tanteo-box tanteo-der" onclick="abrirModalTanteo(this)">${tanteoDerVal}</div>
+                    </div>
+
+                    <div class="area-logo-der">
+                        <img src="" class="logo-img logo-der" alt="Logo Der">
+                    </div>
+                    <div class="area-equipo-der">
+                        <span class="nombre-equipo ${esRivalDer ? 'campo-editable vacio rival-der' : ''}">${escaparHTML(esRivalDer ? equipoRivalNombre : equipoCasaNombre)}</span>
+                    </div>
+
+                    <div class="area-info">
+                        <div class="contenedor-item-info">
+                            <span class="campo-editable-info hora-partido ${horaClaseVacio}">${textoHora}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            configurarLogo(recuadro.querySelector('.logo-izq'), esRivalIzq ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/noescudo.png');
+            configurarLogo(recuadro.querySelector('.logo-der'), esRivalDer ? equipoRivalLogo : equipoCasaLogo, 'LOGOs/noescudo.png');
+
+            const spanRivalIzq = recuadro.querySelector('.rival-izq');
+            const logoIzq = recuadro.querySelector('.logo-izq');
+            if (spanRivalIzq) {
+                spanRivalIzq.onclick = () => abrirModalRivales(spanRivalIzq, logoIzq, recuadro);
+            }
+
+            const spanRivalDer = recuadro.querySelector('.rival-der');
+            const logoDer = recuadro.querySelector('.logo-der');
+            if (spanRivalDer) {
+                spanRivalDer.onclick = () => abrirModalRivales(spanRivalDer, logoDer, recuadro);
+            }
+
+            const spanHora = recuadro.querySelector('.hora-partido');
+            if (spanHora) {
+                spanHora.onclick = () => abrirModalHora(spanHora);
+            }
+
+            return recuadro;
         }
-        function poblarSelectoresColorFotos() {
-            const coloresBasicos = ['#c28b06', '#ccca20', '#e8cb73', '#b2267f', '#b033af', '#da71d9', '#7f1dbd', '#a01525', '#1e7e34', '#bd2130', '#00b0f0', '#ffffff'];
-            [1, 2].forEach(id => {
-                const container = document.getElementById('selectorColorFoto' + id);
-                if (!container) return;
-                container.innerHTML = '';
-                coloresBasicos.forEach(color => {
-                    const btn = document.createElement('button');
-                    btn.type = 'button';
-                    btn.className = 'foto-color-muestra';
-                    btn.style.backgroundColor = color;
-                    btn.onclick = (e) => {
-                        e.stopPropagation(); e.preventDefault();
-                        document.getElementById('fotoResultado' + id).style.setProperty('--foto-color', color);
-                        document.getElementById('fotoResultado' + id).classList.remove('mostrar-selector-color');
+
+        async function capturarPaginaComoJPG() {
+            const btnCaptura = document.getElementById('btnCapturarPagina');
+            const btnTexto = document.getElementById('btnCapturarTexto');
+            const areaCaptura = document.getElementById('areaCaptura');
+
+            if (!areaCaptura) return;
+
+            try {
+                if (btnCaptura) btnCaptura.disabled = true;
+                if (btnTexto) btnTexto.textContent = 'Generando imagen...';
+
+                await document.fonts.ready;
+
+                const imgMask = new Image();
+                imgMask.crossOrigin = 'anonymous';
+                await new Promise((resolve, reject) => {
+                    imgMask.onload = resolve;
+                    imgMask.onerror = reject;
+                    imgMask.src = RUTA_MASCARA_IMG;
+                });
+
+                const capasBorde = areaCaptura.querySelectorAll('.capa-borde');
+                const respaldosMask = [];
+
+                for (const borde of capasBorde) {
+                    const recuadro = borde.closest('.recuadro-partido');
+                    const colorEquipo = recuadro ? recuadro.style.getPropertyValue('--color-equipo') || '#00b0f0' : '#00b0f0';
+
+                    respaldosMask.push({
+                        element: borde,
+                        maskImage: borde.style.maskImage,
+                        webkitMaskImage: borde.style.webkitMaskImage,
+                        backgroundColor: borde.style.backgroundColor,
+                        backgroundImage: borde.style.backgroundImage
+                    });
+
+                    const canvasTemp = document.createElement('canvas');
+                    canvasTemp.width = imgMask.naturalWidth || 800;
+                    canvasTemp.height = imgMask.naturalHeight || 130;
+                    const ctxTemp = canvasTemp.getContext('2d');
+
+                    ctxTemp.drawImage(imgMask, 0, 0, canvasTemp.width, canvasTemp.height);
+                    ctxTemp.globalCompositeOperation = 'source-in';
+                    ctxTemp.fillStyle = colorEquipo;
+                    ctxTemp.fillRect(0, 0, canvasTemp.width, canvasTemp.height);
+
+                    const dataUrlTintada = canvasTemp.toDataURL('image/png');
+
+                    borde.style.webkitMaskImage = 'none';
+                    borde.style.maskImage = 'none';
+                    borde.style.backgroundImage = `url('${dataUrlTintada}')`;
+                    borde.style.backgroundSize = '100% 100%';
+                    borde.style.backgroundRepeat = 'no-repeat';
+                    borde.style.backgroundColor = 'transparent';
+                }
+
+                const canvas = await html2canvas(areaCaptura, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#000000',
+                    logging: false,
+                    onclone: (clonedDoc) => {
+                        clonedDoc.querySelectorAll('.no-captura').forEach(el => {
+                            el.style.display = 'none';
+                        });
+
+                        const clonedInput = clonedDoc.getElementById('headerInputCampoJuego');
+                        if (clonedInput) {
+                            const parent = clonedInput.parentElement;
+                            const textVal = clonedInput.value || '';
+                            const tempDiv = clonedDoc.createElement('div');
+                            tempDiv.className = clonedInput.className;
+                            tempDiv.textContent = textVal;
+                            tempDiv.style.lineHeight = 'normal';
+                            tempDiv.style.padding = '8px 0';
+                            tempDiv.style.margin = '0';
+                            tempDiv.style.boxSizing = 'border-box';
+                            tempDiv.style.display = 'block';
+                            tempDiv.style.overflow = 'visible';
+                            tempDiv.style.height = 'auto';
+                            parent.replaceChild(tempDiv, clonedInput);
+                        }
+                    }
+                });
+
+                respaldosMask.forEach(item => {
+                    item.element.style.backgroundImage = item.backgroundImage;
+                    item.element.style.maskImage = item.maskImage;
+                    item.element.style.webkitMaskImage = item.webkitMaskImage;
+                    item.element.style.backgroundColor = item.backgroundColor;
+                    item.element.style.backgroundSize = '';
+                    item.element.style.backgroundRepeat = '';
+                });
+
+                const link = document.createElement('a');
+                link.download = `Partidos_NVA_${new Date().toISOString().slice(0, 10)}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.92);
+                link.click();
+            } catch (err) {
+                console.error('Error al generar la captura JPG:', err);
+                alert('No se pudo generar la imagen. Inténtalo de nuevo.');
+            } finally {
+                if (btnCaptura) btnCaptura.disabled = false;
+                if (btnTexto) btnTexto.textContent = 'Descargar imagen';
+            }
+        }
+
+        function obtenerTextoLimpio(el) {
+            if (!el) return '';
+            let txt = el.textContent || '';
+            return txt.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+
+        function descargarBlobComoArchivo(blob, nombreArchivo) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nombreArchivo;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function guardarHistorico() {
+            const recuadros = document.querySelectorAll('#contenedorRecuadros .recuadro-partido');
+            if (recuadros.length === 0) {
+                alert('No hay partidos seleccionados para guardar.');
+                return;
+            }
+
+            const headerFechaEl = document.getElementById('headerTextoFecha');
+            const spanFecha = headerFechaEl ? headerFechaEl.querySelector('span') : null;
+            const fechaGeneral = spanFecha ? obtenerTextoLimpio(spanFecha) : '';
+
+            const headerCampoInput = document.getElementById('headerInputCampoJuego');
+            const campoGeneral = headerCampoInput ? headerCampoInput.value.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim() : '';
+
+            let bloqueTexto = `${fechaGeneral} | ${campoGeneral}\n`;
+
+            recuadros.forEach((rec) => {
+                const spanIzq = rec.querySelector('.area-equipo-izq .nombre-equipo');
+                const spanDer = rec.querySelector('.area-equipo-der .nombre-equipo');
+                
+                const equipoCasa = obtenerTextoLimpio(spanIzq);
+                const equipoRival = obtenerTextoLimpio(spanDer);
+
+                const spanHora = rec.querySelector('.area-info .contenedor-item-info .campo-editable-info');
+                let hora = obtenerTextoLimpio(spanHora);
+                if (hora.toUpperCase() === 'HORA') hora = '';
+
+                const tanteoIzqEl = rec.querySelector('.tanteo-izq');
+                const tanteoDerEl = rec.querySelector('.tanteo-der');
+                const tIzq = tanteoIzqEl ? obtenerTextoLimpio(tanteoIzqEl) : '0';
+                const tDer = tanteoDerEl ? obtenerTextoLimpio(tanteoDerEl) : '0';
+
+                const categoria = rec.getAttribute('data-categoria') || '';
+
+                bloqueTexto += `${equipoCasa} | ${equipoRival} | ${hora} | ${categoria} | ${tIzq} | ${tDer}\n`;
+            });
+
+            const blob = new Blob([bloqueTexto], { type: 'text/plain;charset=utf-8' });
+            descargarBlobComoArchivo(blob, 'Historico.txt');
+        }
+
+        function abrirExploradorCargarDatos() {
+            const input = document.getElementById('inputCargarDatos');
+            if (input) {
+                input.value = '';
+                input.click();
+            }
+        }
+
+        async function procesarArchivoDatos(files) {
+            if (!files || files.length === 0) return;
+
+            const file = files[0];
+            const btn = document.getElementById('btnCargarDatos');
+            const btnTexto = document.getElementById('btnCargarDatosTexto');
+
+            try {
+                if (btn) btn.disabled = true;
+                if (btnTexto) btnTexto.textContent = 'Cargando DATOS...';
+
+                const buffer = await file.arrayBuffer();
+                const contenido = decodificarTextoDatos(buffer);
+                await cargarDatosDesdeTexto(contenido);
+            } catch (error) {
+                console.error('Error al cargar el archivo TXT:', error);
+                alert(`No se pudo cargar el archivo TXT.\n\n${error.message || error}`);
+            } finally {
+                if (btn) btn.disabled = false;
+                if (btnTexto) btnTexto.textContent = 'Cargar DATOS';
+            }
+        }
+
+        function decodificarTextoDatos(buffer) {
+            const bytes = new Uint8Array(buffer);
+            const tieneUTF8BOM = bytes.length >= 3 && bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF;
+            const tieneUTF16LE = bytes.length >= 2 && bytes[0] === 0xFF && bytes[1] === 0xFE;
+            const tieneUTF16BE = bytes.length >= 2 && bytes[0] === 0xFE && bytes[1] === 0xFF;
+
+            if (tieneUTF16LE) return new TextDecoder('utf-16le').decode(bytes).replace(/^\uFEFF/, '');
+            if (tieneUTF16BE) return new TextDecoder('utf-16be').decode(bytes).replace(/^\uFEFF/, '');
+
+            try {
+                return new TextDecoder('utf-8', { fatal: true }).decode(bytes).replace(/^\uFEFF/, '');
+            } catch (_) {
+                return new TextDecoder('windows-1252').decode(bytes).replace(/^\uFEFF/, '');
+            }
+        }
+
+        async function cargarDatosDesdeTexto(contenido) {
+            if (!datosCargados) {
+                await cargarExcel();
+            }
+
+            const lineas = String(contenido || '').replace(/^\uFEFF/, '').split(/\r?\n/).map(l => normalizarTexto(l)).filter(l => l.length > 0);
+            if (lineas.length === 0) return;
+
+            const primeraLinea = lineas[0].split('|').map(s => s.trim());
+            const fechaStr = primeraLinea[0] || '';
+            const campoStr = primeraLinea[1] || '';
+
+            if (campoStr) {
+                const inputModal = document.getElementById('inputCampoJuego');
+                const inputHeader = document.getElementById('headerInputCampoJuego');
+                if (inputModal) inputModal.value = campoStr;
+                if (inputHeader) inputHeader.value = campoStr;
+            }
+
+            if (fechaStr) {
+                const elContenedor = document.getElementById('headerTextoFecha');
+                if (elContenedor) {
+                    elContenedor.innerHTML = `<span>${fechaStr}</span>`;
+                    autoAjustarTextoCabecera();
+                }
+            }
+
+            mapaDatosPartidos = {};
+
+            const lineasPartidos = lineas.slice(1);
+            const contenedor = document.getElementById('contenedorRecuadros');
+            if (contenedor) contenedor.innerHTML = '';
+
+            lineasPartidos.forEach((linea) => {
+                const partes = linea.split('|').map(s => s.trim());
+                if (partes.length < 2) return;
+
+                const eqCasaTxt = normalizarTexto(partes[0]);
+                const eqRivalTxt = normalizarTexto(partes[1]);
+                const horaTxt = normalizarTexto(partes[2]);
+                const catTxt = normalizarTexto(partes[3]);
+                const tIzqTxt = normalizarTexto(partes[4]) || '0';
+                const tDerTxt = normalizarTexto(partes[5]) || '0';
+
+                let matchIdx = -1;
+                let rol = 'casa';
+                const casaNorm = normalizarClave(eqCasaTxt);
+                const rivalNorm = normalizarClave(eqRivalTxt);
+                const catNorm = normalizarClave(catTxt);
+
+                if (catNorm) {
+                    matchIdx = listaEquiposGlobal.findIndex(e =>
+                        normalizarClave(e.CATEGORIA) === catNorm &&
+                        (normalizarClave(e.EQUIPO) === casaNorm || normalizarClave(e.EQUIPO) === rivalNorm)
+                    );
+                }
+
+                if (matchIdx === -1 && casaNorm) {
+                    matchIdx = listaEquiposGlobal.findIndex(e => normalizarClave(e.EQUIPO) === casaNorm);
+                    if (matchIdx !== -1) rol = 'casa';
+                }
+
+                if (matchIdx === -1 && rivalNorm) {
+                    matchIdx = listaEquiposGlobal.findIndex(e => normalizarClave(e.EQUIPO) === rivalNorm);
+                    if (matchIdx !== -1) rol = 'fuera';
+                }
+
+                if (matchIdx !== -1) {
+                    const eqNvaNombre = normalizarClave(listaEquiposGlobal[matchIdx].EQUIPO);
+                    if (casaNorm === eqNvaNombre) rol = 'casa';
+                    else if (rivalNorm === eqNvaNombre) rol = 'fuera';
+                }
+
+                if (matchIdx !== -1) {
+                    mapaDatosPartidos[matchIdx] = {
+                        rol: rol,
+                        hora: horaTxt
                     };
-                    container.appendChild(btn);
+
+                    const equipoBase = listaEquiposGlobal[matchIdx];
+                    const recuadro = crearRecuadroPartido(equipoBase, rol, horaTxt, matchIdx, tIzqTxt, tDerTxt);
+
+                    const spanIzq = recuadro.querySelector('.area-equipo-izq .nombre-equipo');
+                    const spanDer = recuadro.querySelector('.area-equipo-der .nombre-equipo');
+                    const imgLogoIzq = recuadro.querySelector('.logo-izq');
+                    const imgLogoDer = recuadro.querySelector('.logo-der');
+
+                    if (spanIzq && eqCasaTxt) {
+                        spanIzq.textContent = eqCasaTxt;
+                        spanIzq.classList.remove('vacio');
+                    }
+                    if (spanDer && eqRivalTxt) {
+                        spanDer.textContent = eqRivalTxt;
+                        spanDer.classList.remove('vacio');
+                    }
+
+                    let todosLosOtros = listaOtrosEquiposGlobal.length > 0 ? listaOtrosEquiposGlobal : listaEquiposGlobal;
+                    
+                    if (rol === 'casa') {
+                        const objRival = todosLosOtros.find(e => normalizarClave(e.EQUIPO) === normalizarClave(eqRivalTxt));
+                        if (objRival && imgLogoDer) {
+                            configurarLogo(imgLogoDer, objRival.LOGO, 'LOGOs/noescudo.png');
+                        }
+                    } else {
+                        const objRival = todosLosOtros.find(e => normalizarClave(e.EQUIPO) === normalizarClave(eqCasaTxt));
+                        if (objRival && imgLogoIzq) {
+                            configurarLogo(imgLogoIzq, objRival.LOGO, 'LOGOs/noescudo.png');
+                        }
+                    }
+
+                    contenedor.appendChild(recuadro);
+                }
+            });
+
+            renderizarTabla(listaEquiposGlobal);
+
+            setTimeout(() => {
+                document.querySelectorAll('.nombre-equipo, .campo-editable-info').forEach(span => {
+                    autoAjustarTextoSegunSuperficie(span);
+                });
+            }, 100);
+        }
+
+        function obtenerColoresNVAParaFotos() {
+            const colores = [];
+            const vistos = new Set();
+            const fuente = (Array.isArray(listaEquiposGlobal) && listaEquiposGlobal.length)
+                ? listaEquiposGlobal
+                : equiposRespaldo;
+
+            fuente.forEach(eq => {
+                const color = obtenerColorEquipo(eq);
+                if (!color) return;
+                const clave = String(color).trim().toLowerCase();
+                if (!vistos.has(clave)) {
+                    vistos.add(clave);
+                    colores.push(color);
+                }
+            });
+
+            return colores.slice(0, 2).length >= 2
+                ? colores.slice(0, 2)
+                : ['#c28b06', '#ccca20'];
+        }
+
+        function nombreColorFoto(color, indice) {
+            const mapa = {
+                '#c28b06': 'ENOVA INFANTIL',
+                '#ccca20': 'UP! SCHOOL INFANTIL',
+                '#e8cb73': 'JESSI ESPARZA INFANTIL',
+                '#b2267f': 'ENOVA CADETE',
+                '#b033af': 'UP! SCHOOL CADETE',
+                '#da71d9': 'JESSI ESPARZA CADETE',
+                '#7f1dbd': 'ESPAI LABORAL JUVENIL',
+                '#a01525': 'ENOVA SENIOR'
+            };
+            return mapa[color.toLowerCase()] || `COLOR NVA ${indice}`;
+        }
+
+        function poblarSelectoresColorFotos() {
+            const colores = obtenerColoresNVAParaFotos();
+
+            [1, 2].forEach(indice => {
+                const paleta = document.getElementById(`selectorColorFoto${indice}`);
+                const recuadro = document.getElementById(`fotoResultado${indice}`);
+                if (!paleta || !recuadro) return;
+
+                const actual = (recuadro.style.getPropertyValue('--foto-color') || '').trim().toLowerCase();
+                paleta.innerHTML = '';
+
+                colores.forEach((color, i) => {
+                    const boton = document.createElement('button');
+                    boton.type = 'button';
+                    boton.className = 'foto-color-muestra';
+                    boton.style.backgroundColor = color;
+                    boton.setAttribute('role', 'radio');
+                    boton.setAttribute('aria-label', nombreColorFoto(color, i + 1));
+                    boton.setAttribute('title', nombreColorFoto(color, i + 1));
+                    boton.setAttribute('aria-checked', String(color).toLowerCase() === actual ? 'true' : 'false');
+                    boton.tabIndex = String(color).toLowerCase() === actual ? 0 : -1;
+
+                    const seleccionar = (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        cambiarColorMarcoFoto(indice, color);
+                    };
+                    boton.addEventListener('pointerdown', seleccionar, { passive: false });
+                    boton.addEventListener('click', seleccionar);
+                    paleta.appendChild(boton);
                 });
             });
         }
 
-        // EXPORTAR E IMPORTAR HISTÓRICOS Y CAPTURAR IMAGEN
-        function capturarPaginaComoJPG() {
-            const btnCapturar = document.getElementById('btnCapturarPagina');
-            const textoOriginal = document.getElementById('btnCapturarTexto').textContent;
-            document.getElementById('btnCapturarTexto').textContent = 'Capturando...';
+        function alternarSelectorColorFoto(indice) {
+            const recuadro = document.getElementById(`fotoResultado${indice}`);
+            if (recuadro) {
+                recuadro.classList.toggle('mostrar-selector-color');
+            }
+        }
+
+        function cambiarColorMarcoFoto(indice, color) {
+            const recuadro = document.getElementById(`fotoResultado${indice}`);
+            if (recuadro) {
+                recuadro.style.setProperty('--foto-color', color);
+                recuadro.classList.remove('mostrar-selector-color');
+                poblarSelectoresColorFotos();
+            }
+        }
+
+        function activarCargaFoto(event, index) {
+            // Prevenir acción si se hace click sobre el botón de color o la paleta
+            if (event.target.closest('.foto-selector-color') || event.target.closest('.foto-boton-color')) {
+                return;
+            }
+            const input = document.getElementById(`inputFotoResultado${index}`);
+            if (input) {
+                input.click();
+            }
+        }
+
+        function procesarFotoResultado(index, files) {
+            if (!files || files.length === 0) return;
+            const file = files[0];
             
-            const area = document.getElementById('areaCaptura');
-            html2canvas(area, {
-                backgroundColor: '#000000',
-                scale: 2,
-                useCORS: true,
-                ignoreElements: (element) => element.classList && element.classList.contains('no-captura')
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = modoResultados ? 'Resultados.jpg' : 'Partidos.jpg';
-                link.href = canvas.toDataURL('image/jpeg', 0.9);
-                link.click();
-                document.getElementById('btnCapturarTexto').textContent = textoOriginal;
-            }).catch(err => {
-                console.error("Error al capturar:", err);
-                alert('Hubo un error al generar la imagen.');
-                document.getElementById('btnCapturarTexto').textContent = textoOriginal;
+            // Validar que sea imagen
+            if (!file.type.startsWith('image/')) return;
+
+            const recuadro = document.getElementById(`fotoResultado${index}`);
+            const img = document.getElementById(`imagenResultado${index}`);
+            
+            if (recuadro && img) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    img.src = e.target.result;
+                    recuadro.classList.add('has-image');
+                    // Reiniciar transformaciones al cargar nueva foto
+                    if (imgState[index - 1]) {
+                        imgState[index - 1].x = 0;
+                        imgState[index - 1].y = 0;
+                        imgState[index - 1].scale = 1;
+                        actualizarTransformacion(img, imgState[index - 1]);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // --- SISTEMA DE DRAG & ZOOM PARA LAS FOTOS ---
+        const imgState = [
+            { x: 0, y: 0, scale: 1, isDragging: false, startX: 0, startY: 0 }, // Foto 1
+            { x: 0, y: 0, scale: 1, isDragging: false, startX: 0, startY: 0 }  // Foto 2
+        ];
+
+        function actualizarTransformacion(img, state) {
+            img.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+        }
+
+        function inicializarDragAndZoom() {
+            [1, 2].forEach(indice => {
+                const img = document.getElementById(`imagenResultado${indice}`);
+                const recuadro = document.getElementById(`fotoResultado${indice}`);
+                if (!img || !recuadro) return;
+
+                const state = imgState[indice - 1];
+
+                // Iniciar arrastre
+                img.addEventListener('pointerdown', (e) => {
+                    if (!recuadro.classList.contains('has-image')) return;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    state.isDragging = true;
+                    state.startX = e.clientX - state.x;
+                    state.startY = e.clientY - state.y;
+                    img.style.cursor = 'grabbing';
+                    img.setPointerCapture(e.pointerId);
+                });
+
+                // Arrastrar
+                img.addEventListener('pointermove', (e) => {
+                    if (!state.isDragging) return;
+                    e.preventDefault();
+                    state.x = e.clientX - state.startX;
+                    state.y = e.clientY - state.startY;
+                    actualizarTransformacion(img, state);
+                });
+
+                // Terminar arrastre
+                const endDrag = (e) => {
+                    if (state.isDragging) {
+                        state.isDragging = false;
+                        img.style.cursor = 'grab';
+                        img.releasePointerCapture(e.pointerId);
+                    }
+                };
+                img.addEventListener('pointerup', endDrag);
+                img.addEventListener('pointercancel', endDrag);
+
+                // Zoom con la rueda del ratón
+                recuadro.addEventListener('wheel', (e) => {
+                    if (!recuadro.classList.contains('has-image')) return;
+                    e.preventDefault(); // Evitar scroll de la página
+                    const zoomSensitivity = 0.0015;
+                    state.scale += e.deltaY * -zoomSensitivity;
+                    state.scale = Math.min(Math.max(0.1, state.scale), 8); // Restringir entre 0.1x y 8x
+                    actualizarTransformacion(img, state);
+                }, { passive: false });
             });
         }
 
-        function guardarHistorico() {
-            const estado = {
-                mapaDatosPartidos,
-                headerFechaHtml: document.getElementById('headerTextoFecha').innerHTML,
-                campoJuego: document.getElementById('headerInputCampoJuego').value,
-                modoResultados
-            };
-            const data = JSON.stringify(estado, null, 2);
-            const blob = new Blob([data], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'historico_partidos.txt';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
+        document.addEventListener('DOMContentLoaded', inicializarDragAndZoom);
 
-        function abrirExploradorCargarDatos() {
-            document.getElementById('inputCargarDatos').click();
-        }
-
-        function procesarArchivoDatos(files) {
-            if (!files || files.length === 0) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const estado = JSON.parse(e.target.result);
-                    if (estado.mapaDatosPartidos) {
-                        mapaDatosPartidos = estado.mapaDatosPartidos;
-                        if(estado.headerFechaHtml) document.getElementById('headerTextoFecha').innerHTML = estado.headerFechaHtml;
-                        if(estado.campoJuego) document.getElementById('headerInputCampoJuego').value = estado.campoJuego;
-                        if(estado.modoResultados !== modoResultados) toggleModoPartidosResultados();
-                        confirmarSeleccion();
-                        alert('Datos cargados exitosamente.');
-                    }
-                } catch(err) {
-                    alert('Error al leer el archivo. Asegúrate de que sea un archivo de texto de histórico válido.');
-                }
-            };
-            reader.readAsText(files[0]);
-        }
     </script>
 </body>
 </html>
