@@ -1175,29 +1175,19 @@
             transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
         }
 
-        .foto-resultado:hover .foto-selector-color,
-        .foto-resultado:focus-within .foto-selector-color,
-        .foto-selector-color:hover {
+        /* La paleta permanece SIEMPRE cerrada hasta pulsar el botón PALETA. */
+        .foto-resultado .foto-selector-color {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-4px);
+            pointer-events: none;
+        }
+
+        .foto-resultado.mostrar-selector-color .foto-selector-color {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
-        }
-
-        /* En dispositivos táctiles la paleta permanece oculta hasta pulsar el marco. */
-        @media (hover: none), (pointer: coarse) {
-            .foto-resultado .foto-selector-color {
-                opacity: 0;
-                visibility: hidden;
-                transform: translateY(-4px);
-                pointer-events: none;
-            }
-
-            .foto-resultado.mostrar-selector-color .foto-selector-color {
-                opacity: 1;
-                visibility: visible;
-                transform: translateY(0);
-                pointer-events: auto;
-            }
+            pointer-events: auto;
         }
 
         .foto-paleta-colores {
@@ -1236,13 +1226,13 @@
             box-shadow: 0 0 0 2px var(--foto-color, #c28b06);
         }
 
-        /* Botón táctil para abrir/cerrar la paleta sin interferir con CARGAR/CAMBIAR FOTO. */
+        /* Botón PALETA: único elemento que abre/cierra el selector de colores. */
         .foto-boton-color {
             position: absolute;
             left: 8px;
             bottom: 8px;
             z-index: 31;
-            display: none;
+            display: block;
             width: 34px;
             height: 34px;
             padding: 0;
@@ -1257,9 +1247,6 @@
             touch-action: manipulation;
         }
 
-        @media (hover: none), (pointer: coarse) {
-            .foto-boton-color { display: block; }
-        }
 
         .foto-boton-cambiar {
             position: absolute;
@@ -1294,19 +1281,6 @@
                 flex: none;
                 aspect-ratio: 16 / 9;
                 border-width: 6px;
-            }
-
-            .foto-selector-color {
-                opacity: 0;
-                visibility: hidden;
-                transform: translateY(-4px);
-            }
-
-            .foto-resultado.mostrar-selector-color .foto-selector-color {
-                opacity: 1;
-                visibility: visible;
-                transform: none;
-                pointer-events: auto;
             }
 
             .foto-boton-cambiar {
