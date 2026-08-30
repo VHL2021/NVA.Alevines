@@ -1587,6 +1587,13 @@
         let contadorModalesAbiertos = 0;
         let scrollYAntesDelModal = 0;
 
+        // ---------------------------------------------------------------------
+        // NORMALIZACIÓN Y CARGA DE DATOS
+        // ---------------------------------------------------------------------
+        // Los archivos Excel/CSV suelen llegar con BOM, espacios, acentos o
+        // encabezados ligeramente diferentes. Centralizamos aquí la limpieza
+        // para que equipos, rivales, logos y colores utilicen siempre el mismo
+        // formato interno.
         function normalizarTexto(valor) {
             return String(valor ?? '')
                 .replace(/^\uFEFF/, '')
@@ -1644,6 +1651,12 @@
                 .filter(eq => eq.EQUIPO || eq.CATEGORIA || eq.LOGO);
         }
 
+        // Convierte nombres de logo procedentes del Excel a una ruta válida.
+        // Si el Excel no incluye extensión, se usa .png como extensión principal.
+        // Admite: "Equipo", "Equipo.png", "LOGOs/Equipo.png" y LOGOs\\Equipo.png.
+        // Los nombres de la columna LOGO de DATOS.xls son exactamente el nombre
+        // base del archivo que existe dentro de LOGOs.
+        // Ejemplo: "Alevi Negro NVA" -> "LOGOs/Alevi Negro NVA.png".
         function obtenerRutaLogo(nombreLogo) {
             let nombre = normalizarTexto(nombreLogo);
             if (!nombre) return 'LOGOs/noescudo.png';
@@ -1651,11 +1664,19 @@
             nombre = nombre.replace(/\\/g, '/');
             nombre = nombre.split('/').pop().trim();
 
+            // El valor puede llegar aquí directamente desde Excel (texto normal)
+            // o puede llegar como una ruta ya codificada desde otra función.
+            // Si ya contiene %20, primero la decodificamos para evitar %2520.
             try {
                 nombre = decodeURIComponent(nombre);
-            } catch (e) {}
+            } catch (e) {
+                // Si contiene un porcentaje no válido, conservamos el texto original.
+            }
 
             nombre = nombre.replace(/\.png$/i, '');
+
+            // Los nombres de la primera columna de DATOS.xls son la base del PNG.
+            // Una sola codificación convierte los espacios en %20.
             return `LOGOs/${encodeURIComponent(nombre)}.png`;
         }
 
@@ -1781,6 +1802,7 @@
         }
 
         let mapaDatosPartidos = {};
+
         const meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 
         let calFechaVista = new Date();
@@ -2047,7 +2069,7 @@
                 const sheetOtros = buscarHoja('OTROS Equipos');
 
                 if (!sheetEquipos) {
-                    throw new Error(`No existe la hoja "Equipos NVA".`);
+                    throw new Error(`No existe la hoja "Equipos NVA". Hojas encontradas: ${(workbookGlobal.SheetNames || []).join(', ') || 'ninguna'}.`);
                 }
 
                 listaEquiposGlobal = normalizarListaEquipos(XLSX.utils.sheet_to_json(sheetEquipos, { defval: '' }));
@@ -2063,7 +2085,7 @@
                 poblarSelectoresColorFotos();
                 datosCargados = true;
                 ocultarErrorCargaDatos();
-                console.info(`DATOS.xls cargado correctamente.`);
+                console.info(`DATOS.xls cargado correctamente: ${listaEquiposGlobal.length} equipos NVA.`);
             } catch (error) {
                 listaEquiposGlobal = [];
                 listaOtrosEquiposGlobal = [];
@@ -2495,6 +2517,7 @@
 
                 await document.fonts.ready;
 
+                // Cargar la imagen de la máscara original una sola vez para reutilizarla
                 const imgMask = new Image();
                 imgMask.crossOrigin = 'anonymous';
                 await new Promise((resolve, reject) => {
@@ -2518,6 +2541,7 @@
                         backgroundImage: borde.style.backgroundImage
                     });
 
+                    // Crear un canvas auxiliar para tintar la máscara con el color del equipo
                     const canvasTemp = document.createElement('canvas');
                     canvasTemp.width = imgMask.naturalWidth || 800;
                     canvasTemp.height = imgMask.naturalHeight || 130;
@@ -2530,6 +2554,7 @@
 
                     const dataUrlTintada = canvasTemp.toDataURL('image/png');
 
+                    // Aplicar la imagen tintada directamente como fondo para que html2canvas la renderice sin problemas
                     borde.style.webkitMaskImage = 'none';
                     borde.style.maskImage = 'none';
                     borde.style.backgroundImage = `url('${dataUrlTintada}')`;
@@ -2545,6 +2570,7 @@
                     backgroundColor: '#000000',
                     logging: false,
                     onclone: (clonedDoc) => {
+                        // Los controles de edición no deben aparecer en el JPG.
                         clonedDoc.querySelectorAll('.no-captura').forEach(el => {
                             el.style.display = 'none';
                         });
@@ -2568,6 +2594,7 @@
                     }
                 });
 
+                // Restaurar los estilos originales de las capas
                 respaldosMask.forEach(item => {
                     item.element.style.backgroundImage = item.backgroundImage;
                     item.element.style.maskImage = item.maskImage;
@@ -2667,6 +2694,8 @@
                 if (btn) btn.disabled = true;
                 if (btnTexto) btnTexto.textContent = 'Cargando DATOS...';
 
+                // Leemos como bytes para detectar correctamente UTF-8 con BOM y
+                // archivos TXT antiguos guardados como Windows-1252/ANSI.
                 const buffer = await file.arrayBuffer();
                 const contenido = decodificarTextoDatos(buffer);
                 await cargarDatosDesdeTexto(contenido);
@@ -2688,6 +2717,7 @@
             if (tieneUTF16LE) return new TextDecoder('utf-16le').decode(bytes).replace(/^\uFEFF/, '');
             if (tieneUTF16BE) return new TextDecoder('utf-16be').decode(bytes).replace(/^\uFEFF/, '');
 
+            // UTF-8 es el formato preferido. Si no es válido, probamos Windows-1252.
             try {
                 return new TextDecoder('utf-8', { fatal: true }).decode(bytes).replace(/^\uFEFF/, '');
             } catch (_) {
@@ -2722,6 +2752,7 @@
                 }
             }
 
+            // Limpiamos selección previa
             mapaDatosPartidos = {};
 
             const lineasPartidos = lineas.slice(1);
@@ -2745,6 +2776,9 @@
                 const rivalNorm = normalizarClave(eqRivalTxt);
                 const catNorm = normalizarClave(catTxt);
 
+                // 1) Prioridad máxima: equipo + categoría. Esto evita que, cuando
+                // existen varios equipos con el mismo nombre, se seleccione otro
+                // equipo de una categoría diferente.
                 if (catNorm) {
                     matchIdx = listaEquiposGlobal.findIndex(e =>
                         normalizarClave(e.CATEGORIA) === catNorm &&
@@ -2752,6 +2786,7 @@
                     );
                 }
 
+                // 2) Buscar por nombre exacto normalizado.
                 if (matchIdx === -1 && casaNorm) {
                     matchIdx = listaEquiposGlobal.findIndex(e => normalizarClave(e.EQUIPO) === casaNorm);
                     if (matchIdx !== -1) rol = 'casa';
@@ -2762,6 +2797,7 @@
                     if (matchIdx !== -1) rol = 'fuera';
                 }
 
+                // Determinar el lado que ocupa el equipo NVA.
                 if (matchIdx !== -1) {
                     const eqNvaNombre = normalizarClave(listaEquiposGlobal[matchIdx].EQUIPO);
                     if (casaNorm === eqNvaNombre) rol = 'casa';
@@ -2769,6 +2805,7 @@
                 }
 
                 if (matchIdx !== -1) {
+                    // Guardar los valores como si se hubieran seleccionado manualmente en el modal
                     mapaDatosPartidos[matchIdx] = {
                         rol: rol,
                         hora: horaTxt
@@ -2809,6 +2846,7 @@
                 }
             });
 
+            // Re-renderizamos la tabla interna del modal para reflejar las selecciones realizadas al cargar
             renderizarTabla(listaEquiposGlobal);
 
             setTimeout(() => {
@@ -2818,6 +2856,12 @@
             }, 100);
         }
 
+        // ---------------------------------------------------------------------
+        // FOTOGRAFÍAS DEL MODO RESULTADOS
+        // ---------------------------------------------------------------------
+        // Los colores disponibles se obtienen de los equipos NVA cargados desde
+        // DATOS.xls. Mientras el archivo no esté disponible se usan los colores
+        // definidos en equiposRespaldo.
         function obtenerColoresNVAParaFotos() {
             const colores = [];
             const vistos = new Set();
@@ -2835,6 +2879,7 @@
                 }
             });
 
+            // Siempre debe existir una paleta funcional con los dos primeros colores.
             return colores.slice(0, 2).length >= 2
                 ? colores.slice(0, 2)
                 : ['#c28b06', '#ccca20'];
@@ -2897,115 +2942,144 @@
 
         function cambiarColorMarcoFoto(indice, color) {
             const recuadro = document.getElementById(`fotoResultado${indice}`);
+            const paleta = document.getElementById(`selectorColorFoto${indice}`);
             if (recuadro) {
                 recuadro.style.setProperty('--foto-color', color);
                 recuadro.classList.remove('mostrar-selector-color');
-                poblarSelectoresColorFotos();
+            }
+            if (paleta) {
+                const botones = paleta.querySelectorAll('.foto-color-muestra');
+                botones.forEach(btn => {
+                    btn.setAttribute('aria-checked', btn.style.backgroundColor === color || btn.style.backgroundColor === hexToRgb(color) ? 'true' : 'false');
+                    btn.tabIndex = btn.style.backgroundColor === color || btn.style.backgroundColor === hexToRgb(color) ? 0 : -1;
+                });
             }
         }
 
-        function activarCargaFoto(event, index) {
-            // Prevenir acción si se hace click sobre el botón de color o la paleta
-            if (event.target.closest('.foto-selector-color') || event.target.closest('.foto-boton-color')) {
-                return;
-            }
-            const input = document.getElementById(`inputFotoResultado${index}`);
-            if (input) {
-                input.click();
-            }
+        function hexToRgb(hex) {
+            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})` : hex;
         }
 
-        function procesarFotoResultado(index, files) {
+        function activarCargaFoto(event, num) {
+            if(event) event.stopPropagation();
+            const input = document.getElementById(`inputFotoResultado${num}`);
+            if (input) input.click();
+        }
+
+        function procesarFotoResultado(num, files) {
             if (!files || files.length === 0) return;
             const file = files[0];
-            
-            // Validar que sea imagen
             if (!file.type.startsWith('image/')) return;
-
-            const recuadro = document.getElementById(`fotoResultado${index}`);
-            const img = document.getElementById(`imagenResultado${index}`);
             
-            if (recuadro && img) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById(`imagenResultado${num}`);
+                const contenedor = document.getElementById(`fotoResultado${num}`);
+                if (img && contenedor) {
                     img.src = e.target.result;
-                    recuadro.classList.add('has-image');
-                    // Reiniciar transformaciones al cargar nueva foto
-                    if (imgState[index - 1]) {
-                        imgState[index - 1].x = 0;
-                        imgState[index - 1].y = 0;
-                        imgState[index - 1].scale = 1;
-                        actualizarTransformacion(img, imgState[index - 1]);
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
+                    contenedor.classList.add('has-image');
+                    
+                    // Resetea cualquier transform previa (zoom/pan)
+                    img.style.transform = 'translate(0px, 0px) scale(1)';
+                    img.dataset.scale = 1;
+                    img.dataset.translateX = 0;
+                    img.dataset.translateY = 0;
+                }
+            };
+            reader.readAsDataURL(file);
         }
 
-        // --- SISTEMA DE DRAG & ZOOM PARA LAS FOTOS ---
-        const imgState = [
-            { x: 0, y: 0, scale: 1, isDragging: false, startX: 0, startY: 0 }, // Foto 1
-            { x: 0, y: 0, scale: 1, isDragging: false, startX: 0, startY: 0 }  // Foto 2
-        ];
+        // ---------------------------------------------------------------------
+        // LÓGICA DE MOVIMIENTO Y ZOOM PARA LAS FOTOS
+        // ---------------------------------------------------------------------
+        document.querySelectorAll('.foto-resultado img').forEach(img => {
+            let isDragging = false;
+            let startX, startY;
+            let currentX = 0, currentY = 0;
+            let scale = 1;
+            
+            img.dataset.scale = 1;
+            img.dataset.translateX = 0;
+            img.dataset.translateY = 0;
 
-        function actualizarTransformacion(img, state) {
-            img.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
-        }
+            const updateTransform = () => {
+                img.style.transform = `translate(${currentX}px, ${currentY}px) scale(${scale})`;
+                img.dataset.translateX = currentX;
+                img.dataset.translateY = currentY;
+                img.dataset.scale = scale;
+            };
 
-        function inicializarDragAndZoom() {
-            [1, 2].forEach(indice => {
-                const img = document.getElementById(`imagenResultado${indice}`);
-                const recuadro = document.getElementById(`fotoResultado${indice}`);
-                if (!img || !recuadro) return;
-
-                const state = imgState[indice - 1];
-
-                // Iniciar arrastre
-                img.addEventListener('pointerdown', (e) => {
-                    if (!recuadro.classList.contains('has-image')) return;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    state.isDragging = true;
-                    state.startX = e.clientX - state.x;
-                    state.startY = e.clientY - state.y;
-                    img.style.cursor = 'grabbing';
-                    img.setPointerCapture(e.pointerId);
-                });
-
-                // Arrastrar
-                img.addEventListener('pointermove', (e) => {
-                    if (!state.isDragging) return;
-                    e.preventDefault();
-                    state.x = e.clientX - state.startX;
-                    state.y = e.clientY - state.startY;
-                    actualizarTransformacion(img, state);
-                });
-
-                // Terminar arrastre
-                const endDrag = (e) => {
-                    if (state.isDragging) {
-                        state.isDragging = false;
-                        img.style.cursor = 'grab';
-                        img.releasePointerCapture(e.pointerId);
-                    }
-                };
-                img.addEventListener('pointerup', endDrag);
-                img.addEventListener('pointercancel', endDrag);
-
-                // Zoom con la rueda del ratón
-                recuadro.addEventListener('wheel', (e) => {
-                    if (!recuadro.classList.contains('has-image')) return;
-                    e.preventDefault(); // Evitar scroll de la página
-                    const zoomSensitivity = 0.0015;
-                    state.scale += e.deltaY * -zoomSensitivity;
-                    state.scale = Math.min(Math.max(0.1, state.scale), 8); // Restringir entre 0.1x y 8x
-                    actualizarTransformacion(img, state);
-                }, { passive: false });
+            img.addEventListener('mousedown', e => {
+                isDragging = true;
+                startX = e.clientX - currentX;
+                startY = e.clientY - currentY;
+                e.preventDefault();
             });
-        }
 
-        document.addEventListener('DOMContentLoaded', inicializarDragAndZoom);
+            window.addEventListener('mousemove', e => {
+                if (!isDragging) return;
+                currentX = e.clientX - startX;
+                currentY = e.clientY - startY;
+                updateTransform();
+            });
 
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            
+            img.addEventListener('wheel', e => {
+                e.preventDefault();
+                const scaleAmount = 0.1;
+                if (e.deltaY < 0) {
+                    scale += scaleAmount;
+                } else {
+                    scale -= scaleAmount;
+                }
+                scale = Math.max(0.1, scale);
+                updateTransform();
+            });
+
+            // Soporte para gestos táctiles (zoom y desplazamiento)
+            let initialDistance = 0;
+            let initialScale = 1;
+
+            img.addEventListener('touchstart', e => {
+                if (e.touches.length === 1) {
+                    isDragging = true;
+                    startX = e.touches[0].clientX - currentX;
+                    startY = e.touches[0].clientY - currentY;
+                } else if (e.touches.length === 2) {
+                    isDragging = false;
+                    initialDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    initialScale = scale;
+                }
+            });
+
+            img.addEventListener('touchmove', e => {
+                if (e.touches.length === 1 && isDragging) {
+                    currentX = e.touches[0].clientX - startX;
+                    currentY = e.touches[0].clientY - startY;
+                    updateTransform();
+                } else if (e.touches.length === 2) {
+                    const distance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    scale = initialScale * (distance / initialDistance);
+                    scale = Math.max(0.1, scale);
+                    updateTransform();
+                }
+            });
+
+            img.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+        });
+        
     </script>
 </body>
 </html>
