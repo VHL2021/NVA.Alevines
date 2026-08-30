@@ -1161,37 +1161,40 @@
             opacity: .8;
         }
 
+        /* Selector de color: permanece cerrado hasta pulsar el botón PALETA. */
         .foto-selector-color {
             position: absolute;
             top: 0;
             left: 0;
             z-index: 30;
             display: flex;
+            flex-direction: column;
             align-items: flex-start;
+            gap: 5px;
             padding: 7px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-4px);
-            transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
         }
 
-        /* La paleta permanece SIEMPRE cerrada hasta pulsar el botón PALETA. */
-        .foto-resultado .foto-selector-color {
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-4px);
-            pointer-events: none;
+        .foto-boton-color {
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 1px solid rgba(255,255,255,.65);
+            border-radius: 6px;
+            background: rgba(0,0,0,.78);
+            color: #fff;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            touch-action: manipulation;
         }
 
-        .foto-resultado.mostrar-selector-color .foto-selector-color {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-            pointer-events: auto;
+        .foto-boton-color:active {
+            transform: scale(.94);
         }
 
+        /* La paleta solo se muestra cuando el usuario la abre expresamente. */
         .foto-paleta-colores {
-            display: flex;
+            display: none;
             flex-wrap: wrap;
             gap: 5px;
             max-width: 190px;
@@ -1200,6 +1203,10 @@
             border-radius: 6px;
             background: rgba(0,0,0,.88);
             box-shadow: 0 3px 10px rgba(0,0,0,.5);
+        }
+
+        .foto-resultado.mostrar-selector-color .foto-paleta-colores {
+            display: flex;
         }
 
         .foto-color-muestra {
@@ -1213,40 +1220,21 @@
             outline: none;
             box-sizing: border-box;
             transition: transform .12s ease, border-color .12s ease;
+            touch-action: manipulation;
         }
 
-        .foto-color-muestra:hover,
-        .foto-color-muestra:focus-visible {
-            transform: scale(1.15);
-            border-color: #fff;
+        @media (hover: hover) and (pointer: fine) {
+            .foto-color-muestra:hover,
+            .foto-color-muestra:focus-visible {
+                transform: scale(1.15);
+                border-color: #fff;
+            }
         }
 
         .foto-color-muestra[aria-checked="true"] {
             border: 3px solid #fff;
             box-shadow: 0 0 0 2px var(--foto-color, #c28b06);
         }
-
-        /* Botón PALETA: único elemento que abre/cierra el selector de colores. */
-        .foto-boton-color {
-            position: absolute;
-            left: 8px;
-            bottom: 8px;
-            z-index: 31;
-            display: block;
-            width: 34px;
-            height: 34px;
-            padding: 0;
-            border: 1px solid rgba(255,255,255,.65);
-            border-radius: 50%;
-            background: rgba(0,0,0,.72);
-            color: #fff;
-            font-size: 18px;
-            line-height: 32px;
-            text-align: center;
-            cursor: pointer;
-            touch-action: manipulation;
-        }
-
 
         .foto-boton-cambiar {
             position: absolute;
@@ -1261,6 +1249,7 @@
             color: #fff;
             font: 700 .75rem Arial, sans-serif;
             cursor: pointer;
+            touch-action: manipulation;
         }
 
         .foto-resultado.has-image:hover .foto-boton-cambiar,
@@ -1287,7 +1276,6 @@
                 display: block;
             }
         }
-
 
         .sr-only {
             position:absolute !important;
@@ -1331,9 +1319,9 @@
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();activarCargaFoto(event,1);}">
                 <div class="foto-selector-color no-captura" onclick="event.stopPropagation()">
                     <span class="foto-colores-label sr-only">Color del marco de la primera fotografía</span>
+                    <button type="button" class="foto-boton-color" aria-label="Elegir color del marco de la primera fotografía" title="Elegir color" onclick="event.preventDefault(); event.stopPropagation(); alternarSelectorColorFoto(1)">🎨</button>
                     <div id="selectorColorFoto1" class="foto-paleta-colores" role="radiogroup" aria-label="Color del marco de la primera fotografía"></div>
                 </div>
-                <button type="button" class="foto-boton-color no-captura" aria-label="Elegir color del marco de la primera fotografía" title="Elegir color" onclick="event.preventDefault(); event.stopPropagation(); alternarSelectorColorFoto(1)">🎨</button>
                 <img id="imagenResultado1" alt="Primera fotografía del resultado">
                 <div class="foto-resultado-placeholder">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
@@ -1355,9 +1343,9 @@
                  onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();activarCargaFoto(event,2);}">
                 <div class="foto-selector-color no-captura" onclick="event.stopPropagation()">
                     <span class="foto-colores-label sr-only">Color del marco de la segunda fotografía</span>
+                    <button type="button" class="foto-boton-color" aria-label="Elegir color del marco de la segunda fotografía" title="Elegir color" onclick="event.preventDefault(); event.stopPropagation(); alternarSelectorColorFoto(2)">🎨</button>
                     <div id="selectorColorFoto2" class="foto-paleta-colores" role="radiogroup" aria-label="Color del marco de la segunda fotografía"></div>
                 </div>
-                <button type="button" class="foto-boton-color no-captura" aria-label="Elegir color del marco de la segunda fotografía" title="Elegir color" onclick="event.preventDefault(); event.stopPropagation(); alternarSelectorColorFoto(2)">🎨</button>
                 <img id="imagenResultado2" alt="Segunda fotografía del resultado">
                 <div class="foto-resultado-placeholder">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
@@ -2936,16 +2924,19 @@
             });
         }
 
-        function alternarSelectorColorFoto(indice) {
-            const recuadro = document.getElementById(`fotoResultado${indice}`);
-            if (!recuadro) return;
-            recuadro.classList.toggle('mostrar-selector-color');
-        }
-
         function cambiarColorMarcoFoto(indice, color) {
             const recuadro = document.getElementById(`fotoResultado${indice}`);
             if (!recuadro || !color) return;
             recuadro.style.setProperty('--foto-color', color);
+            const colorNormalizado = String(color).trim().toLowerCase();
+            const paleta = document.getElementById(`selectorColorFoto${indice}`);
+            if (paleta) {
+                paleta.querySelectorAll('.foto-color-muestra').forEach(boton => {
+                    const seleccionado = String(boton.style.backgroundColor || '').trim().toLowerCase() === colorNormalizado;
+                    boton.setAttribute('aria-checked', seleccionado ? 'true' : 'false');
+                    boton.tabIndex = seleccionado ? 0 : -1;
+                });
+            }
             recuadro.classList.remove('mostrar-selector-color');
         }
 
@@ -3101,26 +3092,20 @@
         }
 
         function activarCargaFoto(event, indice) {
-            const recuadro = document.getElementById(`fotoResultado${indice}`);
-
-            /* Los controles internos tienen su propia función.
-               IMPORTANTE: el botón CAMBIAR FOTO también llama a esta función,
-               por lo que NO debemos bloquearlo aquí. */
-            if (event && event.target &&
-                event.target.closest('.foto-selector-color, .foto-boton-color, img')) {
-                return;
-            }
-
-            /* Tanto con ratón como con táctil, el marco y CAMBIAR FOTO abren
-               directamente el selector de archivos. */
             const input = document.getElementById(`inputFotoResultado${indice}`);
-            if (input) {
-                if (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                input.click();
+            if (!input) return;
+
+            // Esta función solo se encarga de abrir el selector de archivos.
+            // La paleta de colores tiene su propio botón y nunca debe interceptar
+            // la carga de fotografías.
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
             }
+
+            // Permite volver a elegir exactamente el mismo archivo.
+            input.value = '';
+            input.click();
         }
 
         function procesarFotoResultado(indice, archivos) {
