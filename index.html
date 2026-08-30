@@ -1236,6 +1236,31 @@
             box-shadow: 0 0 0 2px var(--foto-color, #c28b06);
         }
 
+        /* Botón táctil para abrir/cerrar la paleta sin interferir con CARGAR/CAMBIAR FOTO. */
+        .foto-boton-color {
+            position: absolute;
+            left: 8px;
+            bottom: 8px;
+            z-index: 31;
+            display: none;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 1px solid rgba(255,255,255,.65);
+            border-radius: 50%;
+            background: rgba(0,0,0,.72);
+            color: #fff;
+            font-size: 18px;
+            line-height: 32px;
+            text-align: center;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        @media (hover: none), (pointer: coarse) {
+            .foto-boton-color { display: block; }
+        }
+
         .foto-boton-cambiar {
             position: absolute;
             right: 8px;
@@ -1334,6 +1359,7 @@
                     <span class="foto-colores-label sr-only">Color del marco de la primera fotografía</span>
                     <div id="selectorColorFoto1" class="foto-paleta-colores" role="radiogroup" aria-label="Color del marco de la primera fotografía"></div>
                 </div>
+                <button type="button" class="foto-boton-color no-captura" aria-label="Elegir color del marco de la primera fotografía" title="Elegir color" onclick="event.preventDefault(); event.stopPropagation(); alternarSelectorColorFoto(1)">🎨</button>
                 <img id="imagenResultado1" alt="Primera fotografía del resultado">
                 <div class="foto-resultado-placeholder">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
@@ -1357,6 +1383,7 @@
                     <span class="foto-colores-label sr-only">Color del marco de la segunda fotografía</span>
                     <div id="selectorColorFoto2" class="foto-paleta-colores" role="radiogroup" aria-label="Color del marco de la segunda fotografía"></div>
                 </div>
+                <button type="button" class="foto-boton-color no-captura" aria-label="Elegir color del marco de la segunda fotografía" title="Elegir color" onclick="event.preventDefault(); event.stopPropagation(); alternarSelectorColorFoto(2)">🎨</button>
                 <img id="imagenResultado2" alt="Segunda fotografía del resultado">
                 <div class="foto-resultado-placeholder">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
@@ -2935,6 +2962,12 @@
             });
         }
 
+        function alternarSelectorColorFoto(indice) {
+            const recuadro = document.getElementById(`fotoResultado${indice}`);
+            if (!recuadro) return;
+            recuadro.classList.toggle('mostrar-selector-color');
+        }
+
         function cambiarColorMarcoFoto(indice, color) {
             const recuadro = document.getElementById(`fotoResultado${indice}`);
             if (!recuadro || !color) return;
@@ -3096,16 +3129,19 @@
         function activarCargaFoto(event, indice) {
             const recuadro = document.getElementById(`fotoResultado${indice}`);
 
+            /* Los controles internos tienen su propia función.
+               IMPORTANTE: el botón CAMBIAR FOTO también llama a esta función,
+               por lo que NO debemos bloquearlo aquí. */
             if (event && event.target &&
-                event.target.closest('.foto-selector-color, .foto-boton-cambiar, img')) {
+                event.target.closest('.foto-selector-color, .foto-boton-color, img')) {
                 return;
             }
 
-            /* En dispositivos táctiles, tocar el recuadro debe abrir el selector
-               de archivos. La paleta de colores se mantiene como control independiente. */
+            /* Tanto con ratón como con táctil, el marco y CAMBIAR FOTO abren
+               directamente el selector de archivos. */
             const input = document.getElementById(`inputFotoResultado${indice}`);
             if (input) {
-                if (event && (event.pointerType === 'touch' || event.pointerType === 'pen')) {
+                if (event) {
                     event.preventDefault();
                     event.stopPropagation();
                 }
